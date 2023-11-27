@@ -1,0 +1,6 @@
+$main-color: #1890ff;
+$primaryColor: var(--primary-color);
+$opacityColor: var(--opacity-color);
+:export {
+  mainColor: $main-color;
+}
