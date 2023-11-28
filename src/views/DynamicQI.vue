@@ -17,7 +17,23 @@
       </div>
     </div>
     <div class="chart-box">
-      <div id="QAChart" style="height: 100%"></div>
+      <div class="toolbar">
+        <button
+          :class="[currentTab == 2 ? 'button-base' : 'button-selected']"
+          @click="(e) => onChangeTab(1)"
+        >
+          <span>工段实时QI</span>
+        </button>
+        <button
+          :class="[currentTab == 1 ? 'button-base' : 'button-selected']"
+          @click="(e) => onChangeTab(2)"
+        >
+          <span>生产批次QI</span>
+        </button>
+      </div>
+      <div class="chart-contain">
+        <div id="QAChart" style="height: 100%"></div>
+      </div>
     </div>
   </main>
 </template>
@@ -27,6 +43,7 @@ import * as echarts from "echarts";
 import { ref, onMounted, reactive } from "vue";
 let echart = echarts;
 const buttonTitles = ["一润", "二润", "打叶", "叶加酶", "叶复烤", "叶打包"];
+let currentTab = ref(1);
 onMounted(() => {
   setTimeout(() => {
     initCharts();
@@ -41,6 +58,10 @@ const reloadCharts = () => {
   myChart.resize();
 };
 
+const onChangeTab = (tab) => {
+  currentTab.value = tab;
+  console.log(tab, currentTab.value);
+};
 // 获取鼠标相对于元素的位置
 function getMousePosition(event, element) {
   var rect = element.getBoundingClientRect();
@@ -51,26 +72,30 @@ function getMousePosition(event, element) {
 }
 
 const initCharts = () => {
-  // // 示例用法
-  // var element = document.getElementById("myElement");
-  // element.addEventListener("mousemove", function (event) {
-  //   var position = getMousePosition(event, element);
-  //   console.log("鼠标相对于元素的位置：", position);
-  // });
   const option = {
     xAxis: {
-      boundaryGap: ["150%", "10%"],
+      boundaryGap: ["10%", "10%"],
       type: "category",
       axisTick: { inside: true },
+      splitNumber: 12,
+      axisLine: {
+        lineStyle: {
+          color: "#4471A4",
+        },
+      },
       data: [
-        "0:00",
-        "3:00",
-        "6:00",
-        "9:00",
-        "12:00",
-        "15:00",
-        "18:00",
-        "21:00",
+        " 00:00",
+        " 02:00",
+        " 04:00",
+        " 06:00",
+        " 08:00",
+        " 10:00",
+        " 12:00",
+        " 14:00",
+        " 16:00",
+        " 18:00",
+        " 20:00",
+        " 22:00",
       ],
     },
     yAxis: {
@@ -80,45 +105,47 @@ const initCharts = () => {
       splitNumber: 10,
       axisLabel: {
         formatter: "{value} ",
-        color: "#999",
+        color: "#93DCFE",
         fontSize: 11,
       },
-      // minInterval: 1,
+      // 刻度设置
       axisTick: {
-        // 刻度设置
         show: false, // 是否显示刻度
         alignWithLabel: true,
       },
       axisLine: {
-        // 轴线设置
-        show: false, // 是否显示坐标轴轴线
+        show: true,
+        lineStyle: {
+          color: "#4471A4",
+        },
       },
-      splitLine: { lineStyle: { color: "#8eeeff18" } },
+      splitLine: { lineStyle: { color: "#8EEEFF10" } },
     },
     grid: {
       // 整体表格布局
       left: 10,
-      top: 20,
+      top: 50,
       right: 20,
       bottom: 0,
       containLabel: true,
     },
     series: [
       {
-        data: [85, 88, 89, 90, 82, 96, 96, 98, 79],
+        data: [85, 88, 89, 90, 82, 96, 96, 98, 79, 96, 98, 79],
         type: "line",
         smooth: false,
         showSymbol: true,
         symbol: "circle",
+        symbolSize: 8,
         label: {
           position: "top",
           show: true,
-          color: "#00f6ff",
+          color: "#93DCFE",
           fontSize: 12,
         },
         lineStyle: {
           width: 1,
-          color: "#00F6FF",
+          color: "#93DCFE",
         },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -127,9 +154,10 @@ const initCharts = () => {
           ]),
         },
         itemStyle: {
-          color: "#ffffff00",
-          borderColor: "#71df6f", //拐点边框颜色
+          color: "#04112C",
+          borderColor: "#71D9EB", //拐点边框颜色
           borderWidth: 1, //拐点边框大小
+          opacity: 0.9,
         },
       },
     ],
@@ -150,10 +178,41 @@ main {
 
   .chart-box {
     flex: 1;
+    padding: 20px;
+    margin: 20px 70px;
+    border: 1px solid #497ba0;
+    .toolbar {
+      display: flex;
+      font-size: 14px;
+      .button-base {
+        color: #3383c8;
+        cursor: pointer;
+        border: none;
+        padding: 2px 15px;
+        background: center center / 100% 100% no-repeat
+          url("@/assets/icon-diamond.png");
+      }
+      .button-selected {
+        cursor: pointer;
+        color: #fff;
+        border: none;
+        padding: 2px 15px;
+        background: center center / 100% 100% no-repeat
+          url("@/assets/icon-diamond-s.png");
+      }
+    }
+
+    .chart-contain {
+      background-color: #5684bc10;
+      height: calc(100% - 50px);
+      margin-top: 20px;
+      // height: 400px;
+    }
   }
 
   .top-header {
-    background: center center / 100% 100% no-repeat url("top-header-wave.png");
+    background: center center / 100% 100% no-repeat
+      url("@/assets/top-bg-qi.png");
     height: 140px;
     width: 100%;
     display: grid;
