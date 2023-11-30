@@ -1,7 +1,17 @@
 <template>
   <main>
     <div id="myElement" class="top-header">
-      <div v-for="title in buttonTitles" :key="title" class="button-box">
+      <div
+        v-for="title in buttonTitles"
+        :key="title"
+        :class="[
+          'button-box',
+          selectedTitle === title
+            ? 'button-box-selected'
+            : 'button-box-unselected',
+        ]"
+        @click="onClickProcess(title)"
+      >
         <div>{{ title }}</div>
         <div class="popup">
           <svg version="1.1" width="30px" height="75px">
@@ -43,6 +53,7 @@ import * as echarts from "echarts";
 import { ref, onMounted, reactive } from "vue";
 let echart = echarts;
 const buttonTitles = ["一润", "二润", "打叶", "叶加酶", "叶复烤", "叶打包"];
+let selectedTitle = ref("一润");
 let currentTab = ref(1);
 onMounted(() => {
   setTimeout(() => {
@@ -61,6 +72,10 @@ const reloadCharts = () => {
 const onChangeTab = (tab) => {
   currentTab.value = tab;
   console.log(tab, currentTab.value);
+};
+
+const onClickProcess = (title) => {
+  selectedTitle.value = title;
 };
 // 获取鼠标相对于元素的位置
 function getMousePosition(event, element) {
@@ -124,14 +139,23 @@ const initCharts = () => {
     grid: {
       // 整体表格布局
       left: 10,
-      top: 50,
+      top: 60,
       right: 20,
       bottom: 0,
       containLabel: true,
     },
+    title: {
+      text: "单位（分）",
+      left: "10",
+      top: "20",
+      textStyle: {
+        fontSize: 12,
+        color: "#369CCB",
+      },
+    },
     series: [
       {
-        data: [85, 88, 89, 90, 82, 96, 96, 98, 79, 96, 98, 79],
+        data: [85.33, 88, 89, 90, 82, 96, 96.01, 98.12, 79, 96.65, 98, 79],
         type: "line",
         smooth: false,
         showSymbol: true,
@@ -177,7 +201,7 @@ main {
   height: 100vh;
 
   .chart-box {
-    flex: 1;
+    height: 660px;
     padding: 20px;
     margin: 20px 70px;
     border: 1px solid #497ba0;
@@ -188,7 +212,7 @@ main {
         color: #3383c8;
         cursor: pointer;
         border: none;
-        padding: 2px 15px;
+        padding: 2px 25px;
         background: center center / 100% 100% no-repeat
           url("@/assets/icon-diamond.png");
       }
@@ -196,17 +220,20 @@ main {
         cursor: pointer;
         color: #fff;
         border: none;
-        padding: 2px 15px;
+        padding: 2px 25px;
         background: center center / 100% 100% no-repeat
           url("@/assets/icon-diamond-s.png");
       }
     }
 
     .chart-contain {
-      background-color: #5684bc10;
       height: calc(100% - 50px);
       margin-top: 20px;
-      // height: 400px;
+      // border-top: 20px solid transparent;
+      box-sizing: border-box;
+      background: 0 -4px / 20px 10px no-repeat url("icon-rects.png"),
+        100% 0px / 10px 10px no-repeat url("icon-rect.png");
+      background-color: #5684bc10;
     }
   }
 
@@ -222,6 +249,12 @@ main {
     justify-items: center;
     align-items: center;
 
+    .button-box-selected {
+      background-image: url("basic-info-pending.png");
+    }
+    .button-box-unselected {
+      background-image: url("basic-info-deal.png");
+    }
     .button-box {
       background-position: center;
       background-repeat: no-repeat;
@@ -229,8 +262,7 @@ main {
       text-align: center;
       font-size: 17px;
       color: white;
-      background-image: url("basic-info-deal.png");
-      width: 130px;
+      width: 120px;
       height: 75px;
       line-height: 50px;
       cursor: pointer;
