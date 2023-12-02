@@ -8,6 +8,7 @@ import Antd from "ant-design-vue";
 import "ant-design-vue/dist/antd.css";
 
 import "./assets/main.css";
+import "amfe-flexible";
 
 const app = createApp(App);
 

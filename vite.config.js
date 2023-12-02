@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from "node:url";
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import postCssPxToRem from "postcss-pxtorem";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -19,6 +20,14 @@ export default defineConfig({
       scss: {
         additionalData: `@import "@/sass/_reset.scss"; @import "@/sass/_variables.scss"; @import "@/sass/common.scss";`,
       },
+    },
+    postcss: {
+      plugins: [
+        // postCssPxToRem({
+        //   rootValue: 122, // 1rem 等于多少 px  一般是设计稿的 1 / 10
+        //   propList: ["*"],
+        // }),
+      ],
     },
   },
   build: {

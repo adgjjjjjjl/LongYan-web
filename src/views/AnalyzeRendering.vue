@@ -4,8 +4,10 @@
       <span>开始日期：</span>
       <a-date-picker
         v-model:value="dateStart"
+        dropdownClassName="dropdown-custom"
         class="calendar"
-        placeholder="请选择开始日期"
+        placeholder="开始日期"
+        @change="dateChange"
       >
         <template #suffixIcon>
           <div class="calendar-icon" />
@@ -14,8 +16,10 @@
       <span>结束日期：</span>
       <a-date-picker
         v-model:value="dateEnd"
+        dropdownClassName="dropdown-custom"
         class="calendar"
-        placeholder="请选择结束日期"
+        placeholder="结束日期"
+        @change="dateChange"
       >
         <template #suffixIcon>
           <div class="calendar-icon" />
@@ -23,46 +27,51 @@
       </a-date-picker>
       <span>委托方：</span>
       <a-select
-        ref="delegate"
+        ref="delegate-picker"
         v-model:value="delegate"
         class="picker"
+        dropdownClassName="dropdown-custom"
+        style="width: 220px"
         :options="optionsDelegate"
         @focus="focus"
         @change="handleChange"
       >
         <template #suffixIcon>
-          <div class="calendar-icon" />
+          <div class="selector-suffix" />
         </template>
       </a-select>
       <span>生产牌号：</span>
       <a-select
-        ref="prodnumer"
+        ref="productNumber-picker"
         v-model:value="productNumber"
         class="picker"
-        size="small"
+        dropdownClassName="dropdown-custom"
+        style="width: 120px"
         :options="optionsProd"
         @focus="focus"
         @change="handleChange"
       >
         <template #suffixIcon>
-          <div class="calendar-icon" />
+          <div class="selector-suffix" />
         </template>
       </a-select>
       <span>班组：</span>
       <a-select
-        ref="group"
+        ref="group-picker"
         v-model:value="group"
         class="picker"
+        dropdownClassName="dropdown-custom"
+        style="width: 120px"
         :options="optionsGroup"
         @focus="focus"
         @change="handleChange"
       >
         <template #suffixIcon>
-          <div class="calendar-icon" />
+          <div class="selector-suffix" />
         </template>
       </a-select>
-      <button class="search">查询批次号</button>
-      <button class="search">查询</button>
+      <button class="search" @click="searchBatch">查询批次号</button>
+      <button class="search" @click="onSearch">查询</button>
     </div>
     <div class="chart-box">
       <div class="chart-contain">
@@ -113,6 +122,7 @@ const optionsGroup = ref([
   },
 ]);
 let group = ref("1");
+
 onMounted(() => {
   setTimeout(() => {
     initCharts();
@@ -122,19 +132,32 @@ onMounted(() => {
       reloadCharts();
     })();
 });
+// 缩放后重新渲染折线图
 const reloadCharts = () => {
   var myChart = echart.init(document.getElementById("QAChart"));
   myChart.resize();
 };
-
+// 选择器选中事件
 const focus = (e) => {
   console.log(e);
 };
-
+// 选择器选项变化事件
 const handleChange = (e) => {
   console.log(e);
 };
-
+// 查询批次号
+const searchBatch = (e) => {
+  console.log(e);
+};
+// 查询
+const onSearch = (e) => {
+  console.log(e);
+};
+// 时间选择事件
+const dateChange = (date, dateString) => {
+  console.log(dateString);
+};
+// 初始化折线图
 const initCharts = () => {
   const option = {
     xAxis: {
@@ -292,7 +315,7 @@ main {
       background-color: #0346d9;
       font-weight: 400;
       color: #fff;
-      padding: 2px 10px;
+      padding: 6px 10px;
       border: none;
       margin-left: 15px;
       cursor: pointer;
@@ -310,6 +333,12 @@ main {
       height: 16px;
       background: center / 100% no-repeat url("@/assets/icon-calendar.png");
     }
+
+    .selector-suffix {
+      width: 12px;
+      height: 12px;
+      background: center / 100% no-repeat url("@/assets/arrow-down.png");
+    }
   }
 }
 
@@ -320,7 +349,7 @@ main {
   }
 }
 :deep(.ant-select:not(.ant-select-customize-input) .ant-select-selector) {
-  height: 28px;
+  // height: 28px;
   margin-right: 20px;
   background-color: transparent;
   border: 1px solid #264460;
@@ -328,5 +357,22 @@ main {
 :deep(.ant-select-selection-item) {
   color: #a1e1ff;
   font-size: 14px;
+}
+:deep(.ant-select) {
+  .ant-select-arrow {
+    color: #264460;
+  }
+}
+</style>
+
+<style lang="scss">
+.dropdown-custom {
+  background-color: #264460;
+
+  .ant-select-item-option-selected,
+  .ant-select-item-option-active {
+    color: #44f0e9;
+    background-color: #264460;
+  }
 }
 </style>
