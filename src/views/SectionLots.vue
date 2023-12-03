@@ -15,14 +15,40 @@
         </button>
       </div>
     </div>
-    <div class="chart-box">
-      <div class="chart-contain">
-        <div id="chartTimer" style="height: 100%"></div>
-        <div class="chart-title">工段时长</div>
+    <div class="page-bottom">
+      <div class="chart-box">
+        <div class="chart-contain">
+          <div id="chartTimer" style="height: 100%"></div>
+          <div class="chart-title">工段时长</div>
+        </div>
+        <div class="chart-contain">
+          <div id="chartTrans" style="height: 100%"></div>
+          <div class="chart-title">工段产量</div>
+        </div>
       </div>
-      <div class="chart-contain">
-        <div id="chartTrans" style="height: 100%"></div>
-        <div class="chart-title">工段产量</div>
+      <div class="table-contain">
+        <div class="table-title">一润批次列表</div>
+        <div>
+          <button
+            v-for="title in operations"
+            :key="title"
+            :class="[
+              'operate-base',
+              operate === title ? 'operate-selected' : 'operate-unselect',
+            ]"
+            @click="onClickTitle(title)"
+          >
+            {{ title }}
+          </button>
+        </div>
+        <a-table
+          :row-selection="{
+            selectedRowKeys: selectedRowKeys,
+            onChange: onSelectChange,
+          }"
+          :columns="columns"
+          :data-source="data"
+        />
       </div>
     </div>
   </main>
@@ -31,7 +57,9 @@
 <script setup>
 import * as echarts from "echarts";
 import dayjs from "dayjs";
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, reactive, computed } from "vue";
+
+import { columns, data } from "@/utils/pageConfig.js";
 const dateFormat = "YYYY-MM-DD";
 let echart = echarts;
 let dateStart = ref(dayjs("2015-06-06", dateFormat));
@@ -50,6 +78,29 @@ const topTitles = [
   "烟梗打包",
 ];
 let selectedTitle = ref("一润");
+const operations = [
+  "新增",
+  "编辑",
+  "删除",
+  "结束批次",
+  "修改时间(联动)",
+  "批次排序",
+  "计算非稳定",
+  "查看历史QI趋势",
+];
+let operate = ref("删除");
+
+const state = reactive({
+  selectedRowKeys: [],
+  // Check here to configure the default column
+  loading: false,
+});
+const hasSelected = computed(() => state.selectedRowKeys.length > 0);
+const onSelectChange = (selectedRowKeys) => {
+  console.log("selectedRowKeys changed: ", selectedRowKeys);
+  state.selectedRowKeys = selectedRowKeys;
+};
+
 onMounted(() => {
   setTimeout(() => {
     initCharts();
@@ -88,8 +139,17 @@ const dateChange = (date, dateString) => {
 
 const initCharts = () => {
   const option = {
+    // dataZoom: [
+    //   {
+    //     type: "inside", // 类型为滑动条
+    //     xAxisIndex: 0, // 表示这个 dataZoom 组件控制 x 轴
+    //     start: 0, // 起始位置为0（最左侧）
+    //     end: 160, // 结束位置为60（最右侧）
+    //   },
+    // ],
     xAxis: {
-      boundaryGap: ["10%", "10%"],
+      // boundaryGap: false,
+      boundaryGap: ["5%", "5%"],
       type: "category",
       axisTick: { inside: true },
       splitNumber: 10,
@@ -201,12 +261,43 @@ main {
   background-color: transparent;
   height: 100vh;
 
+  .page-bottom {
+    display: flex;
+
+    .table-contain {
+      overflow: scroll;
+      max-height: 620px;
+      .table-title {
+        font-size: 16px;
+        font-weight: bold;
+        color: #ffffff;
+        padding: 0 30px;
+        margin-top: 20px;
+        background: 0 45% / 20px 10px no-repeat url("icon-rects.png");
+      }
+      .operate-base {
+        padding: 2px 15px;
+        font-size: 14px;
+        font-weight: 400;
+        color: #ffffff;
+        border: none;
+        margin: 10px 15px 10px 0;
+        cursor: pointer;
+      }
+      .operate-selected {
+        background-color: #b96b1f;
+      }
+      .operate-unselect {
+        background-color: #0346d9;
+      }
+    }
+  }
   .chart-box {
     height: 660px;
     padding: 10px 20px;
     margin: 0px 50px;
     .chart-contain {
-      width: 350px;
+      width: 360px;
       height: 300px;
       margin-top: 10px;
       background: 0 0 / 100% 100% no-repeat url("@/assets/chart-bg.png");
@@ -219,7 +310,7 @@ main {
         color: #ffffff;
         position: absolute;
         top: 4px;
-        left: 45px;
+        left: 50px;
       }
     }
   }
