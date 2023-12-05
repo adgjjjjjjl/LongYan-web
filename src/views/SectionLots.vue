@@ -36,18 +36,45 @@
               'operate-base',
               operate === title ? 'operate-selected' : 'operate-unselect',
             ]"
-            @click="onClickTitle(title)"
+            @click="onClickOperate(title)"
           >
             {{ title }}
           </button>
         </div>
-        <a-table
-          :row-selection="{
-            selectedRowKeys: selectedRowKeys,
-            onChange: onSelectChange,
-          }"
-          :columns="columns"
-          :data-source="data"
+        <div class="table-block">
+          <a-table
+            :row-selection="{
+              selectedRowKeys: selectedRowKeys,
+              onChange: onSelectChange,
+            }"
+            :columns="columns"
+            :data-source="data"
+            :pagination="false"
+            :scroll="{ x: 'max-content' }"
+            :row-class-name="
+              (_record, index) =>
+                index % 2 === 1 ? 'cell-normal' : 'cell-abnormal'
+            "
+          >
+            <template #bodyCell="{ column, text, record }">
+              <div class="base-cell">
+                {{ text }}
+              </div>
+            </template>
+          </a-table>
+        </div>
+
+        <a-pagination
+          v-model:current="paginationConfig.current"
+          v-model:page-size="paginationConfig.pageSize"
+          :total="paginationConfig.total"
+          showQuickJumper
+          size="small"
+          :locale="locale"
+          class="pagination"
+          :showSizeChanger="false"
+          :show-total="(total) => `共 ${paginationConfig.total} 条`"
+          @change="handlePageChange"
         />
       </div>
     </div>
@@ -100,6 +127,16 @@ const onSelectChange = (selectedRowKeys) => {
   console.log("selectedRowKeys changed: ", selectedRowKeys);
   state.selectedRowKeys = selectedRowKeys;
 };
+const paginationConfig = reactive({
+  total: 200, // 总条数
+  pageSize: 20, // 每页条数
+  current: 1, // 当前页数
+});
+const locale = {
+  jump_to: "前往",
+  jump_to_confirm: "确定",
+  page: "页",
+};
 
 onMounted(() => {
   setTimeout(() => {
@@ -119,13 +156,24 @@ const reloadCharts = () => {
 
 const onClickTitle = (title) => {
   selectedTitle.value = title;
+  console.log(selectedTitle.value);
 };
+
+function handlePageChange(pageInfo) {
+  // 判断是否是点击事件
+  const { current, pageSize, total } = pageInfo;
+  console.log(
+    `点击了第 ${current} 页，每页显示 ${pageSize} 条数据, 共${total}条数据`
+  );
+  paginationConfig.current = current;
+}
 
 const handleChange = (e) => {
   console.log(e);
 };
 
-const searchBatch = (e) => {
+const onClickOperate = (e) => {
+  operate.value = e;
   console.log(e);
 };
 
@@ -265,14 +313,18 @@ main {
     display: flex;
 
     .table-contain {
+      position: relative;
       overflow: scroll;
       max-height: 620px;
+      background-color: #072554;
+      margin: 20px 20px 0 0;
+      padding: 0 20px;
       .table-title {
         font-size: 16px;
         font-weight: bold;
         color: #ffffff;
         padding: 0 30px;
-        margin-top: 20px;
+        margin-top: 15px;
         background: 0 45% / 20px 10px no-repeat url("icon-rects.png");
       }
       .operate-base {
@@ -281,7 +333,7 @@ main {
         font-weight: 400;
         color: #ffffff;
         border: none;
-        margin: 10px 15px 10px 0;
+        margin: 10px 15px 15px 0;
         cursor: pointer;
       }
       .operate-selected {
@@ -290,15 +342,27 @@ main {
       .operate-unselect {
         background-color: #0346d9;
       }
+      .table-block {
+        height: 470px;
+        overflow-y: scroll;
+        &::-webkit-scrollbar {
+          display: none;
+        }
+      }
+      .pagination {
+        position: absolute;
+        bottom: 15px;
+        right: 20px;
+      }
     }
   }
   .chart-box {
     height: 660px;
-    padding: 10px 20px;
-    margin: 0px 50px;
+    padding: 0 20px;
+    margin: 10px 0px 0 50px;
     .chart-contain {
       width: 360px;
-      height: 300px;
+      height: 305px;
       margin-top: 10px;
       background: 0 0 / 100% 100% no-repeat url("@/assets/chart-bg.png");
       background-color: #5684bc10;
@@ -357,6 +421,94 @@ main {
     }
   }
 }
+
+//table表头样式
+:deep(.ant-table-thead) {
+  > tr {
+    > th {
+      padding: 5px 10px;
+      background: #014090;
+      border-bottom: 3px solid #072554;
+      color: #d0e4fe;
+    }
+  }
+}
+// table 行样式
+//   .ant-table-tbody > tr.ant-table-row:hover > td, .ant-table-tbody > tr > td.ant-table-cell-row-hover
+:deep(.ant-table-tbody) {
+  > tr {
+    &.ant-table-row:hover {
+      > td {
+        background: #072554; // 行hover效果
+      }
+    }
+    > td {
+      border-bottom: 3px solid #072554;
+      border-top: 3px solid #072554;
+      transition: background 0.3s;
+      padding: 5px 10px;
+      font-size: 11px;
+      &.ant-table-cell-row-hover {
+        background: #072554; // 行hover效果
+      }
+    }
+  }
+}
+// table翻页器选中样式
+:deep(.ant-pagination) {
+  .ant-pagination-total-text {
+    font-size: 12px;
+    color: #417aa8;
+  }
+  .ant-pagination-options-quick-jumper {
+    font-size: 12px;
+    color: #417aa8;
+    > input {
+      background-color: transparent;
+      border: 1px solid #417aa8;
+      color: #417aa8;
+      width: 38px !important;
+    }
+  }
+  .ant-pagination-item {
+    background: transparent;
+    background-color: transparent;
+    border: 1px solid #417aa8;
+    > a {
+      color: #417aa8;
+    }
+  }
+  .ant-pagination-item-active {
+    background: #b96b1f !important;
+    border: none !important;
+    > a {
+      color: #fff !important;
+    }
+  }
+  // 下一页 上一页 选中样式
+  .ant-pagination-jump-next,
+  .ant-pagination-prev,
+  .ant-pagination-next {
+    .ant-pagination-item-link {
+      border: 1px solid #417aa8;
+      background-color: transparent;
+      color: #417aa8;
+    }
+  }
+}
 </style>
 
-<style lang="scss"></style>
+<style lang="scss">
+.cell-normal {
+  background-color: #002d70;
+  margin: 3px 0;
+  color: white;
+}
+
+.cell-abnormal {
+  background-color: #002d70;
+  margin: 3px 0;
+  color: red;
+  padding: 5px 0;
+}
+</style>

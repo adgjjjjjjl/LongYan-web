@@ -2,58 +2,85 @@ export const columns = [
   {
     title: "序号",
     dataIndex: "index",
+    align: "center",
+    width: 65,
   },
   {
     title: "工段批次",
     dataIndex: "pici",
+    width: "auto",
+    align: "center",
   },
   {
     title: "班次",
     dataIndex: "banci",
+    width: "auto",
+    align: "center",
   },
   {
     title: "班组",
     dataIndex: "banzu",
+    width: "auto",
+    align: "center",
   },
   {
     title: "委托方",
     dataIndex: "weituofang",
+    width: "auto",
+    align: "center",
   },
   {
     title: "牌号",
     dataIndex: "number",
+    width: "auto",
+    align: "center",
   },
   {
     title: "开始时间",
     dataIndex: "startTime",
+    width: "auto",
+    align: "center",
   },
   {
     title: "结束时间",
     dataIndex: "endTime",
+    width: "auto",
+    align: "center",
   },
   {
     title: "时长",
     dataIndex: "long",
+    width: "auto",
   },
   {
     title: "日期",
     dataIndex: "date",
+    width: "auto",
+    align: "center",
   },
   {
     title: "状态",
     dataIndex: "status",
+    width: "auto",
+    align: "center",
   },
   {
     title: "出柜号(预混柜)",
     dataIndex: "chugui",
+    width: "auto",
+    align: "center",
   },
   {
     title: "配方量",
     dataIndex: "peifangliang",
+    width: "auto",
+    align: "center",
   },
   {
     title: "是否异常",
     dataIndex: "normal",
+    width: "auto",
+    align: "center",
   },
 ];
 const dateItem = {
@@ -73,5 +100,7 @@ const dateItem = {
 };
 export const data = [];
 for (let index = 0; index < 50; index++) {
-  data.push(dateItem);
+  const d = JSON.parse(JSON.stringify(dateItem));
+  d["index"] = index + 1;
+  data.push(d);
 }
