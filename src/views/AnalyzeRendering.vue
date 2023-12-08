@@ -341,33 +341,36 @@ main {
     }
   }
 }
-
-:deep(.ant-picker-input, ) {
+:deep(.ant-picker-input) {
   > input {
     color: #a1e1ff;
     font-size: 14px;
   }
 }
-:deep(.ant-select:not(.ant-select-customize-input) .ant-select-selector) {
-  // height: 28px;
-  margin-right: 20px;
-  background-color: transparent;
-  border: 1px solid #264460;
-}
-:deep(.ant-select-selection-item) {
-  color: #a1e1ff;
-  font-size: 14px;
-}
 :deep(.ant-select) {
+  &:not(.ant-select-customize-input) .ant-select-selector {
+    // height: 28px;
+    margin-right: 20px;
+    background-color: transparent;
+    border: 1px solid #264460;
+  }
+  .ant-select-selection-item {
+    color: #a1e1ff;
+    font-size: 14px;
+  }
   .ant-select-arrow {
     color: #264460;
   }
 }
 </style>
 
-<style lang="scss">
+<!-- <style lang="scss">
 .dropdown-custom {
   background-color: #264460;
+  .ant-select-item {
+    color: #a1e1ff;
+    font-size: 13px;
+  }
 
   .ant-select-item-option-selected,
   .ant-select-item-option-active {
@@ -375,4 +378,30 @@ main {
     background-color: #264460;
   }
 }
-</style>
+:deep(.ant-picker-panel-container) {
+  background: #264460;
+}
+:deep(.ant-picker-dropdown) {
+  .ant-picker-panel-container {
+    background: #264460;
+    .ant-picker-header {
+    }
+    .ant-picker-body {
+      .ant-picker-content {
+        .ant-picker-cell {
+          color: red;
+        }
+        > thead {
+          > tr {
+            > th {
+              color: red;
+            }
+          }
+        }
+      }
+    }
+    .ant-picker-footer {
+    }
+  }
+}
+</style> -->

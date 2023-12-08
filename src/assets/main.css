@@ -21,12 +21,27 @@ a,
     background-color: hsla(160, 100%, 37%, 0.2);
   }
 }
-
-
 .require_icon::before {
   content: " * ";
   color: red;
   display: inline-block;
   padding: 0px 5px 0 0;
   vertical-align: middle;
+}
+
+.icon-left-rects {
+  background: center / 20px 10px no-repeat url("icon-rects.png");
+  position: absolute;
+  width: 25px;
+  height: 10px;
+  top: -5px;
+  left: 0;
+}
+.icon-right-rects {
+  background: center / cover no-repeat url("icon-rect.png");
+  position: absolute;
+  top: -5px;
+  right: -1px;
+  height: 8px;
+  width: 8px;
 }
