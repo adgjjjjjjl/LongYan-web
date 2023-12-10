@@ -13,7 +13,7 @@ const routes = [
     component: DynamicQI,
   },
   {
-    path: "/dynamic-Qi",
+    path: "/dynamic-qi",
     name: "dynamic",
     meta: { title: "龙岩金叶-动态QI" },
     component: DynamicQI,

@@ -301,6 +301,7 @@ main {
       font-size: 14px;
       font-weight: 400;
       color: #63a0bd;
+      flex-shrink: 0;
     }
 
     // > * {
@@ -318,7 +319,9 @@ main {
       padding: 6px 10px;
       border: none;
       margin-left: 15px;
+      font-size: 15px;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .calendar {

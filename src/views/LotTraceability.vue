@@ -29,7 +29,6 @@
       <a-select
         v-model:value="working"
         dropdownClassName="picker"
-        :dropdownMenuStyle="customMenuStyle"
         style="width: 150px"
         :options="workingProcess"
         @focus="focus"
@@ -93,7 +92,7 @@
       <button class="search" @click="onSearch">查询</button>
     </div>
     <div class="part-block">
-      <div class="woking-steps-block"></div>
+      <div class="woking-steps-block"><QualityTrace /></div>
       <div class="table-contain">
         <div class="icon-left-rects" />
         <div class="icon-right-rects" />
@@ -130,10 +129,70 @@
         </div>
       </div>
     </div>
+    <div class="part-block">
+      <div class="working-infos">
+        <button
+          v-for="title in bottomButtons"
+          :key="title"
+          :class="[
+            'button-box',
+            activateMainStatus === title
+              ? 'button-box-selected'
+              : 'button-box-unselected',
+          ]"
+          @click="onClickProcess(title)"
+        >
+          {{ title }}
+        </button>
+      </div>
+      <div style="width: calc(100% - 130px)">
+        <div :class="['table-title', 'table-title-bg']">
+          {{ activateMainStatus }}
+        </div>
+        <div class="table-contain2">
+          <div class="icon-left-rects" />
+          <div class="icon-right-rects" />
+          <div style="margin-top: 20px; padding: 15px">
+            <button
+              v-for="title in statusButtons"
+              :key="title"
+              :class="[
+                'button-base',
+                activateStatus === title
+                  ? 'button-selected'
+                  : 'button-unselect',
+              ]"
+              @click="onClickTitle(title)"
+            >
+              {{ title }}
+            </button>
+          </div>
+          <div class="table-block2">
+            <a-table
+              :columns="columns"
+              :data-source="data"
+              :pagination="false"
+              :scroll="{ x: 'max-content', y: 300 }"
+              :row-class-name="
+                (_record, index) =>
+                  index !== 2 ? 'cell-normal' : 'cell-abnormal'
+              "
+            >
+              <template #bodyCell="{ column, text, record }">
+                <div class="base-cell">
+                  {{ text }}
+                </div>
+              </template>
+            </a-table>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 </template>
 
 <script setup>
+import QualityTrace from "../components/qualityTracebility.vue";
 import dayjs from "dayjs";
 import { ref, onMounted, reactive, computed } from "vue";
 import {
@@ -193,16 +252,12 @@ const boxNumbers = ref([
 ]);
 let boxId = ref("1");
 
-const state = reactive({
-  selectedRowKeys: [],
-  // Check here to configure the default column
-  loading: false,
+const bottomButtons = computed(() => Object.keys(tableConfig));
+let activateMainStatus = ref("物料");
+const statusButtons = computed(() => {
+  return tableConfig[activateMainStatus.value];
 });
-const hasSelected = computed(() => state.selectedRowKeys.length > 0);
-const onSelectChange = (selectedRowKeys) => {
-  console.log("selectedRowKeys changed: ", selectedRowKeys);
-  state.selectedRowKeys = selectedRowKeys;
-};
+let activateStatus = ref(statusButtons.value[0]);
 const paginationConfig = reactive({
   total: 200, // 总条数
   pageSize: 20, // 每页条数
@@ -252,6 +307,11 @@ const searchBatch = (e) => {
 // 查询
 const onSearch = (e) => {
   // console.log(e);
+};
+
+const onClickProcess = (title) => {
+  activateMainStatus.value = title;
+  activateStatus.value = statusButtons.value[0];
 };
 // 时间选择事件
 const dateChange = (date, dateString) => {
@@ -367,10 +427,13 @@ const initCharts = () => {
 
 <style lang="scss" scoped>
 main {
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
   background-color: transparent;
   height: 100vh;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .part-block {
     padding: 20px;
@@ -380,12 +443,58 @@ main {
     background: #04112c;
     border: 1px solid #497ba0;
 
+    .working-infos {
+      position: relative;
+      width: 120px;
+      flex-shrink: 0;
+      padding: 0 15px;
+      margin-right: 20px;
+      background: transparent;
+      .button-box-selected {
+        background-image: url("basic-info-pending.png");
+        color: #fff3e6;
+      }
+      .button-box-unselected {
+        background-image: url("basic-info-deal.png");
+        color: #1afcff;
+      }
+      .button-box {
+        background-position: 0 14px;
+        background-repeat: no-repeat;
+        background-size: contain;
+        text-align: center;
+        font-size: 16px;
+        width: 100px;
+        font-weight: bold;
+        height: 75px;
+        cursor: pointer;
+        background-color: transparent;
+        border: none;
+        margin: 0 0 10px 0;
+        white-space: pre-line;
+        padding: 0 30px;
+        line-height: 1.3;
+        &:nth-child(4) {
+          padding: 0 20px;
+        }
+      }
+    }
+
     .woking-steps-block {
       position: relative;
       width: 320px;
       height: 320px;
       flex-shrink: 0;
       background: 0 0 / 100% 100% no-repeat url("quality-bg.png");
+    }
+    .table-contain2 {
+      margin: 10px 0 0 0;
+      width: 100%;
+      background: #072554;
+    }
+    .table-title-bg {
+      background: #072554;
+      padding: 8px 20px;
     }
     .table-contain {
       position: relative;
@@ -399,23 +508,6 @@ main {
         display: none;
       }
 
-      .table-title {
-        font-size: 16px;
-        font-weight: bold;
-        color: #ffffff;
-        margin-bottom: 5px;
-
-        &::before {
-          display: inline-block;
-          content: "";
-          width: 6px;
-          height: 16px;
-          background: #01bec8;
-          border-radius: 3px;
-          margin-right: 10px;
-          transform: translateY(3px);
-        }
-      }
       .table-block {
         height: calc(100% - 40px);
         overflow-y: scroll;
@@ -423,6 +515,51 @@ main {
           display: none;
         }
       }
+    }
+    .table-block2 {
+      overflow-y: scroll;
+      padding: 0 20px 10px;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+    .table-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 5px;
+
+      &::before {
+        display: inline-block;
+        content: "";
+        width: 6px;
+        height: 16px;
+        background: #01bec8;
+        border-radius: 3px;
+        margin-right: 10px;
+        transform: translateY(3px);
+      }
+    }
+    .button-base {
+      border: none;
+      text-align: center;
+      line-height: 30px;
+      height: 30px;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-size: 14px;
+      padding: 0 25px;
+    }
+    .button-unselect {
+      color: #3383c8;
+      background: center center / 100% 100% no-repeat
+        url("@/assets/icon-diamond.png");
+    }
+    .button-selected {
+      color: #fff;
+
+      background: center center / 100% 100% no-repeat
+        url("@/assets/icon-diamond-s.png");
     }
   }
   .chart-box {
@@ -448,16 +585,17 @@ main {
     padding: 0 60px;
     display: flex;
     align-items: center;
+    justify-content: center;
 
     > span {
       display: inline-block;
       font-size: 13px;
       font-weight: 400;
+      margin-left: 10px;
       color: #63a0bd;
       white-space: nowrap;
     }
     .picker {
-      margin-right: 10px;
       min-width: 70px;
     }
     .search {
@@ -466,14 +604,14 @@ main {
       font-size: 13px;
       color: #fff;
       padding: 6px 10px;
+      font-size: 15px;
       border: none;
-      margin-right: 10px;
+      margin-left: 15px;
       cursor: pointer;
       white-space: nowrap;
     }
 
     .calendar {
-      margin-right: 10px;
       background-color: transparent;
       padding: 2px 5px 2px 5px;
       border: 1px solid #264460;
