@@ -75,7 +75,7 @@
     </div>
     <div class="chart-box">
       <div class="chart-contain">
-        <div id="QAChart" style="height: 100%"></div>
+        <div id="analyzeChart" style="height: 100%"></div>
       </div>
     </div>
   </main>
@@ -134,7 +134,7 @@ onMounted(() => {
 });
 // 缩放后重新渲染折线图
 const reloadCharts = () => {
-  var myChart = echart.init(document.getElementById("QAChart"));
+  var myChart = echart.init(document.getElementById("analyzeChart"));
   myChart.resize();
 };
 // 选择器选中事件
@@ -259,7 +259,7 @@ const initCharts = () => {
     ],
   };
   // 基于准备好的dom，初始化echarts实例
-  var myChart = echart.init(document.getElementById("QAChart"));
+  const myChart = echart.init(document.getElementById("analyzeChart"));
   myChart.setOption(option);
   console.log("chart");
 };
@@ -302,13 +302,13 @@ main {
       font-weight: 400;
       color: #63a0bd;
       flex-shrink: 0;
+      margin-left: 10px;
     }
 
     // > * {
     //   margin-right: 10px;
     // }
     .picker {
-      margin-right: 10px;
       min-width: 100px;
       height: 28px;
     }
@@ -319,13 +319,12 @@ main {
       padding: 6px 10px;
       border: none;
       margin-left: 15px;
-      font-size: 15px;
+      font-size: 14px;
       cursor: pointer;
       white-space: nowrap;
     }
 
     .calendar {
-      margin-right: 20px;
       background-color: transparent;
       padding: 2px 5px 2px 10px;
       border: 1px solid #264460;

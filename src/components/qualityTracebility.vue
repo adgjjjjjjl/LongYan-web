@@ -2,9 +2,11 @@
   <div class="body-bottom">
     <div class="box-block">
       <div class="box-with-popup" style="top: 4%; left: 7%">
-        <div class="box button-hor">高架库出库</div>
+        <div class="box button-hor" :style="shadowStyle('高架库出库')">
+          高架库出库
+        </div>
         <div class="popup">
-          <svg version="1.1" width="100%" height="100%">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -17,20 +19,18 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>委托方:福建中烟工业有限责任公司</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("高架库出库", name) }}
+            </div>
           </div>
         </div>
       </div>
       <div class="box-with-popup" style="top: 4%; left: 44%">
-        <div class="box button-hor">翻箱喂料</div>
+        <div class="box button-hor" :style="shadowStyle('翻箱喂料')">
+          翻箱喂料
+        </div>
         <div class="popup">
-          <svg version="1.1" width="100%" height="100%">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -43,20 +43,22 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>委托方:福建中烟工业有限责任公司</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("翻箱喂料", name) }}
+            </div>
           </div>
         </div>
       </div>
       <div class="box-with-popup" style="top: 4%; left: 83%">
-        <div class="box button-ver" style="height: 80px">一润</div>
+        <div
+          class="box button-ver"
+          style="height: 80px"
+          :style="shadowStyle('一润')"
+        >
+          一润
+        </div>
         <div class="popup">
-          <svg version="1.1" width="100%" height="100%">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -69,20 +71,18 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>委托方:福建中烟工业有限责任公司</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("一润", name) }}
+            </div>
           </div>
         </div>
       </div>
       <div class="box-with-popup" style="top: 33%; left: 83%">
-        <div class="box button-ver">碎片复烤</div>
+        <div class="box button-ver" :style="shadowStyle('碎片复烤')">
+          碎片复烤
+        </div>
         <div class="popup">
-          <svg version="1.1" width="100%" height="100%">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -95,20 +95,18 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>委托方:福建中烟工业有限责任公司</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("碎片复烤", name) }}
+            </div>
           </div>
         </div>
       </div>
       <div class="box-with-popup" style="top: 68%; left: 83%">
-        <div class="box button-ver">碎片打包</div>
+        <div class="box button-ver" :style="shadowStyle('碎片打包')">
+          碎片打包
+        </div>
         <div class="popup">
-          <svg version="1.1" width="100%" height="100%">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -121,20 +119,16 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>委托方:福建中烟工业有限责任公司</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("碎片打包", name) }}
+            </div>
           </div>
         </div>
       </div>
       <div class="box-with-popup" style="top: 37%; left: 15%">
-        <div class="box button-ver">叶加酶</div>
+        <div class="box button-ver" :style="shadowStyle('叶加酶<')">叶加酶</div>
         <div class="popup">
-          <svg version="1.1" width="100%" height="100%">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -147,20 +141,18 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>委托方:福建中烟工业有限责任公司</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("叶加酶", name) }}
+            </div>
           </div>
         </div>
       </div>
       <div class="box-with-popup" style="top: 72%; left: 15%">
-        <div class="box button-ver">烟梗打包</div>
+        <div class="box button-ver" :style="shadowStyle('烟梗打包')">
+          烟梗打包
+        </div>
         <div class="popup">
-          <svg version="1.1" width="100%" height="100%">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -173,20 +165,18 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>委托方:福建中烟工业有限责任公司</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("烟梗打包", name) }}
+            </div>
           </div>
         </div>
       </div>
       <div class="box-with-popup" style="top: 72%; left: 42%">
-        <div class="box button-ver">烟梗复烤</div>
+        <div class="box button-ver" :style="shadowStyle('烟梗复烤')">
+          烟梗复烤
+        </div>
         <div class="popup">
-          <svg version="1.1" width="100%" height="100%">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -199,20 +189,16 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>委托方:福建中烟工业有限责任公司</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("烟梗复烤", name) }}
+            </div>
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 49%; left: 62%">
-        <div class="box button-ver">叶复烤</div>
+      <div class="box-with-popup" style="top: 49%; left: 61%">
+        <div class="box button-ver" :style="shadowStyle('叶复烤')">叶复烤</div>
         <div class="popup">
-          <svg version="1.1" width="100%" height="100%">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -225,20 +211,16 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>委托方:福建中烟工业有限责任公司</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("叶复烤", name) }}
+            </div>
           </div>
         </div>
       </div>
       <div class="box-with-popup" style="top: 37%; left: 42%">
         <div class="box button-leaf" :style="shadowStyle('打叶')">打叶</div>
-        <div class="popup" :data="getDataStatus('打叶')">
-          <svg version="1.1" width="100%" height="100%">
+        <div class="popup">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -251,20 +233,16 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>{{ data.principal }}</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("打叶", name) }}
+            </div>
           </div>
         </div>
       </div>
       <div class="box-with-popup" style="top: 19%; left: 44%">
-        <div class="box button-hor">二润</div>
+        <div class="box button-hor" :style="shadowStyle('二润')">二润</div>
         <div class="popup">
-          <svg version="1.1" width="100%" height="100%">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -277,20 +255,16 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>委托方:福建中烟工业有限责任公司</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("二润", name) }}
+            </div>
           </div>
         </div>
       </div>
       <div class="box-with-popup" style="top: 85%; left: 55%">
-        <div class="box button-hor">叶打包</div>
+        <div class="box button-hor" :style="shadowStyle('叶打包')">叶打包</div>
         <div class="popup">
-          <svg version="1.1" width="100%" height="100%">
+          <svg version="1.1" width="80px" height="100%">
             <circle
               cx="5"
               cy="75"
@@ -303,13 +277,9 @@
             <line x1="50" y1="30" x2="80" y2="30" stroke="#D8AA2D" />
           </svg>
           <div class="popup-label">
-            <div>委托方:福建中烟工业有限责任公司</div>
-            <div>牌号:福建三明尤溪ELC1CB1A-2023片烟</div>
-            <div>班组:丙班</div>
-            <div>班次:白班</div>
-            <div>开始时间:2023-10-25 09:33:30</div>
-            <div>结束时间:2023-10-25 10:33:30</div>
-            <div>得分:98.12</div>
+            <div v-for="name in attrNames" :key="name">
+              {{ getDataStatus("叶打包", name) }}
+            </div>
           </div>
         </div>
       </div>
@@ -318,7 +288,7 @@
       <div class="arrow-base arrow-2" style="top: 5%; left: 72%" />
       <div class="arrow-base arrow-3" style="top: 20%; left: 72%" />
       <div class="arrow-base arrow-down" style="top: 30%; left: 46%" />
-      <div class="arrow-base arrow-down" style="top: 77%; left: 65%" />
+      <div class="arrow-base arrow-down" style="top: 77%; left: 64%" />
       <div class="arrow-base arrow-2" style="top: 50%; left: 74%" />
       <div class="arrow-yellow arrow-down" style="top: 60.5%; left: 85%" />
       <div class="arrow-base arrow-3" style="top: 42%; left: 28%; width: 10%" />
@@ -337,50 +307,44 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, reactive, computed } from "vue";
 let props = defineProps({
   data: {
     type: Array, //接受的数据类型
-    default: () => [
-      {
-        key: "打叶",
-        status: "完成",
-        principal: "福建中烟工业有限责任公司",
-        trademark: "福建三明尤溪ELC1CB1A-2023片烟",
-        team: "丙班",
-        shift: "白班",
-        start: "2023-10-25 09:33:30",
-        end: "2023-10-25 10:33:30",
-        score: "98.12",
-      },
-    ], //接受默认数据
+    default: () => [], //接受默认数据
   },
   data2: {
     type: Object, //接受的数据类型
     default: () => {}, //接受默认数据
   },
 });
-
-let processedData = ref([]);
-
-onMounted(() => {
-  // 更具数据生成对样样式
-  processedData.value = props.data.map((data) => {
+const attrNames = [
+  "principal",
+  "trademark",
+  "team",
+  "shift",
+  "start",
+  "end",
+  "score",
+];
+let processedData = computed(() => {
+  return props.data.map((data) => {
+    // 更具数据生成对样样式
     const style = shadowStyle(data.status);
     return { ...data, style };
   });
+});
+onMounted(() => {
   console.log(processedData.value);
 });
-const getDataStatus = (key) => {
-  processedData.value.forEach((itemData) => {
-    if (itemData.key === key) {
-      return itemData;
-    }
-  });
+const getDataStatus = (key, attr) => {
+  const itemStatus = processedData.value.find((e) => e.key === key);
+  // console.log(key, itemStatus[attr]);
+  return itemStatus[attr];
 };
 
 const shadowStyle = (key) => {
-  let item = processedData.value.find((e) => e.key == key);
+  let item = props.data.find((e) => e.key == key);
   if (!item) {
     return {
       backgroundColor: "rgb(61, 140, 14)",

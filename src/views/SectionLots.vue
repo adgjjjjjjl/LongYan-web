@@ -43,10 +43,7 @@
         </div>
         <div class="table-block">
           <a-table
-            :row-selection="{
-              selectedRowKeys: selectedRowKeys,
-              onChange: onSelectChange,
-            }"
+            :row-selection="rowSelection"
             :columns="columns"
             :data-source="data"
             :pagination="false"
@@ -125,7 +122,20 @@ const state = reactive({
 const hasSelected = computed(() => state.selectedRowKeys.length > 0);
 const onSelectChange = (selectedRowKeys) => {
   console.log("selectedRowKeys changed: ", selectedRowKeys);
-  state.selectedRowKeys = selectedRowKeys;
+};
+const rowSelection = {
+  onChange: (selectedRowKeys, selectedRows) => {
+    console.log(
+      `selectedRowKeys: ${selectedRowKeys}`,
+      "selectedRows: ",
+      selectedRows
+    );
+  },
+  getCheckboxProps: (record) => ({
+    disabled: record.name === "Disabled User",
+    // Column configuration not to be checked
+    name: record.name,
+  }),
 };
 const paginationConfig = reactive({
   total: 200, // 总条数
@@ -437,6 +447,11 @@ main {
 //   .ant-table-tbody > tr.ant-table-row:hover > td, .ant-table-tbody > tr > td.ant-table-cell-row-hover
 :deep(.ant-table-tbody) {
   > tr {
+    &.ant-table-row-selected {
+      > td {
+        background: #072554; // 选中行效果
+      }
+    }
     &.ant-table-row:hover {
       > td {
         background: #072554; // 行hover效果

@@ -94,3 +94,39 @@ for (let index = 0; index < 20; index++) {
   d["index"] = index + 1;
   data.push(d);
 }
+
+const status = [
+  "高架库出库",
+  "翻箱喂料",
+  "一润",
+  "二润",
+  "打叶",
+  "叶加酶",
+  "碎片复烤",
+  "叶复烤",
+  "烟梗复烤",
+  "烟梗打包",
+  "叶打包",
+  "碎片打包",
+];
+const temp = {
+  key: "打叶",
+  status: "完成",
+  principal: "福建中烟工业有限责任公司",
+  trademark: "福建三明尤溪ELC1CB1A-2023片烟",
+  team: "丙班",
+  shift: "白班",
+  start: "2023-10-25 09:33:30",
+  end: "2023-10-25 10:33:30",
+  score: "98.12",
+};
+const step = ["停机", "未生产", "生产", "完成", "料头", "料尾"];
+export const statusData = [];
+let index = 0;
+status.forEach((element) => {
+  const t = JSON.parse(JSON.stringify(temp));
+  t["key"] = element;
+  t["status"] = step[index % 6];
+  index++;
+  statusData.push(t);
+});

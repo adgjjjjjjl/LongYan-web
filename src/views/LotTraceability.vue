@@ -92,7 +92,9 @@
       <button class="search" @click="onSearch">查询</button>
     </div>
     <div class="part-block">
-      <div class="woking-steps-block"><QualityTrace /></div>
+      <div class="woking-steps-block">
+        <QualityTrace :data="statusData" />
+      </div>
       <div class="table-contain">
         <div class="icon-left-rects" />
         <div class="icon-right-rects" />
@@ -168,7 +170,13 @@
             </button>
           </div>
           <div class="table-block2">
+            <div
+              id="temperatureChart"
+              v-show="showTemperatureChart"
+              :style="{ width: chartWidth, height: '300px' }"
+            ></div>
             <a-table
+              v-show="!showTemperatureChart"
               :columns="columns"
               :data-source="data"
               :pagination="false"
@@ -200,6 +208,7 @@ import {
   tableConfig,
   columns,
   data,
+  statusData,
 } from "@/utils/LotTraceability";
 import * as echarts from "echarts";
 let echart = echarts;
@@ -251,12 +260,18 @@ const boxNumbers = ref([
   },
 ]);
 let boxId = ref("1");
-
+// 底部左侧按钮
 const bottomButtons = computed(() => Object.keys(tableConfig));
+//选中的按钮标题
 let activateMainStatus = ref("物料");
+// 选中的按钮标题对应的子标题
 const statusButtons = computed(() => {
   return tableConfig[activateMainStatus.value];
 });
+const showTemperatureChart = computed(
+  () => activateMainStatus.value == "环境温湿度"
+);
+// 选中的子标题
 let activateStatus = ref(statusButtons.value[0]);
 const paginationConfig = reactive({
   total: 200, // 总条数
@@ -268,9 +283,13 @@ const locale = {
   jump_to_confirm: "确定",
   page: "页",
 };
+let chartWidth = ref(0);
 onMounted(() => {
   setTimeout(() => {
-    // initCharts();
+    initCharts();
+    chartWidth.value = `${
+      document.getElementsByClassName("table-title-bg")[0]?.offsetWidth
+    }px`;
   }, 200);
   window.onresize = () =>
     (() => {
@@ -312,6 +331,13 @@ const onSearch = (e) => {
 const onClickProcess = (title) => {
   activateMainStatus.value = title;
   activateStatus.value = statusButtons.value[0];
+  const temperatureChart = echart.init(
+    document.getElementById("temperatureChart")
+  );
+  temperatureChart.resize();
+};
+const onClickTitle = (e) => {
+  activateStatus.value = e;
 };
 // 时间选择事件
 const dateChange = (date, dateString) => {
@@ -371,15 +397,15 @@ const initCharts = () => {
     grid: {
       // 整体表格布局
       left: 10,
-      top: 60,
+      top: 40,
       right: 20,
       bottom: 0,
       containLabel: true,
     },
     title: {
-      text: "单位（分）",
+      text: "单位（摄氏度）",
       left: "10",
-      top: "20",
+      top: "0",
       textStyle: {
         fontSize: 12,
         color: "#369CCB",
@@ -419,7 +445,7 @@ const initCharts = () => {
     ],
   };
   // 基于准备好的dom，初始化echarts实例
-  var myChart = echart.init(document.getElementById("QAChart"));
+  var myChart = echart.init(document.getElementById("temperatureChart"));
   myChart.setOption(option);
   console.log("chart");
 };
@@ -518,6 +544,7 @@ main {
     }
     .table-block2 {
       overflow-y: scroll;
+      width: 100%;
       padding: 0 20px 10px;
       &::-webkit-scrollbar {
         display: none;
