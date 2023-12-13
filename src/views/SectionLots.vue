@@ -60,7 +60,6 @@
             </template>
           </a-table>
         </div>
-
         <a-pagination
           v-model:current="paginationConfig.current"
           v-model:page-size="paginationConfig.pageSize"
@@ -138,7 +137,7 @@ const rowSelection = {
   }),
 };
 const paginationConfig = reactive({
-  total: 200, // 总条数
+  total: 80, // 总条数
   pageSize: 20, // 每页条数
   current: 1, // 当前页数
 });
@@ -324,11 +323,15 @@ main {
 
     .table-contain {
       position: relative;
-      overflow: scroll;
+      width: calc(100% - 440px);
       max-height: 620px;
       background-color: #072554;
       margin: 20px 20px 0 0;
       padding: 0 20px;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
       .table-title {
         font-size: 16px;
         font-weight: bold;
@@ -369,7 +372,7 @@ main {
   .chart-box {
     height: 660px;
     padding: 0 20px;
-    margin: 10px 0px 0 50px;
+    margin: 10px 0px 0 20px;
     .chart-contain {
       width: 360px;
       height: 305px;
