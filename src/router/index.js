@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory } from "vue-router";
 // import HomeView from "../views/MainView.vue";
 import DynamicQI from "../views/DynamicQI.vue";
 import AnalyzeRendering from "../views/AnalyzeRendering.vue";
@@ -10,6 +10,12 @@ const routes = [
     path: "",
     name: "home",
     meta: { title: "龙岩金叶复烤·批次质量管控系统" },
+    component: DynamicQI,
+  },
+  {
+    path: "/newui/index.html",
+    name: "dynamic1",
+    meta: { title: "龙岩金叶-动态QI" },
     component: DynamicQI,
   },
   {
@@ -39,7 +45,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: routes,
 });
 router.beforeEach((to, from, next) => {

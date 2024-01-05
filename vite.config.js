@@ -31,7 +31,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "dist",
+    outDir: "D:\\Work\\qualityredryingjy\\04编码实现\\qualityredryingjy\\web\\newui",
     assetsInlineLimit: 10 * 1024,
     target: "modules",
     assetsDir: "assets",

@@ -11,6 +11,7 @@
             : 'button-box-unselected',
         ]"
         @click="onClickProcess(title)"
+        @mouseover="onOverProcess(title)"
       >
         <div>{{ title }}</div>
         <div class="popup">
@@ -19,9 +20,9 @@
             <line x1="0" y1="40" x2="30" y2="25" stroke="#1F4185" />
           </svg>
           <div class="popup-label">
-            <span>委托方：福建中烟工业有限责任公司</span>
-            <span>牌号：福建三明尤溪ELC1CB1A-2023片烟</span>
-            <span>开始时间：2023-10-25 09:33:30</span>
+            <span>委托方：{{companyname}}</span>
+            <span>牌号：{{brandname}}</span>
+            <span>开始时间：{{starttime}}</span>
           </div>
         </div>
       </div>
@@ -38,7 +39,7 @@
           :class="[currentTab == 1 ? 'button-base' : 'button-selected']"
           @click="(e) => onChangeTab(2)"
         >
-          <span>生产批次QI</span>
+          <span>参数实时QI</span>
         </button>
       </div>
       <div class="chart-contain">
@@ -51,10 +52,20 @@
 <script setup>
 import * as echarts from "echarts";
 import { ref, onMounted, reactive } from "vue";
+import {getFactoryInfo,getFactoryQI,getParamQI} from '../api/request';
+
 let echart = echarts;
 const buttonTitles = ["一润", "二润", "打叶", "叶加酶", "叶复烤", "叶打包"];
+const buttonTitlesMapping = {"一润":6, "二润":7, "打叶":8, "叶加酶":9, "叶复烤":10, "叶打包":11};
+const taskIdMapping = {"一润":"yr", "二润":"er", "打叶":"dy", "叶加酶":"yjm", "叶复烤":"yfk", "叶打包":"ydb"};
 let selectedTitle = ref("一润");
 let currentTab = ref(1);
+let companyname = ref("");
+let brandname = ref("");
+let starttime = ref("");
+let batch = ref("");
+let data = [];
+
 onMounted(() => {
   setTimeout(() => {
     initCharts();
@@ -64,6 +75,7 @@ onMounted(() => {
       reloadCharts();
     })();
 });
+
 const reloadCharts = () => {
   var myChart = echart.init(document.getElementById("QAChart"));
   myChart.resize();
@@ -76,7 +88,42 @@ const onChangeTab = (tab) => {
 
 const onClickProcess = (title) => {
   selectedTitle.value = title;
+  option["xAxis"]["data"].length = 0;
+  option["series"][0]["data"].length =0;
+  getFactoryQI(batch.value).then(res=>{
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    //console.log(data);
+    for(var i=0;i<data.length;i++){
+      option["xAxis"]["data"].push(data[i].x);
+      option["series"][0]["data"].push(data[i].y);
+    }
+    initCharts();
+  });
+  connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
 };
+
+const onOverProcess = (title) => {
+  getFactoryInfo(buttonTitlesMapping[title]).then(res=>{
+     if(res.data.length>0){
+       batch.value = res.data[0].batch;
+       companyname.value = res.data[0].companyname;
+       brandname.value = res.data[0].brandname;
+       starttime.value = res.data[0].starttime;
+     }
+     else{
+       batch.value = "";
+       companyname.value = "";
+       brandname.value = "";
+       starttime.value = "";
+     }
+  });
+};
+
 // 获取鼠标相对于元素的位置
 function getMousePosition(event, element) {
   var rect = element.getBoundingClientRect();
@@ -86,8 +133,7 @@ function getMousePosition(event, element) {
   };
 }
 
-const initCharts = () => {
-  const option = {
+const option = {
     xAxis: {
       boundaryGap: ["10%", "10%"],
       type: "category",
@@ -98,20 +144,7 @@ const initCharts = () => {
           color: "#4471A4",
         },
       },
-      data: [
-        " 00:00",
-        " 02:00",
-        " 04:00",
-        " 06:00",
-        " 08:00",
-        " 10:00",
-        " 12:00",
-        " 14:00",
-        " 16:00",
-        " 18:00",
-        " 20:00",
-        " 22:00",
-      ],
+      data:[]
     },
     yAxis: {
       type: "value",
@@ -155,7 +188,7 @@ const initCharts = () => {
     },
     series: [
       {
-        data: [85.33, 88, 89, 90, 82, 96, 96.01, 98.12, 79, 96.65, 98, 79],
+        data:[],
         type: "line",
         smooth: false,
         showSymbol: true,
@@ -186,11 +219,63 @@ const initCharts = () => {
       },
     ],
   };
+
+var myChart = null;
+
+const initCharts = () => {
   // 基于准备好的dom，初始化echarts实例
-  var myChart = echart.init(document.getElementById("QAChart"));
+  myChart = echart.init(document.getElementById("QAChart"));
   myChart.setOption(option);
-  console.log("chart");
+  console.log("initCharts");
 };
+
+const refreshCharts= () => {
+  myChart.setOption(option);
+  console.log("refreshCharts");
+}
+
+var websocket = null;
+
+const connectWebSocketByTaskId = (taskid) => {
+  //判断当前浏览器是否支持WebSocket
+  if ('WebSocket'in window) {
+      if(websocket){
+        websocket.close();
+      }
+      // var url='ws://localhost:10039/ws/webdata/'+tasktype+'/'+taskid;
+      var url = 'ws://10.190.55.134:10039/ws/webdata/qitrendshow/' + taskid;
+      websocket = new WebSocket(url);
+
+      //连接发生错误的回调方法
+      websocket.onerror = function() {
+          console.log('连接发生错误!');
+      };
+
+      //连接成功建立的回调方法
+      websocket.onopen = function() {
+          console.log('连接成功!');
+      };
+
+      //接收到消息的回调方法
+      websocket.onmessage = function(event) {
+          var dataobjarray = eval("(" + event.data + ")");
+          for (var i in dataobjarray) {
+            option["xAxis"]["data"].push(dataobjarray[i].datatime);
+            option["series"][0]["data"].push(dataobjarray[i].weightqi);
+          }
+          refreshCharts();
+      };
+
+      //连接关闭的回调方法
+      websocket.onclose = function() {
+        console.log('连接关闭!');
+      };
+  } else {
+      alert('当前浏览器不支持websocket');
+  }
+}
+
+connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
 </script>
 
 <style lang="scss" scoped>
@@ -231,8 +316,8 @@ main {
       margin-top: 20px;
       // border-top: 20px solid transparent;
       box-sizing: border-box;
-      background: 0 -4px / 20px 10px no-repeat url("icon-rects.png"),
-        100% 0px / 10px 10px no-repeat url("icon-rect.png");
+      background: 0 -4px / 20px 10px no-repeat url("/icon-rects.png"),
+        100% 0px / 10px 10px no-repeat url("/icon-rect.png");
       background-color: #5684bc10;
     }
   }
@@ -250,10 +335,10 @@ main {
     align-items: center;
 
     .button-box-selected {
-      background-image: url("basic-info-pending.png");
+      background-image: url("/basic-info-pending.png");
     }
     .button-box-unselected {
-      background-image: url("basic-info-deal.png");
+      background-image: url("/basic-info-deal.png");
     }
     .button-box {
       background-position: center;

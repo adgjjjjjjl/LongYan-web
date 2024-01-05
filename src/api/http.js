@@ -4,7 +4,8 @@ import { message } from "ant-design-vue";
 
 export const http = axios.create({
   timeout: 20 * 1000,
-  baseURL: "http://localhost:8088",
+  //baseURL: "http://localhost:8088",
+  baseURL: "../",
 });
 
 http.interceptors.request.use(
@@ -24,7 +25,7 @@ http.interceptors.request.use(
 // Add a response interceptor
 http.interceptors.response.use(
   (response) => {
-    Promise.resolve(response.data);
+    return response;
   },
   (err) => {
     // console.log(err);
@@ -50,6 +51,6 @@ http.interceptors.response.use(
       err.message = "连接到服务器失败";
     }
     message.error(err.message);
-    Promise.reject(err);
+    return err;
   }
 );
