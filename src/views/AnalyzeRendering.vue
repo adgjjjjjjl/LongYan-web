@@ -4,6 +4,7 @@
       <span>开始日期：</span>
       <a-date-picker
         v-model:value="dateStart"
+        :locale="locale"
         dropdownClassName="dropdown-custom"
         class="calendar"
         placeholder="开始日期"
@@ -16,6 +17,7 @@
       <span>结束日期：</span>
       <a-date-picker
         v-model:value="dateEnd"
+        :locale="locale"
         dropdownClassName="dropdown-custom"
         class="calendar"
         placeholder="结束日期"
@@ -34,7 +36,7 @@
         style="width: 220px"
         :options="optionsDelegate"
         @focus="focus"
-        @change="handleChange"
+        @change="handleDelegateChange"
       >
         <template #suffixIcon>
           <div class="selector-suffix" />
@@ -49,7 +51,7 @@
         style="width: 120px"
         :options="optionsProd"
         @focus="focus"
-        @change="handleChange"
+        @change="handleBrandChange"
       >
         <template #suffixIcon>
           <div class="selector-suffix" />
@@ -64,13 +66,12 @@
         style="width: 120px"
         :options="optionsGroup"
         @focus="focus"
-        @change="handleChange"
       >
         <template #suffixIcon>
           <div class="selector-suffix" />
         </template>
       </a-select>
-      <button class="search" @click="searchBatch">查询批次号</button>
+      <!--<button class="search" @click="searchBatch">查询批次号</button>-->
       <button class="search" @click="onSearch">查询</button>
     </div>
     <div class="chart-box">
@@ -84,44 +85,39 @@
 <script setup>
 import * as echarts from "echarts";
 import dayjs from "dayjs";
-import { ref, onMounted, reactive } from "vue";
-const dateFormat = "YYYY-MM-DD";
+import { ref, onMounted, reactive,defineComponent } from "vue";
+import {getAnalyzeRendering,getDelegate,getBrandByDelegate,getBrandTeam} from '../api/request';
+import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
+
+const dateFormat = 'YYYY-MM-DD';
 let echart = echarts;
-let dateStart = ref(dayjs("2015-06-06", dateFormat));
-let dateEnd = ref(dayjs("2015-06-06", dateFormat));
-const optionsDelegate = ref([
+let currentDate = new Date();
+let sevenDaysAgo = new Date();
+sevenDaysAgo.setDate(currentDate.getDate() - 7);
+let dateStart = ref(dayjs(sevenDaysAgo));
+let dateEnd = ref(dayjs(currentDate));
+let optionsDelegate = ref([
   {
-    value: "1",
-    label: "福建中烟工业有限责任公司1",
-  },
-  {
-    value: "2",
-    label: "福建中烟工业有限责任公司2",
-  },
-]);
-let delegate = ref("1");
-const optionsProd = ref([
-  {
-    value: "1",
-    label: "福建PC3",
-  },
-  {
-    value: "2",
-    label: "福建PC4",
+    value: "",
+    label: "",
   },
 ]);
-let productNumber = ref("1");
-const optionsGroup = ref([
+let delegate = ref("");
+let optionsProd = ref([
   {
-    value: "1",
-    label: "全部",
-  },
-  {
-    value: "2",
-    label: "福建1",
-  },
+    value: "",
+    label: "",
+  }
 ]);
-let group = ref("1");
+let productNumber = ref("");
+let optionsGroup = ref([
+  {
+    value: "",
+    label: "",
+  }
+]);
+let group = ref("");
+let data = []
 
 onMounted(() => {
   setTimeout(() => {
@@ -131,7 +127,54 @@ onMounted(() => {
     (() => {
       reloadCharts();
     })();
+    loadToolBarData();
 });
+
+const loadToolBarData = () => {
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  loadDelegate(dateStartStr,dateEndStr);
+}
+
+const loadDelegate = (dateStartStr,dateEndStr) => {
+  optionsDelegate.value.length = 0;
+  getDelegate(dateStartStr,dateEndStr).then(res=>{
+    if(res.data.length>0){
+      for(let i=0;i<res.data.length;i++){
+        optionsDelegate.value.push({value:res.data[i].id,label:res.data[i].name});
+      }
+      delegate.value = optionsDelegate.value[0].value;
+      loadBrandDelegate(dateStartStr,dateEndStr,delegate.value);
+    }
+  });
+}
+
+const loadBrandDelegate = (dateStartStr,dateEndStr,delegateid) => {
+  optionsProd.value.length = 0;
+  getBrandByDelegate(dateStartStr,dateEndStr,delegateid).then(res=>{
+      if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          optionsProd.value.push({value:res.data[i].id,label:res.data[i].name});
+        }
+        productNumber.value = optionsProd.value[0].value;
+        loadBrandTeam(dateStartStr,dateEndStr,delegateid,productNumber.value);
+      }
+  });
+}
+
+const loadBrandTeam = (dateStartStr,dateEndStr,delegateid,brandid) => {
+  optionsGroup.value.length = 0;
+  optionsGroup.value.push({value:"",label:"全部"});
+  group.value = optionsGroup.value[0].value;
+  getBrandTeam(dateStartStr,dateEndStr,delegateid,brandid).then(res=>{
+      if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          optionsGroup.value.push({value:res.data[i].id,label:res.data[i].name});
+        }
+      }
+  });
+}
+
 // 缩放后重新渲染折线图
 const reloadCharts = () => {
   var myChart = echart.init(document.getElementById("analyzeChart"));
@@ -142,9 +185,20 @@ const focus = (e) => {
   console.log(e);
 };
 // 选择器选项变化事件
-const handleChange = (e) => {
+const handleDelegateChange = (e) => {
   console.log(e);
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  loadBrandDelegate(dateStartStr,dateEndStr,delegate.value);
 };
+
+const handleBrandChange = (e) => {
+  console.log(e);
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  loadBrandTeam(dateStartStr,dateEndStr,delegate.value,productNumber.value);
+};
+
 // 查询批次号
 const searchBatch = (e) => {
   console.log(e);
@@ -152,14 +206,30 @@ const searchBatch = (e) => {
 // 查询
 const onSearch = (e) => {
   console.log(e);
+  option["xAxis"]["data"].length = 0;
+  option["series"][0]["data"].length =0;
+  getAnalyzeRendering(productNumber.value,group.value).then(res=>{
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    //console.log(data);
+    for(var i=0;i<data.length;i++){
+      option["xAxis"]["data"].push(data[i].x);
+      option["series"][0]["data"].push(data[i].y);
+    }
+    refreshCharts();
+  });
 };
 // 时间选择事件
 const dateChange = (date, dateString) => {
   console.log(dateString);
+  loadToolBarData();
 };
-// 初始化折线图
-const initCharts = () => {
-  const option = {
+
+const option = {
     xAxis: {
       boundaryGap: ["10%", "10%"],
       type: "category",
@@ -170,20 +240,7 @@ const initCharts = () => {
           color: "#4471A4",
         },
       },
-      data: [
-        " 00:00",
-        " 02:00",
-        " 04:00",
-        " 06:00",
-        " 08:00",
-        " 10:00",
-        " 12:00",
-        " 14:00",
-        " 16:00",
-        " 18:00",
-        " 20:00",
-        " 22:00",
-      ],
+      data: [],
     },
     yAxis: {
       type: "value",
@@ -227,7 +284,7 @@ const initCharts = () => {
     },
     series: [
       {
-        data: [85.33, 88, 89, 90, 82, 96, 96.01, 98.12, 79, 96.65, 98, 79],
+        data: [],
         type: "line",
         smooth: false,
         showSymbol: true,
@@ -258,11 +315,21 @@ const initCharts = () => {
       },
     ],
   };
+
+var myChart = null;
+
+// 初始化折线图
+const initCharts = () => {
   // 基于准备好的dom，初始化echarts实例
-  const myChart = echart.init(document.getElementById("analyzeChart"));
+  myChart = echart.init(document.getElementById("analyzeChart"));
   myChart.setOption(option);
-  console.log("chart");
+  console.log("initCharts");
 };
+
+const refreshCharts = ()=>{
+  myChart.setOption(option);
+  console.log("refreshCharts");
+}
 </script>
 
 <style lang="scss" scoped>
