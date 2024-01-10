@@ -27,7 +27,7 @@
         </div>
       </div>
       <div class="table-contain">
-        <div class="table-title">一润批次列表</div>
+        <div class="table-title">{{selectedTitle}}批次列表</div>
         <div>
           <button
             v-for="title in operations"
@@ -50,7 +50,7 @@
             :scroll="{ x: 'max-content' }"
             :row-class-name="
               (_record, index) =>
-                index % 2 === 1 ? 'cell-normal' : 'cell-abnormal'
+                _record.is_error == '正常' ? 'cell-normal' : 'cell-abnormal'
             "
           >
             <template #bodyCell="{ column, text, record }">
@@ -81,11 +81,18 @@
 import * as echarts from "echarts";
 import dayjs from "dayjs";
 import { ref, onMounted, reactive, computed } from "vue";
+import { columns } from "@/utils/pageConfig.js";
+import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction } from '../api/request';
 
-import { columns, data } from "@/utils/pageConfig.js";
-const dateFormat = "YYYY-MM-DD";
+const dateFormat = "YYYYMMDD";
 let echart = echarts;
-let dateStart = ref(dayjs("2015-06-06", dateFormat));
+let currentDate = new Date();
+let sevenDaysAgo = new Date();
+sevenDaysAgo.setDate(currentDate.getDate() - 3);
+let dateStart = ref(dayjs(sevenDaysAgo));
+let dateEnd = ref(dayjs(currentDate));
+let data = ref([]);
+
 const topTitles = [
   "高架库出库",
   "翻箱喂料",
@@ -98,8 +105,22 @@ const topTitles = [
   "碎片复考",
   "碎片打包",
   "烟梗复考",
-  "烟梗打包",
+  "烟梗打包"
 ];
+const topTitlesMapping = { 
+  "高架库出库":53,
+  "翻箱喂料":5,
+  "一润":6, 
+  "二润":7, 
+  "打叶":8, 
+  "叶加酶":9, 
+  "叶复烤":10, 
+  "叶打包":11,
+  "碎片复考":14,
+  "碎片打包":15,
+  "烟梗复考":12,
+  "烟梗打包":13
+};
 let selectedTitle = ref("一润");
 const operations = [
   "新增",
@@ -130,11 +151,11 @@ const rowSelection = {
       selectedRows
     );
   },
-  getCheckboxProps: (record) => ({
-    disabled: record.name === "Disabled User",
-    // Column configuration not to be checked
-    name: record.name,
-  }),
+  // getCheckboxProps: (record) => ({
+  //   disabled: record.name === "Disabled User",
+  //   // Column configuration not to be checked
+  //   name: record.name,
+  // }),
 };
 const paginationConfig = reactive({
   total: 80, // 总条数
@@ -150,12 +171,87 @@ const locale = {
 onMounted(() => {
   setTimeout(() => {
     initCharts();
+    loadChartData();
+    loadBatchInfoData();
   }, 200);
   window.onresize = () =>
     (() => {
       reloadCharts();
     })();
 });
+
+const loadBatchInfoData = () => {
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  getBatchInfoList(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr,paginationConfig.current).then(res=>{
+    data.value.length = 0;
+    let batchInfoData = [];
+    if(typeof res.data == "string"){
+      batchInfoData = eval("("+res.data+")");
+    }
+    else{
+      batchInfoData = res.data;
+    }
+    paginationConfig.total = batchInfoData.total;
+    paginationConfig.current = batchInfoData.page;
+    for(var i=0;i<batchInfoData.rows.length;i++){
+      batchInfoData.rows[i].cell["index"] = i+1;
+      batchInfoData.rows[i].cell["key"] = batchInfoData.rows[i].f_id;
+      batchInfoData.rows[i].cell["fact_starttime"] = batchInfoData.rows[i].cell["f_fact_starttime"] == null ? "" : dayjs(batchInfoData.rows[i].cell["f_fact_starttime"]).format("YYYY-MM-DD HH:mm:ss");
+      batchInfoData.rows[i].cell["fact_endtime"] = batchInfoData.rows[i].cell["f_fact_endtime"] == null ? "" : dayjs(batchInfoData.rows[i].cell["f_fact_endtime"]).format("YYYY-MM-DD HH:mm:ss");
+      batchInfoData.rows[i].cell["is_error"] = batchInfoData.rows[i].cell["f_is_error"] == '1' ? "异常" : "正常";
+      data.value.push(batchInfoData.rows[i].cell);
+    }
+  });
+}
+
+const loadChartData = () => {
+  loadFactoryTimeSpanData();
+  loadFactoryProductionData();
+}
+
+function loadFactoryTimeSpanData() {
+  Timerption["xAxis"]["data"].length = 0;
+  Timerption["series"][0]["data"].length =0;
+  getFactoryTimeSpan(topTitlesMapping[selectedTitle.value]).then(res=>{
+    //console.log(res.data);
+    let data =[];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    //console.log(data);
+    for(var i=0;i<data.length;i++){
+      Timerption["xAxis"]["data"].push(data[i].x);
+      Timerption["series"][0]["data"].push(data[i].y);
+    }
+    chartTimer.setOption(Timerption);
+  });
+}
+
+function loadFactoryProductionData(){
+  TransOption["xAxis"]["data"].length = 0;
+  TransOption["series"][0]["data"].length =0;
+  getFactoryProduction(topTitlesMapping[selectedTitle.value]).then(res=>{
+    //console.log(res.data);
+    let data =[];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    //console.log(data);
+    for(var i=0;i<data.length;i++){
+      TransOption["xAxis"]["data"].push(data[i].x);
+      TransOption["series"][0]["data"].push(data[i].y);
+    }
+    chartTrans.setOption(TransOption);
+  });
+}
+
 const reloadCharts = () => {
   const chartTimer = echart.init(document.getElementById("chartTimer"));
   const chartTrans = echart.init(document.getElementById("chartTrans"));
@@ -166,15 +262,16 @@ const reloadCharts = () => {
 const onClickTitle = (title) => {
   selectedTitle.value = title;
   console.log(selectedTitle.value);
+  loadChartData();
+  loadBatchInfoData();
 };
 
-function handlePageChange(pageInfo) {
-  // 判断是否是点击事件
-  const { current, pageSize, total } = pageInfo;
+function handlePageChange(current) {
   console.log(
-    `点击了第 ${current} 页，每页显示 ${pageSize} 条数据, 共${total}条数据`
+    `点击了第 ${current} 页`
   );
   paginationConfig.current = current;
+  loadBatchInfoData();
 }
 
 const handleChange = (e) => {
@@ -194,8 +291,7 @@ const dateChange = (date, dateString) => {
   console.log(dateString);
 };
 
-const initCharts = () => {
-  const option = {
+const TransOption = {
     // dataZoom: [
     //   {
     //     type: "inside", // 类型为滑动条
@@ -222,21 +318,13 @@ const initCharts = () => {
         },
         fontSize: 9,
       },
-      data: [
-        "2023044-*2119yr",
-        "2023044-*218yr",
-        "2023044-*218yr",
-        "2023044-*207yr",
-        "2023044-*216yr",
-      ],
+      data: [],
     },
     yAxis: {
       type: "value",
-      min: 0,
-      max: 100,
       splitNumber: 10,
       axisLabel: {
-        formatter: "{value} ",
+        formatter: "{value}",
         color: "#93DCFE",
         fontSize: 11,
       },
@@ -262,7 +350,7 @@ const initCharts = () => {
       containLabel: true,
     },
     title: {
-      text: "单位（分）",
+      text: "单位（kg或箱）",
       left: "10",
       top: "46",
       textStyle: {
@@ -272,7 +360,7 @@ const initCharts = () => {
     },
     series: [
       {
-        data: [58.5, 56.5, 56.5, 56.5, 58.1],
+        data: [],
         type: "line",
         smooth: false,
         showSymbol: true,
@@ -298,17 +386,40 @@ const initCharts = () => {
           color: "#04112C",
           borderColor: "#71D9EB", //拐点边框颜色
           borderWidth: 1, //拐点边框大小
-          opacity: 0.9,
+          opacity: 0.9
         },
       },
     ],
   };
-  // 基于准备好的dom，初始化echarts实例
-  const chartTimer = echart.init(document.getElementById("chartTimer"));
-  const chartTrans = echart.init(document.getElementById("chartTrans"));
-  chartTimer.setOption(JSON.parse(JSON.stringify(option)));
-  chartTrans.setOption(JSON.parse(JSON.stringify(option)));
+
+const Timerption = JSON.parse(JSON.stringify(TransOption));
+Timerption.title.text = "单位（分钟）";
+Timerption.yAxis.min = 0;
+Timerption.yAxis.max = 100;
+Timerption.series[0].label.formatter = function(value,index){
+  return minutesToTimeString(parseInt(value.data));
 };
+
+var chartTimer = null;
+var chartTrans = null;
+
+const initCharts = () => {
+  // 基于准备好的dom，初始化echarts实例
+  chartTimer = echart.init(document.getElementById("chartTimer"));
+  chartTrans = echart.init(document.getElementById("chartTrans"));
+  chartTimer.setOption(Timerption);
+  chartTrans.setOption(TransOption);
+};
+
+function minutesToTimeString(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+
+    const formattedHours = hours.toString().padStart(2, '0');
+    const formattedMinutes = remainingMinutes.toString().padStart(2, '0');
+
+    return `${formattedHours}:${formattedMinutes}`;
+}
 </script>
 
 <style lang="scss" scoped>

@@ -31,3 +31,15 @@ export const getBrandByDelegate = (datestart,dateend,delegateid) => {
 export const getBrandTeam = (datestart,dateend,delegateid,brandid) => {
   return http.get("/report/json?jid=285&datestart="+datestart+"&dateend="+dateend+"&delegateid="+delegateid+"&brandid="+brandid);
 }
+
+export const getBatchInfoList = (factoryid,startdate,enddate,p) => {
+  return http.get("/report/output?rid=68&export=flexigridjson&factoryid="+factoryid+"&startdate="+startdate+"&enddate="+enddate+"&status=,1,2,3,4,5,6&batch=&brandname=&boxno=&paging=pagecount&s=20&p="+p);
+}
+
+export const getFactoryTimeSpan = (factoryid) =>{
+  return http.get("/report/json?jid=290&factoryid="+factoryid);
+}
+
+export const getFactoryProduction = (factoryid) =>{
+  return http.get("/report/json?jid=291&factoryid="+factoryid);
+}

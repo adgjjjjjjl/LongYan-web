@@ -7,101 +7,100 @@ export const columns = [
   },
   {
     title: "工段批次",
-    dataIndex: "pici",
+    dataIndex: "f_batch",
     width: "auto",
     align: "center",
   },
   {
     title: "班次",
-    dataIndex: "banci",
+    dataIndex: "squadname",
     width: "auto",
     align: "center",
   },
   {
     title: "班组",
-    dataIndex: "banzu",
+    dataIndex: "teamname",
     width: "auto",
     align: "center",
   },
   {
     title: "委托方",
-    dataIndex: "weituofang",
+    dataIndex: "companyname",
     width: "auto",
     align: "center",
   },
   {
     title: "牌号",
-    dataIndex: "number",
+    dataIndex: "brandname",
     width: "auto",
     align: "center",
   },
   {
     title: "开始时间",
-    dataIndex: "startTime",
+    dataIndex: "fact_starttime",
     width: "auto",
     align: "center",
   },
   {
     title: "结束时间",
-    dataIndex: "endTime",
+    dataIndex: "fact_endtime",
     width: "auto",
     align: "center",
   },
   {
     title: "时长",
-    dataIndex: "long",
+    dataIndex: "shichang",
     width: "auto",
   },
   {
     title: "日期",
-    dataIndex: "date",
+    dataIndex: "f_product_date",
     width: "auto",
     align: "center",
   },
   {
     title: "状态",
-    dataIndex: "status",
+    dataIndex: "statusname",
     width: "auto",
     align: "center",
   },
   {
     title: "出柜号(预混柜)",
-    dataIndex: "chugui",
+    dataIndex: "outno",
     width: "auto",
     align: "center",
   },
   {
     title: "配方量",
-    dataIndex: "peifangliang",
+    dataIndex: "f_formula2",
     width: "auto",
     align: "center",
   },
   {
     title: "是否异常",
-    dataIndex: "normal",
+    dataIndex: "is_error",
     width: "auto",
     align: "center",
   },
 ];
-const dateItem = {
-  pici: "2023044-202311-5-119yr",
-  banci: "白班",
-  banzu: "乙组",
-  weituofang: "上海烟草集团有限责任公司",
-  number: "福建PC3",
-  startTime: "2023-10-16 16:22:11",
-  endTime: "2023-10-16 18:22:11",
-  long: "01:10:00",
-  date: "2023-11-21",
-  status: "完成",
-  chugui: "1#",
-  peifangliang: "12024.2",
-  normal: true,
-};
-export const data = [];
-for (let index = 0; index < 50; index++) {
-  const d = JSON.parse(JSON.stringify(dateItem));
-  d["index"] = index + 1;
-  d["key"] = index + 1;
-  data.push(d);
-}
+// const dateItem = {
+//   pici: "2023044-202311-5-119yr",
+//   banci: "白班",
+//   banzu: "乙组",
+//   weituofang: "上海烟草集团有限责任公司",
+//   number: "福建PC3",
+//   startTime: "2023-10-16 16:22:11",
+//   endTime: "2023-10-16 18:22:11",
+//   long: "01:10:00",
+//   date: "2023-11-21",
+//   status: "完成",
+//   chugui: "1#",
+//   peifangliang: "12024.2",
+//   normal: "正常",
+// };
+// for (let index = 0; index < 50; index++) {
+//   const d = JSON.parse(JSON.stringify(dateItem));
+//   d["index"] = index + 1;
+//   d["key"] = index + 1;
+//   data.push(d);
+// }
