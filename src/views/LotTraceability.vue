@@ -4,6 +4,7 @@
       <span>开始日期：</span>
       <a-date-picker
         v-model:value="dateStart"
+        :locale="zhCN"
         dropdownClassName="dropdown-custom"
         class="calendar"
         placeholder="开始日期"
@@ -16,6 +17,7 @@
       <span>结束日期：</span>
       <a-date-picker
         v-model:value="dateEnd"
+        :locale="zhCN"
         dropdownClassName="dropdown-custom"
         class="calendar"
         placeholder="结束日期"
@@ -29,7 +31,7 @@
       <a-select
         v-model:value="working"
         dropdownClassName="picker"
-        style="width: 150px"
+        style="width: 110px"
         :options="workingProcess"
         @focus="focus"
         @change="handleChange"
@@ -39,10 +41,12 @@
       </a-select>
       <span>委托方：</span>
       <a-select
+        show-search
         v-model:value="delegate"
         dropdownClassName="picker"
-        style="width: 220px"
+        style="width: 220px;color: rgb(99, 160, 189);"
         :options="optionsDelegate"
+        :filter-option="filterOption"
         @focus="focus"
         @change="handleChange"
       >
@@ -52,10 +56,12 @@
       </a-select>
       <span>生产牌号：</span>
       <a-select
+      show-search
         v-model:value="productNumber"
         dropdownClassName="picker"
-        style="width: 100px"
+        style="width: 220px;color: rgb(99, 160, 189);"
         :options="optionsProd"
+        :filter-option="filterOption"
         @focus="focus"
         @change="handleChange"
       >
@@ -64,36 +70,15 @@
         </template>
       </a-select>
       <span>批次号：</span>
-      <a-select
-        v-model:value="group"
-        dropdownClassName="picker"
-        style="width: 80px"
-        :options="optionsGroup"
-        @focus="focus"
-        @change="handleChange"
-      >
-        <template #suffixIcon>
-          <div class="selector-suffix" />
-        </template>
-      </a-select>
+      <a-input v-model:value="batch" placeholder="" style="color: #63a0bd;width: 180px;background-color: transparent;border: 1px solid #264460;"/>
       <span>箱号：</span>
-      <a-select
-        v-model:value="boxId"
-        style="width: 80px"
-        :options="boxNumbers"
-        @focus="focus"
-        @change="handleChange"
-      >
-        <template #suffixIcon>
-          <div class="selector-suffix" />
-        </template>
-      </a-select>
+      <a-input v-model:value="boxId" placeholder=""  style="color: #63a0bd;width: 70px;background-color: transparent;border: 1px solid #264460;"/>
       <button class="search" @click="searchBatch">查批次号</button>
       <button class="search" @click="onSearch">查询</button>
     </div>
     <div class="part-block">
       <div class="woking-steps-block">
-        <QualityTrace :data="statusData" />
+        <QualityTrace :data="statusData" @loadData="loadData"/>
       </div>
       <div class="table-contain">
         <div class="icon-left-rects" />
@@ -102,13 +87,10 @@
         <div class="table-block">
           <a-table
             :columns="columns"
-            :data-source="data"
+            :data-source="exceptionSummaryData"
             :pagination="false"
             :scroll="{ x: 'max-content', y: 240 }"
-            :row-class-name="
-              (_record, index) =>
-                index !== 2 ? 'cell-normal' : 'cell-abnormal'
-            "
+            :row-class-name="'cell-normal'"
           >
             <template #bodyCell="{ column, text, record }">
               <div class="base-cell">
@@ -177,14 +159,11 @@
             ></div>
             <a-table
               v-show="!showTemperatureChart"
-              :columns="columns"
-              :data-source="data"
+              :columns="columns2"
+              :data-source="data2"
               :pagination="false"
               :scroll="{ x: 'max-content', y: 300 }"
-              :row-class-name="
-                (_record, index) =>
-                  index !== 2 ? 'cell-normal' : 'cell-abnormal'
-              "
+              :row-class-name="'cell-normal'"
             >
               <template #bodyCell="{ column, text, record }">
                 <div class="base-cell">
@@ -203,73 +182,82 @@
 import QualityTrace from "../components/qualityTracebility.vue";
 import dayjs from "dayjs";
 import { ref, onMounted, reactive, computed } from "vue";
+import { 
+  getTraceabilityDelegate,
+  getBrandByDelegate,
+  getCurrentDbBatch,
+  getExceptionSummary,
+  getUnsteadyData,
+  getAccessoryInfo,
+  getBatchInfo,
+  getOutStockInfo,
+  getProcessParams,
+  getProcessTechnology,
+  getFormulaSheet,
+  getProcessQuality,
+  getQualityInformation,
+  getAlarmMessage,
+  getPackingDensity,
+  getBakingTrending
+} from '../api/request';
+import zhCN from 'ant-design-vue/es/date-picker/locale/zh_CN';
+
 import {
   workingProcess,
   tableConfig,
   columns,
-  data,
-  statusData,
+  unsteadyDataColumns,
+  accessoryInfoColumns,
+  outStockColumns,
+  processParamsColumns,
+  processTechnologyColumns,
+  formulaSheetColumns,
+  processQualityColumns,
+  qualityInformationColumns,
+  alarmMessageColumns,
+  packingDensityColumns
 } from "@/utils/LotTraceability";
 import * as echarts from "echarts";
 let echart = echarts;
 const dateFormat = "YYYY-MM-DD";
-let dateStart = ref(dayjs("2015-06-06", dateFormat));
-let dateEnd = ref(dayjs("2015-06-06", dateFormat));
+let dateStart = ref(dayjs(new Date()));
+let dateEnd = ref(dayjs(new Date()));
 const optionsDelegate = ref([
   {
-    value: "1",
-    label: "福建中烟工业有限责任公司1",
-  },
-  {
-    value: "2",
-    label: "福建中烟工业有限责任公司2",
-  },
+    value: "",
+    label: "",
+  }
 ]);
-let delegate = ref("1");
-let working = ref("3");
+let delegate = ref("");
+let working = ref("11");
 const optionsProd = ref([
   {
-    value: "1",
-    label: "福建PC3",
-  },
-  {
-    value: "2",
-    label: "福建PC4",
+    value: "",
+    label: "",
   },
 ]);
-let productNumber = ref("1");
-const optionsGroup = ref([
-  {
-    value: "1",
-    label: "全部",
-  },
-  {
-    value: "2",
-    label: "福建1",
-  },
-]);
-let group = ref("1");
-const boxNumbers = ref([
-  {
-    value: "1",
-    label: "箱号1",
-  },
-  {
-    value: "2",
-    label: "箱号2",
-  },
-]);
-let boxId = ref("1");
+let productNumber = ref("");
+let batch = ref("");
+let boxId = ref("");
+let exceptionSummaryData = ref([]);
+let data2 = ref([]);
+let columns2 = ref([]);
+let statusData = ref([]);
+let productdate = ref("");
+let team = ref("");
+let starttime = ref("");
+let endtime = ref("");
+
 // 底部左侧按钮
 const bottomButtons = computed(() => Object.keys(tableConfig));
 //选中的按钮标题
-let activateMainStatus = ref("物料");
+let activateMainStatus = ref("加工要求");
 // 选中的按钮标题对应的子标题
 const statusButtons = computed(() => {
   return tableConfig[activateMainStatus.value];
 });
 const showTemperatureChart = computed(
-  () => activateMainStatus.value == "环境温湿度"
+  () => (activateStatus.value == "环境温湿度趋势" || activateStatus.value == "叶复烤过程趋势")
 );
 // 选中的子标题
 let activateStatus = ref(statusButtons.value[0]);
@@ -295,7 +283,92 @@ onMounted(() => {
     (() => {
       reloadCharts();
     })();
+  loadToolBarData();
+  loadCurrentDbBatch();
 });
+
+const loadToolBarData = () => {
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  loadDelegate(dateStartStr,dateEndStr);
+}
+
+const loadDelegate = (dateStartStr,dateEndStr) => {
+  optionsDelegate.value.length = 0;
+  getTraceabilityDelegate(dateStartStr,dateEndStr).then(res=>{
+    if(res.data.length>0){
+      for(let i=0;i<res.data.length;i++){
+        optionsDelegate.value.push({value:res.data[i].id,label:res.data[i].name});
+      }
+      delegate.value = optionsDelegate.value[0].value;
+      loadBrandDelegate(dateStartStr,dateEndStr,delegate.value);
+    }
+  });
+}
+
+const loadBrandDelegate = (dateStartStr,dateEndStr,delegateid) => {
+  optionsProd.value.length = 0;
+  getBrandByDelegate(dateStartStr,dateEndStr,delegateid).then(res=>{
+      if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          optionsProd.value.push({value:res.data[i].id,label:res.data[i].name});
+        }
+        productNumber.value = optionsProd.value[0].value;
+      }
+  });
+}
+
+const loadCurrentDbBatch = () => {
+  getCurrentDbBatch().then(res=>{
+    let data =[];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    if(data.length>0){
+      batch.value = data[0].f_batch;
+      loadBatchInfoData();
+      loadData();
+    }
+  });
+}
+
+function loadBatchInfoData(){
+  getBatchInfo(batch.value).then(res=>{
+    let data =[];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    if(data.length>0){
+      for(let i=0;i<data.length;i++){
+          statusData.value.push({
+            key: data[i].factoryname,
+            status: data[i].status,
+            principal: data[i].companyname,
+            trademark: data[i].f_name,
+            team: data[i].teamname,
+            shift: data[i].squadname,
+            start: data[i].starttime,
+            end: data[i].endtime,
+            score: data[i].f_score,
+            productdate: data[i].f_product_date,
+            batch:data[i].f_batch
+          })
+          if(data[i].factoryname == "叶打包"){
+            productdate.value = data[i].productdate;
+            team.value = data[i].team;
+            starttime.value = data[i].starttime;
+            endtime.value = data[i].endtime;
+          }
+      }
+    }
+  });
+}
 
 function handlePageChange(pageInfo) {
   // 判断是否是点击事件
@@ -326,29 +399,324 @@ const searchBatch = (e) => {
 // 查询
 const onSearch = (e) => {
   // console.log(e);
+  loadExceptionSummary();
+  loadData2();
 };
+
+const filterOption = (input, option) => {
+  return (
+        option.props.label.indexOf(input) >= 0
+  );
+}
+
+function loadData(itemStatus){
+  if(itemStatus){
+    batch.value = itemStatus.batch;
+    productdate.value = itemStatus.productdate;
+    team.value = itemStatus.team;
+    starttime.value = itemStatus.starttime;
+    endtime.value = itemStatus.endtime;
+  }
+  
+  loadExceptionSummary();
+  loadData2();
+}
+
+function loadExceptionSummary(){
+  getExceptionSummary(batch.value).then(res=>{
+    exceptionSummaryData.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data[i]["content"] = data[i]["f_content"].replaceAll("<br/>","");
+      exceptionSummaryData.value.push(data[i]);
+    }
+  })
+}
+
+function loadUnsteadyData(){
+  getUnsteadyData(batch.value).then(res=>{
+    columns2.value = unsteadyDataColumns;
+    data2.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data[i]["fact_starttime"] = data[i]["f_fact_starttime"] == null ? "" : dayjs(data[i]["f_fact_starttime"]).format("YYYY-MM-DD HH:mm:ss");
+      data[i]["fact_endtime"] = data[i]["f_fact_endtime"] == null ? "" : dayjs(data[i]["f_fact_starttime"]).format("YYYY-MM-DD HH:mm:ss");
+      data2.value.push(data[i]);
+    }
+  })
+}
+
+function loadAccessoryInfo(){
+  getAccessoryInfo(productdate.value,team.value).then(res=>{
+    columns2.value = accessoryInfoColumns;
+    data2.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data[i]["order_time"] = data[i]["f_order_time"] == null ? "" : dayjs(data[i]["f_order_time"]).format("YYYY-MM-DD HH:mm:ss");
+      data2.value.push(data[i]);
+    }
+  });
+}
+
+function loadOutStockInfo(){
+  getOutStockInfo(batch.value).then(res=>{
+    columns2.value = outStockColumns;
+    data2.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data[i]["order_time"] = data[i]["f_order_time"] == null ? "" : dayjs(data[i]["f_order_time"]).format("YYYY-MM-DD HH:mm:ss");
+      data2.value.push(data[i]);
+    }
+  });
+}
+
+function loadProcessParams(){
+  getProcessParams(batch.value).then(res=>{
+    columns2.value = processParamsColumns;
+    data2.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data2.value.push(data[i]);
+    }
+  });
+}
+
+function loadProcessTechnology(){
+  getProcessTechnology(batch.value).then(res=>{
+    columns2.value = processTechnologyColumns;
+    data2.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data2.value.push(data[i]);
+    }
+  });
+}
+
+function loadFormulaSheet(){
+  getFormulaSheet(batch.value).then(res=>{
+    columns2.value = formulaSheetColumns;
+    data2.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data2.value.push(data[i]);
+    }
+  });
+}
+
+function loadProcessQuality(){
+  getProcessQuality(batch.value).then(res=>{
+    columns2.value = processQualityColumns;
+    data2.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data2.value.push(data[i]);
+    }
+  })
+}
+
+function loadQualityInformation(){
+  getQualityInformation(batch.value).then(res=>{
+    columns2.value = qualityInformationColumns;
+    data2.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data2.value.push(data[i]);
+    }
+  })
+}
+
+function loadAlarmMessage(){
+  getAlarmMessage(batch.value).then(res=>{
+    columns2.value = alarmMessageColumns;
+    data2.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data2.value.push(data[i]);
+    }
+  })
+}
+
+function loadPackingDensity(){
+  getPackingDensity(batch.value).then(res=>{
+    columns2.value = packingDensityColumns;
+    data2.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data[i]["f_createtime"] = data[i]["f_createtime"] == null ? "" : dayjs(data[i]["f_createtime"]).format("YYYY-MM-DD HH:mm:ss");
+      data[i]["f_modifytime"] = data[i]["f_modifytime"] == null ? "" : dayjs(data[i]["f_modifytime"]).format("YYYY-MM-DD HH:mm:ss");
+      data2.value.push(data[i]);
+    }
+  })
+}
+
+function loadBakingTrending(){
+  getBakingTrending(starttime.value,endtime.value).then(res=>{
+    let data=[];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    //console.log(data);
+    for(var i=0;i<data.length;i++){
+      option["xAxis"]["data"].push(data[i].x);
+      option["series"][0]["data"].push(data[i].y);
+    }
+    refreshCharts();
+  })
+}
+
 
 const onClickProcess = (title) => {
   activateMainStatus.value = title;
   activateStatus.value = statusButtons.value[0];
+  loadData2();
+};
+
+const onClickTitle = (e) => {
+  activateStatus.value = e;
+  if(e == "环境温湿度趋势" || e == "叶复烤过程趋势"){
+    resizeTemperatureChart();
+  }
+  loadData2();
+};
+
+const resizeTemperatureChart = () => {
   const temperatureChart = echart.init(
     document.getElementById("temperatureChart")
   );
   temperatureChart.resize();
 };
-const onClickTitle = (e) => {
-  activateStatus.value = e;
-};
+
+const loadData2 = () => {
+  if(activateStatus.value == "非稳态时间"){
+    loadUnsteadyData();
+  }
+  else if(activateStatus.value == "辅料信息"){
+    loadAccessoryInfo();
+  }
+  else if(activateStatus.value == "配方出库单"){
+    loadOutStockInfo();
+  }
+  else if(activateStatus.value == "工艺参数标准"){
+    loadProcessParams();
+  }
+  else if(activateStatus.value == "加工工艺技术要求"){
+    loadProcessTechnology();
+  }
+  else if(activateStatus.value == "配方单"){
+    loadFormulaSheet();
+  }
+  else if(activateStatus.value == "环境温湿度趋势"){
+    loadBakingTrending();
+  }
+  else if(activateStatus.value == "过程质量"){
+    loadProcessQuality();
+  }
+  else if(activateStatus.value == "质检信息"){
+    loadQualityInformation();
+  }
+  else if(activateStatus.value == "报警信息"){
+    loadAlarmMessage();
+  }
+  else if(activateStatus.value == "装箱密度"){
+    loadPackingDensity();
+  }
+  else if(activateStatus.value == "叶复烤过程趋势"){
+    loadBakingTrending();
+  }
+}
+
 // 时间选择事件
 const dateChange = (date, dateString) => {
   console.log(dateString);
+  loadToolBarData();
 };
-// 初始化折线图
-const initCharts = () => {
-  const option = {
+
+var myChart = null;
+
+const option = {
     xAxis: {
       boundaryGap: ["10%", "10%"],
-      type: "category",
+      type: "time",
       axisTick: { inside: true },
       splitNumber: 10,
       axisLine: {
@@ -356,20 +724,7 @@ const initCharts = () => {
           color: "#4471A4",
         },
       },
-      data: [
-        " 00:00",
-        " 02:00",
-        " 04:00",
-        " 06:00",
-        " 08:00",
-        " 10:00",
-        " 12:00",
-        " 14:00",
-        " 16:00",
-        " 18:00",
-        " 20:00",
-        " 22:00",
-      ],
+      data: [],
     },
     yAxis: {
       type: "value",
@@ -413,7 +768,7 @@ const initCharts = () => {
     },
     series: [
       {
-        data: [85.33, 88, 89, 90, 82, 96, 96.01, 98.12, 79, 96.65, 98, 79],
+        data: [],
         type: "line",
         smooth: false,
         showSymbol: true,
@@ -444,11 +799,19 @@ const initCharts = () => {
       },
     ],
   };
+
+// 初始化折线图
+const initCharts = () => {
   // 基于准备好的dom，初始化echarts实例
-  var myChart = echart.init(document.getElementById("temperatureChart"));
+  myChart = echart.init(document.getElementById("temperatureChart"));
   myChart.setOption(option);
   console.log("chart");
 };
+
+const refreshCharts = ()=>{
+  myChart.setOption(option);
+  console.log("refreshCharts");
+}
 </script>
 
 <style lang="scss" scoped>
@@ -642,7 +1005,7 @@ main {
       background-color: transparent;
       padding: 2px 5px 2px 5px;
       border: 1px solid #264460;
-      width: 140px;
+      width: 100px;
     }
 
     .calendar-icon {
@@ -710,6 +1073,7 @@ main {
       transition: background 0.3s;
       padding: 5px 10px;
       font-size: 11px;
+      white-space: pre-wrap;
       &.ant-table-cell-row-hover {
         background: #072554; // 行hover效果
       }

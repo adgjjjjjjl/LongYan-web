@@ -36,10 +36,74 @@ export const getBatchInfoList = (factoryid,startdate,enddate,p) => {
   return http.get("/report/output?rid=68&export=flexigridjson&factoryid="+factoryid+"&startdate="+startdate+"&enddate="+enddate+"&status=,1,2,3,4,5,6&batch=&brandname=&boxno=&paging=pagecount&s=20&p="+p);
 }
 
-export const getFactoryTimeSpan = (factoryid) =>{
+export const getFactoryTimeSpan = (factoryid) => {
   return http.get("/report/json?jid=290&factoryid="+factoryid);
 }
 
-export const getFactoryProduction = (factoryid) =>{
+export const getFactoryProduction = (factoryid) => {
   return http.get("/report/json?jid=291&factoryid="+factoryid);
+}
+
+export const getTraceabilityDelegate = (datestart,dateend) => {
+  return http.get("/report/json?jid=296&datestart="+datestart+"&dateend="+dateend);
+}
+
+export const getCurrentDbBatch = () => {
+  return http.get("/report/json?jid=200");
+}
+
+export const getExceptionSummary = (batch) => {
+  return http.get("/report/json?jid=295&batch="+batch);
+}
+
+export const getUnsteadyData = (batch) => {
+  return http.get("/report/json?jid=297&batch="+batch);
+}
+
+export const getAccessoryInfo = (datetime,team) => {
+  return http.get("/report/json?jid=301&datetime="+datetime+"&team="+team);
+}
+
+export const getBatchInfo = (batch) => {
+  return http.get("/report/json?jid=302&batch="+batch);
+}
+
+export const getOutStockInfo = (batch) => {
+  return http.get("/report/json?jid=303&batch="+batch);
+}
+
+export const getProcessParams = (batch) => {
+  return http.get("/report/json?jid=304&batch="+batch);
+}
+
+export const getProcessTechnology = (batch) => {
+  return http.get("/report/json?jid=305&batch="+batch);
+}
+
+export const getFormulaSheet = (batch) => {
+  return http.get("/report/json?jid=306&batch="+batch);
+}
+
+export const getProcessQuality = (batch) => {
+  return http.get("/report/json?jid=307&batch="+batch);
+}
+
+export const getQualityInformation = (batch) => {
+  return http.get("/report/json?jid=308&batch="+batch);
+}
+
+export const getAlarmMessage = (batch) => {
+  return http.get("/report/json?jid=309&batch="+batch);
+}
+
+export const getPackingDensity = (batch) => {
+  return http.get("/report/json?jid=310&batch="+batch);
+}
+
+export const getBakingTrending = (starttime,endtime) => {
+  return http.get("/report/json?jid=241&starttime="+starttime+"&endtime="+endtime);
+}
+
+export const getTemperatureTrending = (batch) => {
+  return http.get("/report/json?jid=241&batch="+batch);
 }

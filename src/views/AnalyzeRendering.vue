@@ -48,7 +48,7 @@
         v-model:value="productNumber"
         class="picker"
         dropdownClassName="dropdown-custom"
-        style="width: 120px"
+        style="width: 220px"
         :options="optionsProd"
         @focus="focus"
         @change="handleBrandChange"

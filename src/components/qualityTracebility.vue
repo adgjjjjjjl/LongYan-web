@@ -1,7 +1,7 @@
 <template>
   <div class="body-bottom">
     <div class="box-block">
-      <div class="box-with-popup" style="top: 4%; left: 7%">
+      <div class="box-with-popup" style="top: 4%; left: 7%" @click="loadBatchData('高架库出库')">
         <div class="box button-hor" :style="shadowStyle('高架库出库')">
           高架库出库
         </div>
@@ -25,7 +25,7 @@
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 4%; left: 44%">
+      <div class="box-with-popup" style="top: 4%; left: 44%" @click="loadBatchData('翻箱喂料')">
         <div class="box button-hor" :style="shadowStyle('翻箱喂料')">
           翻箱喂料
         </div>
@@ -49,7 +49,7 @@
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 4%; left: 83%">
+      <div class="box-with-popup" style="top: 4%; left: 83%" @click="loadBatchData('一润')">
         <div
           class="box button-ver"
           style="height: 80px"
@@ -77,7 +77,7 @@
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 33%; left: 83%">
+      <div class="box-with-popup" style="top: 33%; left: 83%" @click="loadBatchData('碎片复烤')">
         <div class="box button-ver" :style="shadowStyle('碎片复烤')">
           碎片复烤
         </div>
@@ -101,7 +101,7 @@
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 68%; left: 83%">
+      <div class="box-with-popup" style="top: 68%; left: 83%" @click="loadBatchData('碎片打包')">
         <div class="box button-ver" :style="shadowStyle('碎片打包')">
           碎片打包
         </div>
@@ -125,7 +125,7 @@
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 37%; left: 15%">
+      <div class="box-with-popup" style="top: 37%; left: 15%" @click="loadBatchData('叶加酶')" >
         <div class="box button-ver" :style="shadowStyle('叶加酶<')">叶加酶</div>
         <div class="popup">
           <svg version="1.1" width="80px" height="100%">
@@ -147,7 +147,7 @@
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 72%; left: 15%">
+      <div class="box-with-popup" style="top: 72%; left: 15%" @click="loadBatchData('烟梗打包')">
         <div class="box button-ver" :style="shadowStyle('烟梗打包')">
           烟梗打包
         </div>
@@ -171,7 +171,7 @@
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 72%; left: 42%">
+      <div class="box-with-popup" style="top: 72%; left: 42%" @click="loadBatchData('烟梗复烤')">
         <div class="box button-ver" :style="shadowStyle('烟梗复烤')">
           烟梗复烤
         </div>
@@ -195,7 +195,7 @@
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 49%; left: 61%">
+      <div class="box-with-popup" style="top: 49%; left: 61%" @click="loadBatchData('叶复烤')">
         <div class="box button-ver" :style="shadowStyle('叶复烤')">叶复烤</div>
         <div class="popup">
           <svg version="1.1" width="80px" height="100%">
@@ -217,7 +217,7 @@
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 37%; left: 42%">
+      <div class="box-with-popup" style="top: 37%; left: 42%" @click="loadBatchData('打叶')">
         <div class="box button-leaf" :style="shadowStyle('打叶')">打叶</div>
         <div class="popup">
           <svg version="1.1" width="80px" height="100%">
@@ -239,7 +239,7 @@
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 19%; left: 44%">
+      <div class="box-with-popup" style="top: 19%; left: 44%" @click="loadBatchData('二润')">
         <div class="box button-hor" :style="shadowStyle('二润')">二润</div>
         <div class="popup">
           <svg version="1.1" width="80px" height="100%">
@@ -261,7 +261,7 @@
           </div>
         </div>
       </div>
-      <div class="box-with-popup" style="top: 85%; left: 55%">
+      <div class="box-with-popup" style="top: 85%; left: 55%" @click="loadBatchData('叶打包')">
         <div class="box button-hor" :style="shadowStyle('叶打包')">叶打包</div>
         <div class="popup">
           <svg version="1.1" width="80px" height="100%">
@@ -308,6 +308,9 @@
 
 <script setup>
 import { ref, onMounted, reactive, computed } from "vue";
+
+const emit = defineEmits(["loadData"]);
+
 let props = defineProps({
   data: {
     type: Array, //接受的数据类型
@@ -327,6 +330,15 @@ const attrNames = [
   "end",
   "score",
 ];
+let attrNamesMapping = {
+  "principal":"委托方",
+  "trademark":"牌号",
+  "team":"班组",
+  "shift":"班次",
+  "start":"开始时间",
+  "end":"结束时间",
+  "score":"得分",
+}
 let processedData = computed(() => {
   return props.data.map((data) => {
     // 更具数据生成对样样式
@@ -340,15 +352,20 @@ onMounted(() => {
 const getDataStatus = (key, attr) => {
   const itemStatus = processedData.value.find((e) => e.key === key);
   // console.log(key, itemStatus[attr]);
-  return itemStatus[attr];
+  if(itemStatus){
+    return attrNamesMapping[attr] + "：" + (itemStatus[attr] == null ? "":itemStatus[attr]);
+  }
+  else{
+    return "";
+  }
 };
 
 const shadowStyle = (key) => {
   let item = props.data.find((e) => e.key == key);
   if (!item) {
     return {
-      backgroundColor: "rgb(61, 140, 14)",
-      boxShadow: `2px 2px 2px 1px rgb(61, 140, 14)`,
+      backgroundColor: "rgb(50, 86, 77)",
+      boxShadow: `2px 2px 2px 1px rgb(50, 86, 77)`,
     };
   }
   const status = item.status;
@@ -368,6 +385,10 @@ const shadowStyle = (key) => {
   }
   return { backgroundColor: color, boxShadow: `2px 2px 2px 1px ${color}` };
 };
+
+const loadBatchData = (key) =>{
+  emit("loadData",processedData.value.find((e) => e.key === key));
+}
 </script>
 
 <style lang="scss" scoped>
