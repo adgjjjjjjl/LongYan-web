@@ -34,7 +34,7 @@
         style="width: 110px"
         :options="workingProcess"
         @focus="focus"
-        @change="handleChange"
+        @change="handleFactoryChange"
         ><template #suffixIcon>
           <div class="selector-suffix" />
         </template>
@@ -48,7 +48,7 @@
         :options="optionsDelegate"
         :filter-option="filterOption"
         @focus="focus"
-        @change="handleChange"
+        @change="handleDelegateChange"
       >
         <template #suffixIcon>
           <div class="selector-suffix" />
@@ -63,17 +63,17 @@
         :options="optionsProd"
         :filter-option="filterOption"
         @focus="focus"
-        @change="handleChange"
+        @change="handleProductNumberChange"
       >
         <template #suffixIcon>
           <div class="selector-suffix" />
         </template>
       </a-select>
       <span>批次号：</span>
-      <a-input v-model:value="batch" placeholder="" style="color: #63a0bd;width: 180px;background-color: transparent;border: 1px solid #264460;"/>
+      <a-auto-complete v-model:value="batch" :data-source ="batchDataSource" :filter-option="filterOption2" placeholder="" style="color: #63a0bd;width: 220px;background-color: transparent;border: 1px solid #264460;"/>
       <span>箱号：</span>
       <a-input v-model:value="boxId" placeholder=""  style="color: #63a0bd;width: 70px;background-color: transparent;border: 1px solid #264460;"/>
-      <button class="search" @click="searchBatch">查批次号</button>
+      <!--<button class="search" @click="searchBatch">查批次号</button>-->
       <button class="search" @click="onSearch">查询</button>
     </div>
     <div class="part-block">
@@ -182,6 +182,8 @@
 import QualityTrace from "../components/qualityTracebility.vue";
 import dayjs from "dayjs";
 import { ref, onMounted, reactive, computed } from "vue";
+import zhCN from 'ant-design-vue/es/date-picker/locale/zh_CN';
+
 import { 
   getTraceabilityDelegate,
   getBrandByDelegate,
@@ -198,9 +200,9 @@ import {
   getQualityInformation,
   getAlarmMessage,
   getPackingDensity,
-  getBakingTrending
+  getBakingTrending,
+  getBatchByBrandAndFactory
 } from '../api/request';
-import zhCN from 'ant-design-vue/es/date-picker/locale/zh_CN';
 
 import {
   workingProcess,
@@ -217,6 +219,7 @@ import {
   alarmMessageColumns,
   packingDensityColumns
 } from "@/utils/LotTraceability";
+
 import * as echarts from "echarts";
 let echart = echarts;
 const dateFormat = "YYYY-MM-DD";
@@ -247,6 +250,7 @@ let productdate = ref("");
 let team = ref("");
 let starttime = ref("");
 let endtime = ref("");
+let batchDataSource = ref([])
 
 // 底部左侧按钮
 const bottomButtons = computed(() => Object.keys(tableConfig));
@@ -314,6 +318,18 @@ const loadBrandDelegate = (dateStartStr,dateEndStr,delegateid) => {
           optionsProd.value.push({value:res.data[i].id,label:res.data[i].name});
         }
         productNumber.value = optionsProd.value[0].value;
+        loadBatchDataSource();
+      }
+  });
+}
+
+const loadBatchDataSource = () => {
+  getBatchByBrandAndFactory(productNumber.value,working.value).then(res=>{
+    batchDataSource.value.length = 0;
+    if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          batchDataSource.value.push(res.data[i].f_batch);
+        }
       }
   });
 }
@@ -357,7 +373,8 @@ function loadBatchInfoData(){
             end: data[i].endtime,
             score: data[i].f_score,
             productdate: data[i].f_product_date,
-            batch:data[i].f_batch
+            batch:data[i].f_batch,
+            factoryid:data[i].f_factory_id
           })
           if(data[i].factoryname == "叶打包"){
             productdate.value = data[i].productdate;
@@ -388,10 +405,24 @@ const reloadCharts = () => {
 const focus = (e) => {
   // console.log(e);
 };
+
+const handleFactoryChange = (e) => {
+  loadBatchDataSource();
+}
+
 // 选择器选项变化事件
-const handleChange = (e) => {
+const handleDelegateChange = (e) => {
   // console.log(e);
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  loadBrandDelegate(dateStartStr,dateEndStr,delegate.value);
 };
+
+const handleProductNumberChange = (e) => {
+  // console.log(e);
+  loadBatchDataSource();
+};
+
 // 查询批次号
 const searchBatch = (e) => {
   // console.log(e);
@@ -409,6 +440,12 @@ const filterOption = (input, option) => {
   );
 }
 
+const filterOption2 = (input, option) => {
+  return (
+        option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0
+  );
+}
+
 function loadData(itemStatus){
   if(itemStatus){
     batch.value = itemStatus.batch;
@@ -416,10 +453,12 @@ function loadData(itemStatus){
     team.value = itemStatus.team;
     starttime.value = itemStatus.starttime;
     endtime.value = itemStatus.endtime;
+    working.value = itemStatus.factoryid.toString();
   }
   
   loadExceptionSummary();
   loadData2();
+  loadBatchDataSource();
 }
 
 function loadExceptionSummary(){

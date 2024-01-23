@@ -326,6 +326,7 @@ const attrNames = [
   "trademark",
   "team",
   "shift",
+  "batch",
   "start",
   "end",
   "score",
@@ -335,6 +336,7 @@ let attrNamesMapping = {
   "trademark":"牌号",
   "team":"班组",
   "shift":"班次",
+  "batch":"批次",
   "start":"开始时间",
   "end":"结束时间",
   "score":"得分",
@@ -489,6 +491,7 @@ const loadBatchData = (key) =>{
   .box-with-popup {
     position: absolute;
     color: white;
+    cursor: pointer;
   }
 
   .box {
