@@ -223,8 +223,11 @@ import {
 import * as echarts from "echarts";
 let echart = echarts;
 const dateFormat = "YYYY-MM-DD";
-let dateStart = ref(dayjs(new Date()));
-let dateEnd = ref(dayjs(new Date()));
+let currentDate = new Date();
+let sevenDaysAgo = new Date();
+sevenDaysAgo.setDate(currentDate.getDate() - 7);
+let dateStart = ref(dayjs(sevenDaysAgo));
+let dateEnd = ref(dayjs(currentDate));
 const optionsDelegate = ref([
   {
     value: "",

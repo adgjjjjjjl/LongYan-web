@@ -93,9 +93,11 @@ const dateFormat = 'YYYY-MM-DD';
 let echart = echarts;
 let currentDate = new Date();
 let sevenDaysAgo = new Date();
+let endDate = new Date();
 sevenDaysAgo.setDate(currentDate.getDate() - 7);
+endDate.setDate(currentDate.getDate() - 1);
 let dateStart = ref(dayjs(sevenDaysAgo));
-let dateEnd = ref(dayjs(currentDate));
+let dateEnd = ref(dayjs(endDate));
 let optionsDelegate = ref([
   {
     value: "",
