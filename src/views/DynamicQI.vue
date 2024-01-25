@@ -42,8 +42,17 @@
           <span>参数实时QI</span>
         </button>
       </div>
-      <div class="chart-contain">
-        <div id="QAChart" style="height: 100%"></div>
+      <div class="chart-contain" style="overflow-y: auto;">
+        <div id="QAChart" style="height: 100%" v-show="isQAChartVisible"></div>
+        <div id="ParamChart" style="height: 100%" v-show="isParamChartVisible">
+            <div 
+            v-for="p in paramsInfo"
+            :key="p.id"
+            :id="p.id"
+            style="height: 300px"
+            >
+            </div>
+        </div>
       </div>
     </div>
   </main>
@@ -52,7 +61,7 @@
 <script setup>
 import * as echarts from "echarts";
 import { ref, onMounted, reactive } from "vue";
-import {getFactoryInfo,getFactoryQI,getParamQI} from '../api/request';
+import {getFactoryInfo,getFactoryQI,getParamQI,getParamsInfo} from '../api/request';
 
 let echart = echarts;
 const buttonTitles = ["一润", "二润", "打叶", "叶加酶", "叶复烤", "叶打包"];
@@ -64,7 +73,11 @@ let companyname = ref("");
 let brandname = ref("");
 let starttime = ref("");
 let batch = ref("");
-let data = [];
+let paramsInfo = ref([]);
+let data = null;
+let option2Mapping = {};
+let isQAChartVisible = true;
+let isParamChartVisible = false;
 
 onMounted(() => {
   setTimeout(() => {
@@ -74,55 +87,143 @@ onMounted(() => {
     (() => {
       reloadCharts();
     })();
+  loadFactoryInfo(selectedTitle.value,true);
 });
 
 const reloadCharts = () => {
-  var myChart = echart.init(document.getElementById("QAChart"));
-  myChart.resize();
+  if(currentTab.value == 1){
+    var myChart = echart.init(document.getElementById("QAChart"));
+    myChart.resize();
+  }
+  else{
+    let paramsInfoChart;
+    for(let i=0;i<paramsInfo.value.length;i++){
+      paramsInfoChart = echart.init(document.getElementById(paramsInfo.value[i].id));
+      paramsInfoChart.resize();
+    }
+  }
 };
 
 const onChangeTab = (tab) => {
   currentTab.value = tab;
   console.log(tab, currentTab.value);
+  if(tab == 1){
+    isQAChartVisible = true;
+    isParamChartVisible = false;
+    loadFactoryQI();
+  }
+  else{
+    isQAChartVisible = false;
+    isParamChartVisible = true;
+    loadParamsInfo();
+  }
 };
+
+function loadParamsInfo(){
+  if(paramsInfo.value.length == 0){
+    getParamsInfo(batch.value,buttonTitlesMapping[selectedTitle.value]).then(res=>{
+      if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          paramsInfo.value.push(res.data[i]);
+          option2Mapping[res.data[i].id] = JSON.parse(JSON.stringify(option2));
+        }
+        loadParamQI();
+      }
+    });
+  }
+}
+
+function loadParamQI(){
+  for(let i= 0;i<paramsInfo.value.length;i++){
+    getParamQI(batch.value,paramsInfo.value[i].id).then(res=>{
+      let data1 = [];
+      if(typeof res.data == "string"){
+        data1 = eval("("+res.data+")");
+      }
+      else{
+        data1 = res.data;
+      }
+      //console.log(data);
+      option2Mapping[paramsInfo.value[i].id]["series"][0]["name"] = paramsInfo.value[i].name;
+      for(let j=0;j<data1.length;j++){
+        option2Mapping[paramsInfo.value[i].id]["xAxis"]["data"].push(data1[j].x);
+        option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(data1[j].y);
+      }
+      initCharts();
+      connectWebSocketByTaskId(paramsInfo.value[i].id);
+    })
+  }
+}
 
 const onClickProcess = (title) => {
-  selectedTitle.value = title;
-  option["xAxis"]["data"].length = 0;
-  option["series"][0]["data"].length =0;
-  getFactoryQI(batch.value).then(res=>{
-    if(typeof res.data == "string"){
-      data = eval("("+res.data+")");
-    }
-    else{
-      data = res.data;
-    }
-    //console.log(data);
-    for(var i=0;i<data.length;i++){
-      option["xAxis"]["data"].push(data[i].x);
-      option["series"][0]["data"].push(data[i].y);
-    }
-    initCharts();
-  });
-  connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
+  if(title != selectedTitle.value){
+    closeWebSockets();
+    paramsInfo.value.length = 0;
+    option2Mapping = {};
+    paramsInfoChart = {}
+    data = null;
+    selectedTitle.value = title;
+    loadFactoryInfo(selectedTitle.value,true);
+  }
 };
 
+function loadFactoryQI(){
+  if(data == null){
+    option["xAxis"]["data"].length = 0;
+    option["series"][0]["data"].length = 0;
+    getFactoryQI(batch.value).then(res=>{
+      if(typeof res.data == "string"){
+        data = eval("("+res.data+")");
+      }
+      else{
+        data = res.data;
+      }
+      //console.log(data);
+      option["series"][0]["data"]["name"] = selectedTitle.value;
+      for(let i=0;i<data.length;i++){
+        option["xAxis"]["data"].push(data[i].x);
+        option["series"][0]["data"].push(data[i].y);
+      }
+      initCharts();
+      connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
+    });
+  }
+}
+
 const onOverProcess = (title) => {
+  loadFactoryInfo(title,false);
+};
+
+function loadFactoryInfo(title,isLoadQI){
   getFactoryInfo(buttonTitlesMapping[title]).then(res=>{
      if(res.data.length>0){
-       batch.value = res.data[0].batch;
        companyname.value = res.data[0].companyname;
        brandname.value = res.data[0].brandname;
        starttime.value = res.data[0].starttime;
      }
      else{
-       batch.value = "";
+      
        companyname.value = "";
        brandname.value = "";
        starttime.value = "";
      }
+     if(isLoadQI){
+       if(res.data.length>0){
+         batch.value = res.data[0].batch;
+       }
+       else{
+         batch.value = "";
+       }
+
+       if(currentTab.value == 1){
+         loadFactoryQI();
+       }
+       else{
+         loadParamsInfo();
+       }
+     }
   });
-};
+}
 
 // 获取鼠标相对于元素的位置
 function getMousePosition(event, element) {
@@ -186,6 +287,15 @@ const option = {
         color: "#369CCB",
       },
     },
+    legend:{
+      show:true,
+      top:15,
+      itemWidth:15,
+      itemHeight:10,
+      textStyle:{
+        color:"white"
+      }
+    },
     series: [
       {
         data:[],
@@ -221,61 +331,93 @@ const option = {
   };
 
 var myChart = null;
+var paramsInfoChart = {};
+const option2 = JSON.parse(JSON.stringify(option));
 
 const initCharts = () => {
   // 基于准备好的dom，初始化echarts实例
-  myChart = echart.init(document.getElementById("QAChart"));
-  myChart.setOption(option);
-  console.log("initCharts");
+  if(currentTab.value == 1) {
+    myChart = echart.init(document.getElementById("QAChart"));
+    myChart.setOption(option);
+    console.log("initCharts");
+  }
+  else{
+    for(let i=0;i<paramsInfo.value.length;i++){
+      paramsInfoChart[paramsInfo.value[i].id] = echart.init(document.getElementById(paramsInfo.value[i].id));
+      paramsInfoChart[paramsInfo.value[i].id].setOption(option2Mapping[paramsInfo.value[i].id]);
+      console.log("initParamsInfoCharts");
+    }
+  }
 };
 
 const refreshCharts= () => {
-  myChart.setOption(option);
-  console.log("refreshCharts");
+  if(currentTab.value == 1) {
+    myChart.setOption(option);
+    console.log("refreshCharts");
+  }
+  else{
+    for(let i=0;i<paramsInfo.value.length;i++){
+      paramsInfoChart[paramsInfo.value[i].id].setOption(option2Mapping[paramsInfo.value[i].id]);
+      console.log("refreshParamsInfoCharts");
+    }
+  }
 }
 
-var websocket = null;
+const closeWebSockets = ()=> {
+  if(websocket[taskIdMapping[selectedTitle.value]]){
+    websocket[taskIdMapping[selectedTitle.value]].close();
+  }
+  for(let i=0;i<paramsInfo.value.length;i++){
+    websocket[paramsInfo.value[i].id].close();
+  }
+}
+
+var websocket = {};
 
 const connectWebSocketByTaskId = (taskid) => {
   //判断当前浏览器是否支持WebSocket
   if ('WebSocket'in window) {
-      if(websocket){
-        websocket.close();
+      if(websocket[taskid]){
+        websocket[taskid].close();
       }
       // var url='ws://localhost:10039/ws/webdata/'+tasktype+'/'+taskid;
       var url = 'ws://10.190.55.134:10039/ws/webdata/qitrendshow/' + taskid;
-      websocket = new WebSocket(url);
+      websocket[taskid] = new WebSocket(url);
 
       //连接发生错误的回调方法
-      websocket.onerror = function() {
+      websocket[taskid].onerror = function() {
           console.log('连接发生错误!');
       };
 
       //连接成功建立的回调方法
-      websocket.onopen = function() {
+      websocket[taskid].onopen = function() {
           console.log('连接成功!');
       };
 
       //接收到消息的回调方法
-      websocket.onmessage = function(event) {
+      websocket[taskid].onmessage = function(event) {
           var dataobjarray = eval("(" + event.data + ")");
           for (var i in dataobjarray) {
-            option["xAxis"]["data"].push(dataobjarray[i].datatime);
-            option["series"][0]["data"].push(dataobjarray[i].weightqi);
+            if(option2Mapping[dataobjarray[i].valpoint]){
+              option2Mapping[dataobjarray[i].valpoint]["xAxis"]["data"].push(dataobjarray[i].datatime);
+              option2Mapping[dataobjarray[i].valpoint]["series"][0]["data"].push(dataobjarray[i].weightqi);
+            }
+            else{
+              option["xAxis"]["data"].push(dataobjarray[i].datatime);
+              option["series"][0]["data"].push(dataobjarray[i].weightqi);
+            }
           }
           refreshCharts();
       };
 
       //连接关闭的回调方法
-      websocket.onclose = function() {
+      websocket[taskid].onclose = function() {
         console.log('连接关闭!');
       };
   } else {
       alert('当前浏览器不支持websocket');
   }
 }
-
-connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
 </script>
 
 <style lang="scss" scoped>

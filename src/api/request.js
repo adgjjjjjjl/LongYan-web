@@ -12,6 +12,10 @@ export const getFactoryQI = (batch) => {
   return http.get("/report/json?jid=247&batch="+batch);
 };
 
+export const getParamsInfo = (batch,factoryid) => {
+  return http.get("/report/json?jid=129&factoryid="+factoryid+"&supportNullSelect=true&batch="+batch);
+}
+
 export const getParamQI = (batch,pointtag) => {
   return http.get("/report/json?jid=281&batch="+batch+"&pointtag="+pointtag);
 };
