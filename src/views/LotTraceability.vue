@@ -882,11 +882,11 @@ main {
       margin-right: 20px;
       background: transparent;
       .button-box-selected {
-        background-image: url("basic-info-pending.png");
+        background-image: url("/basic-info-pending.png");
         color: #fff3e6;
       }
       .button-box-unselected {
-        background-image: url("basic-info-deal.png");
+        background-image: url("/basic-info-deal.png");
         color: #1afcff;
       }
       .button-box {

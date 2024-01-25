@@ -47,7 +47,7 @@
             :columns="columns"
             :data-source="data"
             :pagination="false"
-            :scroll="{ x: 'max-content' }"
+            :scroll="{ x: '120%', y: 435 }"
             :row-class-name="
               (_record, index) =>
                 _record.is_error == '正常' ? 'cell-normal' : 'cell-abnormal'
