@@ -22,6 +22,7 @@
           <div class="popup-label">
             <span>委托方：{{companyname}}</span>
             <span>牌号：{{brandname}}</span>
+            <span>批次：{{batchStr}}</span>
             <span>开始时间：{{starttime}}</span>
           </div>
         </div>
@@ -73,6 +74,7 @@ let companyname = ref("");
 let brandname = ref("");
 let starttime = ref("");
 let batch = ref("");
+let batchStr = ref("");
 let paramsInfo = ref([]);
 let data = null;
 let option2Mapping = {};
@@ -200,12 +202,13 @@ function loadFactoryInfo(title,isLoadQI){
        companyname.value = res.data[0].companyname;
        brandname.value = res.data[0].brandname;
        starttime.value = res.data[0].starttime;
+       batchStr.value = res.data[0].batch;
      }
      else{
-      
        companyname.value = "";
        brandname.value = "";
        starttime.value = "";
+       batchStr.value = "";
      }
      if(isLoadQI){
        if(res.data.length>0){
