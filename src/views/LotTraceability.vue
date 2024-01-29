@@ -363,6 +363,7 @@ function loadBatchInfoData(){
     else{
       data = res.data;
     }
+    statusData.value.length = 0;
     if(data.length>0){
       for(let i=0;i<data.length;i++){
           statusData.value.push({
@@ -433,6 +434,7 @@ const searchBatch = (e) => {
 // 查询
 const onSearch = (e) => {
   // console.log(e);
+  loadBatchInfoData();
   loadExceptionSummary();
   loadData2();
 };
