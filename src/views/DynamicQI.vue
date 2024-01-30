@@ -169,8 +169,16 @@ function loadParamQI(){
       //console.log(data);
       option2Mapping[paramsInfo.value[i].id]["series"][0]["name"] = paramsInfo.value[i].name;
       for(let j=0;j<data1.length;j++){
-        option2Mapping[paramsInfo.value[i].id]["xAxis"]["data"].push(data1[j].x);
-        option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(0));
+        if(data1.length > 30){
+          if(j%Math.ceil(data1.length/20) == 0){
+            option2Mapping[paramsInfo.value[i].id]["xAxis"]["data"].push(data1[j].x);
+            option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(0));
+          }
+        }
+        else{
+          option2Mapping[paramsInfo.value[i].id]["xAxis"]["data"].push(data1[j].x);
+          option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(0));
+        }
       }
       initCharts();
       connectWebSocketByTaskId(paramsInfo.value[i].id);
@@ -204,9 +212,18 @@ function loadFactoryQI(){
       //console.log(data);
       option["series"][0]["data"]["name"] = selectedTitle.value;
       for(let i=0;i<data.length;i++){
-        option["xAxis"]["data"].push(data[i].x);
-        option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
-        batchMapping[data[i].x] = batch.value;
+        if(data.length > 30){
+          if(i%Math.ceil(data.length/20) == 0){
+            option["xAxis"]["data"].push(data[i].x);
+            option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
+            batchMapping[data[i].x] = batch.value;
+          }
+        }
+        else{
+          option["xAxis"]["data"].push(data[i].x);
+          option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
+          batchMapping[data[i].x] = batch.value;
+        }
       }
       initCharts();
       connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
