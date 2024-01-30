@@ -79,6 +79,24 @@
         <div id="analyzeChart" style="height: 100%"></div>
       </div>
     </div>
+    <a-modal
+      v-model:visible="visible"
+      title=""
+      width="90%"
+      @ok="handleOk"
+      wrapClassName="full-modal"
+      ok-text="确认"
+      cancel-text="取消"
+    >
+      <iframe
+        v-if="visible"
+        id="modalframe"
+        :src="url"
+        scrolling="auto"
+        frameborder="no"
+        style="width: 100%; height: 75vh"
+      />
+    </a-modal>
   </main>
 </template>
 
@@ -88,6 +106,9 @@ import dayjs from "dayjs";
 import { ref, onMounted, reactive,defineComponent } from "vue";
 import {getAnalyzeRendering,getDelegate,getBrandByDelegate,getBrandTeam} from '../api/request';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
+
+let url = ref("");
+const visible = ref(false);
 
 const dateFormat = 'YYYY-MM-DD';
 let echart = echarts;
@@ -201,10 +222,26 @@ const handleBrandChange = (e) => {
   loadBrandTeam(dateStartStr,dateEndStr,delegate.value,productNumber.value);
 };
 
+const toNextPage = (brandname,teamname,startdate,enddate) => {
+  showModal("../systems/formconfig/listeditor.jsp?rid=63&xformIdx=104&showTitle=false&xmenuidx=172&brandname="+brandname+"&teamname="+teamname+"&startdate="+startdate+"&enddate="+enddate);
+};
+
+const showModal = (type) => {
+  console.log(type);
+  url.value = type;
+  visible.value = true;
+};
+
+const handleOk = (e) => {
+  console.log(e);
+  visible.value = false;
+};
+
 // 查询批次号
 const searchBatch = (e) => {
   console.log(e);
 };
+
 // 查询
 const onSearch = (e) => {
   console.log(e);
@@ -325,6 +362,9 @@ const initCharts = () => {
   // 基于准备好的dom，初始化echarts实例
   myChart = echart.init(document.getElementById("analyzeChart"));
   myChart.setOption(option);
+  myChart.on("click",function(param){
+      toNextPage(data[param.dataIndex].brandname, data[param.dataIndex].teamname,data[param.dataIndex].product_date,data[param.dataIndex].product_date);
+  });
   console.log("initCharts");
 };
 
@@ -431,6 +471,23 @@ main {
   }
   .ant-select-arrow {
     color: #264460;
+  }
+}
+
+.full-modal {
+  .ant-modal {
+    max-width: 100%;
+    top: 0;
+    padding-bottom: 0;
+    margin: 0;
+  }
+  .ant-modal-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh);
+  }
+  .ant-modal-body {
+    flex: 1;
   }
 }
 </style>
