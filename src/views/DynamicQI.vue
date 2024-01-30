@@ -454,6 +454,7 @@ const connectWebSocketByTaskId = (taskid) => {
             else{
               option["xAxis"]["data"].push(dataobjarray[i].datatime);
               option["series"][0]["data"].push(parseFloat(dataobjarray[i].weightqi).toFixed(0));
+              batch.value = dataobjarray[i].batch;
             }
           }
           refreshCharts();
@@ -584,6 +585,23 @@ main {
         z-index: 999;
       }
     }
+  }
+}
+
+.full-modal {
+  .ant-modal {
+    max-width: 100%;
+    top: 0;
+    padding-bottom: 0;
+    margin: 0;
+  }
+  .ant-modal-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh);
+  }
+  .ant-modal-body {
+    flex: 1;
   }
 }
 </style>

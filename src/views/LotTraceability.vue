@@ -166,7 +166,10 @@
               :row-class-name="'cell-normal'"
             >
               <template #bodyCell="{ column, text, record }">
-                <div class="base-cell">
+                <template v-if="column.dataIndex === 'f_num'">
+                  <a @click="handleTitle(column.dataIndex,record)" class="base-cell">{{ text }}</a>
+                </template>
+                <div class="base-cell" v-else>
                   {{ text }}
                 </div>
               </template>
@@ -175,6 +178,26 @@
         </div>
       </div>
     </div>
+    <a-modal
+      v-model:visible="visible"
+      title=""
+      :width="modalWidth"
+      :height="modalHeight"
+      @ok="handleOk"
+      wrapClassName="full-modal"
+      ok-text="确认"
+      cancel-text="取消"
+    >
+      <iframe
+        v-if="visible"
+        id="modalframe"
+        :src="url"
+        scrolling="auto"
+        frameborder="no"
+        width="100%"
+        :height="modalHeight"
+      />
+    </a-modal>
   </main>
 </template>
 
@@ -222,6 +245,12 @@ import {
 } from "@/utils/LotTraceability";
 
 import * as echarts from "echarts";
+
+let url = ref("");
+const visible = ref(false);
+let modalWidth = ref("90%");
+let modalHeight = ref("80%");
+
 let echart = echarts;
 const route = useRoute()
 const dateFormat = "YYYY-MM-DD";
@@ -389,15 +418,25 @@ function loadBatchInfoData(){
             batch:data[i].f_batch,
             factoryid:data[i].f_factory_id
           })
-          if(data[i].factoryname == "叶打包"){
-            productdate.value = data[i].productdate;
-            team.value = data[i].team;
+          if(data[i].f_batch == batch.value){
+            productdate.value = data[i].f_product_date;
+            team.value = data[i].teamname;
             starttime.value = data[i].starttime;
             endtime.value = data[i].endtime;
+            working.value = data[i].f_factory_id.toString();
           }
       }
     }
   });
+}
+
+const handleTitle = (title,record)=>{
+  console.log(record);
+  if(title == "f_num"){
+    modalWidth.value = "1280px";
+    modalHeight.value = "600px";
+    showModal("../report/view.jsp?rid=130&closecswindow=false&accessoriesid="+record.f_order_num);
+  }
 }
 
 function handlePageChange(pageInfo) {
@@ -441,8 +480,11 @@ const searchBatch = (e) => {
   // console.log(e);
 };
 // 查询
-const onSearch = (e) => {
+const  onSearch = (e) => {
   // console.log(e);
+  //为解决loadBatchInfoData异步加载未完成时，加载loadData2时参数错误，重置选项
+  activateMainStatus.value = "加工要求";
+  activateStatus.value = "加工工艺技术要求";
   loadBatchInfoData();
   loadExceptionSummary();
   loadData2();
@@ -865,6 +907,17 @@ const refreshCharts = ()=>{
   myChart.setOption(option);
   console.log("refreshCharts");
 }
+
+const showModal = (type) => {
+  console.log(type);
+  url.value = type;
+  visible.value = true;
+};
+
+const handleOk = (e) => {
+  console.log(e);
+  visible.value = false;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -1144,6 +1197,23 @@ main {
   margin: 3px 0;
   color: red;
   padding: 5px 0;
+}
+
+.full-modal {
+  .ant-modal {
+    max-width: 100%;
+    top: 0;
+    padding-bottom: 0;
+    margin: 0;
+  }
+  .ant-modal-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh);
+  }
+  .ant-modal-body {
+    flex: 1;
+  }
 }
 </style>
 
