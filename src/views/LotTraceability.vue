@@ -183,6 +183,7 @@ import QualityTrace from "../components/qualityTracebility.vue";
 import dayjs from "dayjs";
 import { ref, onMounted, reactive, computed } from "vue";
 import zhCN from 'ant-design-vue/es/date-picker/locale/zh_CN';
+import { useRoute } from "vue-router";
 
 import { 
   getTraceabilityDelegate,
@@ -222,6 +223,7 @@ import {
 
 import * as echarts from "echarts";
 let echart = echarts;
+const route = useRoute()
 const dateFormat = "YYYY-MM-DD";
 let currentDate = new Date();
 let sevenDaysAgo = new Date();
@@ -338,20 +340,27 @@ const loadBatchDataSource = () => {
 }
 
 const loadCurrentDbBatch = () => {
-  getCurrentDbBatch().then(res=>{
-    let data =[];
-    if(typeof res.data == "string"){
-      data = eval("("+res.data+")");
-    }
-    else{
-      data = res.data;
-    }
-    if(data.length>0){
-      batch.value = data[0].f_batch;
-      loadBatchInfoData();
-      loadData();
-    }
-  });
+  if(route.query.batch){
+    batch.value = route.query.batch;
+    loadBatchInfoData();
+    loadData();
+  }
+  else{
+    getCurrentDbBatch().then(res=>{
+      let data =[];
+      if(typeof res.data == "string"){
+        data = eval("("+res.data+")");
+      }
+      else{
+        data = res.data;
+      }
+      if(data.length>0){
+        batch.value = data[0].f_batch;
+        loadBatchInfoData();
+        loadData();
+      }
+    });
+  }
 }
 
 function loadBatchInfoData(){

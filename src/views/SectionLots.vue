@@ -54,7 +54,10 @@
             "
           >
             <template #bodyCell="{ column, text, record }">
-              <div class="base-cell">
+              <template v-if="column.dataIndex === 'f_batch'||column.dataIndex === 'is_error'">
+                <a @click="handleTitle(column.dataIndex,record)" class="base-cell">{{ text }}</a>
+              </template>
+              <div class="base-cell" v-else>
                 {{ text }}
               </div>
             </template>
@@ -170,6 +173,21 @@ const hasSelected = computed(() => state.selectedRowKeys.length > 0);
 const onSelectChange = (selectedRowKeys) => {
   console.log("selectedRowKeys changed: ", selectedRowKeys);
 };
+
+const handleTitle = (title,record)=>{
+  console.log(record);
+  if(title == "f_batch"){
+    modalWidth.value = "100%";
+    modalHeight.value = "1000px";
+    showModal("./index.html#/tracebility?batch="+record.f_batch);
+  }
+  if(title == "is_error"){
+    modalWidth.value = "1280px";
+    modalHeight.value = "800px";
+    showModal("../systems/formconfig/listeditor.jsp?xformIdx=196&rid=16&showToolbar=false&showTitle=true&queryType=report&closecswindow=false&batch="+record.f_batch);
+  }
+}
+
 const rowSelection = {
   onChange: (selectedRowKeys, selectedRows) => {
     console.log(
