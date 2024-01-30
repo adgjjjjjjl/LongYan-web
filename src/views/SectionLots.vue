@@ -47,7 +47,7 @@
             :columns="columns"
             :data-source="data"
             :pagination="false"
-            :scroll="{ x: '120%', y: 435 }"
+            :scroll="{ x: 1560, y: 435 }"
             :row-class-name="
               (_record, index) =>
                 _record.is_error == '正常' ? 'cell-normal' : 'cell-abnormal'
@@ -55,7 +55,7 @@
           >
             <template #bodyCell="{ column, text, record }">
               <template v-if="column.dataIndex === 'f_batch'||column.dataIndex === 'is_error'">
-                <a @click="handleTitle(column.dataIndex,record)" class="base-cell">{{ text }}</a>
+                <a @click="handleTitle(column.dataIndex,record)" style="text-decoration: underline;" :class="record.is_error == '正常' ? 'cell-normal' : 'cell-abnormal'">{{ text }}</a>
               </template>
               <div class="base-cell" v-else>
                 {{ text }}
@@ -492,7 +492,7 @@ const toNextPage = (operate,factoryid,rowids,rows) => {
   }
   else if(operate == "删除"){
     if(rowids.length == 0){
-      alert("请勾选要编辑的记录");
+      alert("请勾选要删除的记录");
       return;
     }
     delBatchByRowids(rowids).then(res=>{
@@ -511,11 +511,11 @@ const toNextPage = (operate,factoryid,rowids,rows) => {
     });
   }else if(operate == "结束批次"){
     if(rowids.length == 0){
-      alert("请勾选要编辑的记录");
+      alert("请勾选要结束的记录");
       return;
     }
     if(rowids.length > 1){
-      alert("不能同时编辑多条记录，请只勾选当前要编辑的那条记录");
+      alert("不能同时结束多条记录，请只勾选当前要结束的那条记录");
       return;
     }
     if(rows[0].f_status != 1){
@@ -528,11 +528,11 @@ const toNextPage = (operate,factoryid,rowids,rows) => {
   }
   else if(operate == "修改时间(联动)"){
     if(rowids.length == 0){
-      alert("请勾选要编辑的记录");
+      alert("请勾选要修改的记录");
       return;
     }
     if(rowids.length > 1){
-      alert("不能同时编辑多条记录，请只勾选当前要编辑的那条记录");
+      alert("不能同时修改多条记录，请只勾选当前要修改的那条记录");
       return;
     }
     modalWidth.value = "400px";
@@ -541,11 +541,11 @@ const toNextPage = (operate,factoryid,rowids,rows) => {
   }
   else if(operate == "批次排序"){
     if(rowids.length == 0){
-      alert("请勾选要编辑的记录");
+      alert("请勾选要排序的记录");
       return;
     }
     if(rowids.length > 1){
-      alert("不能同时编辑多条记录，请只勾选当前要编辑的那条记录");
+      alert("不能同时排序多条记录，请只勾选当前要排序的那条记录");
       return;
     }
     updateBatchOrder(rows[0].f_batch).then(res=>{
@@ -568,11 +568,11 @@ const toNextPage = (operate,factoryid,rowids,rows) => {
   }
   else if(operate == "计算非稳态"){
     if(rowids.length == 0){
-      alert("请勾选要编辑的记录");
+      alert("请勾选要计算的记录");
       return;
     }
     if(rowids.length > 1){
-      alert("不能同时编辑多条记录，请只勾选当前要编辑的那条记录");
+      alert("不能同时计算多条记录，请只勾选当前要计算的那条记录");
       return;
     }
     calcUnsteadyState(rows[0].f_batch).then(res=>{
@@ -595,11 +595,11 @@ const toNextPage = (operate,factoryid,rowids,rows) => {
   }
   else if(operate == "查看历史QI趋势"){
     if(rowids.length == 0){
-      alert("请勾选要编辑的记录");
+      alert("请勾选要查看的记录");
       return;
     }
     if(rowids.length > 1){
-      alert("不能同时编辑多条记录，请只勾选当前要编辑的那条记录");
+      alert("不能同时查看多条记录，请只勾选当前要查看的那条记录");
       return;
     }
     modalWidth.value = "1280px";

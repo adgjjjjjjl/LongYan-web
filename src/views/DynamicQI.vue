@@ -206,6 +206,7 @@ function loadFactoryQI(){
       for(let i=0;i<data.length;i++){
         option["xAxis"]["data"].push(data[i].x);
         option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
+        batchMapping[data[i].x] = batch.value;
       }
       initCharts();
       connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
@@ -357,6 +358,7 @@ const option = {
 var myChart = null;
 var paramsInfoChart = {};
 const option2 = JSON.parse(JSON.stringify(option));
+const batchMapping = {};
 
 const initCharts = () => {
   // 基于准备好的dom，初始化echarts实例
@@ -364,7 +366,8 @@ const initCharts = () => {
     myChart = echart.init(document.getElementById("QAChart"));
     myChart.setOption(option);
     myChart.on("click",function(param){
-      toNextPage(batch.value, option["xAxis"]["data"][param.dataIndex]);
+      let datatime = option["xAxis"]["data"][param.dataIndex];
+      toNextPage(batchMapping[datatime], datatime);
     });
     console.log("initCharts");
   }
@@ -454,7 +457,7 @@ const connectWebSocketByTaskId = (taskid) => {
             else{
               option["xAxis"]["data"].push(dataobjarray[i].datatime);
               option["series"][0]["data"].push(parseFloat(dataobjarray[i].weightqi).toFixed(0));
-              batch.value = dataobjarray[i].batch;
+              batchMapping[dataobjarray[i].datatime] = dataobjarray[i].batch;
             }
           }
           refreshCharts();
