@@ -397,6 +397,7 @@ const loadBatchData = (key) =>{
 .body-bottom {
   height: 100%;
   width: 100%;
+  background: 0 0 / 100% 100% no-repeat url("/quality-bg.png");
   .box-block {
     height: 100%;
     width: 100%;

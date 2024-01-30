@@ -77,8 +77,14 @@
       <button class="search" @click="onSearch">查询</button>
     </div>
     <div class="part-block">
-      <div class="woking-steps-block">
-        <QualityTrace :data="statusData" @loadData="loadData"/>
+      <div>
+        <QualityTrace class="woking-steps-block" :data="statusData" @loadData="loadData"/>
+        <div class="example">
+          <div v-for="item in examples" :key="item" class="example-block">
+            <div :style="{ 'background-color': item.color }" />
+            <h3>{{ item.text }}</h3>
+          </div>
+        </div>
       </div>
       <div class="table-contain">
         <div class="icon-left-rects" />
@@ -89,7 +95,7 @@
             :columns="columns"
             :data-source="exceptionSummaryData"
             :pagination="false"
-            :scroll="{ x: 'max-content', y: 240 }"
+            :scroll="{ x: 'max-content', y: 310 }"
             :row-class-name="'cell-normal'"
           >
             <template #bodyCell="{ column, text, record }">
@@ -285,7 +291,14 @@ let team = ref("");
 let starttime = ref("");
 let endtime = ref("");
 let batchDataSource = ref([])
-
+const examples = [
+  { color: "rgb(145, 9, 21)", text: "停机" },
+  { color: "rgb(50, 86, 77)", text: "未生产" },
+  { color: "rgb(61, 140, 14)", text: "生产" },
+  { color: "rgb(135, 78, 15)", text: "完成" },
+  { color: "rgb(21, 114, 136)", text: "料头" },
+  { color: "rgb(23, 174, 169)", text: "料尾" },
+];
 // 底部左侧按钮
 const bottomButtons = computed(() => Object.keys(tableConfig));
 //选中的按钮标题
@@ -977,10 +990,27 @@ main {
 
     .woking-steps-block {
       position: relative;
-      width: 320px;
-      height: 320px;
+      width: 340px;
+      height: 340px;
       flex-shrink: 0;
-      background: 0 0 / 100% 100% no-repeat url("quality-bg.png");
+    }
+    .example {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      .example-block {
+        > div {
+          width: 40px;
+          height: 15px;
+        }
+        > h3 {
+          width: 40px;
+          text-align: center;
+          margin-top: 4px;
+          color: white;
+          font-size: 13px;
+        }
+      }
     }
     .table-contain2 {
       margin: 10px 0 0 0;
@@ -997,7 +1027,7 @@ main {
       max-height: 620px;
       padding: 10px 15px 0;
       margin-left: 15px;
-      height: 320px;
+      height: 395px;
       background-color: #072554;
       &::-webkit-scrollbar {
         display: none;
