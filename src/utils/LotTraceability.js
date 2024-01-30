@@ -427,12 +427,12 @@ export const processQualityColumns=[
   },
   {
     title: "开始时间",
-    dataIndex: "f_fact_starttime",
+    dataIndex: "fact_starttime",
     align: "center",
   },
   {
     title: "结束时间",
-    dataIndex: "f_fact_endtime",
+    dataIndex: "fact_endtime",
     align: "center",
   },
   {

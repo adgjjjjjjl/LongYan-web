@@ -3,7 +3,7 @@ import { message } from "ant-design-vue";
 // import router from "../router/index";
 
 export const http = axios.create({
-  timeout: 20 * 1000,
+  timeout: 60 * 1000,
   //baseURL: "http://localhost:8088",
   baseURL: "../",
 });

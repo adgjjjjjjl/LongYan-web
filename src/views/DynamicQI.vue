@@ -56,6 +56,24 @@
         </div>
       </div>
     </div>
+    <a-modal
+      v-model:visible="visible"
+      title=""
+      width="90%"
+      @ok="handleOk"
+      wrapClassName="full-modal"
+      ok-text="确认"
+      cancel-text="取消"
+    >
+      <iframe
+        v-if="visible"
+        id="modalframe"
+        :src="url"
+        scrolling="auto"
+        frameborder="no"
+        style="width: 100%; height: 75vh"
+      />
+    </a-modal>
   </main>
 </template>
 
@@ -63,6 +81,9 @@
 import * as echarts from "echarts";
 import { ref, onMounted, reactive } from "vue";
 import {getFactoryInfo,getFactoryQI,getParamQI,getParamsInfo} from '../api/request';
+
+let url = ref("");
+const visible = ref(false);
 
 let echart = echarts;
 const buttonTitles = ["一润", "二润", "打叶", "叶加酶", "叶复烤", "叶打包"];
@@ -149,7 +170,7 @@ function loadParamQI(){
       option2Mapping[paramsInfo.value[i].id]["series"][0]["name"] = paramsInfo.value[i].name;
       for(let j=0;j<data1.length;j++){
         option2Mapping[paramsInfo.value[i].id]["xAxis"]["data"].push(data1[j].x);
-        option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(data1[j].y);
+        option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(0));
       }
       initCharts();
       connectWebSocketByTaskId(paramsInfo.value[i].id);
@@ -184,7 +205,7 @@ function loadFactoryQI(){
       option["series"][0]["data"]["name"] = selectedTitle.value;
       for(let i=0;i<data.length;i++){
         option["xAxis"]["data"].push(data[i].x);
-        option["series"][0]["data"].push(data[i].y);
+        option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
       }
       initCharts();
       connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
@@ -342,15 +363,40 @@ const initCharts = () => {
   if(currentTab.value == 1) {
     myChart = echart.init(document.getElementById("QAChart"));
     myChart.setOption(option);
+    myChart.on("click",function(param){
+      toNextPage(batch.value, option["xAxis"]["data"][param.dataIndex]);
+    });
     console.log("initCharts");
   }
   else{
     for(let i=0;i<paramsInfo.value.length;i++){
       paramsInfoChart[paramsInfo.value[i].id] = echart.init(document.getElementById(paramsInfo.value[i].id));
       paramsInfoChart[paramsInfo.value[i].id].setOption(option2Mapping[paramsInfo.value[i].id]);
+      paramsInfoChart[paramsInfo.value[i].id].on("click",function(param){
+          toNextPage2(batch.value,paramsInfo.value[i].id,paramsInfo.value[i].name);
+      });
       console.log("initParamsInfoCharts");
     }
   }
+};
+
+const toNextPage = (batch,datatime) => {
+  showModal("../systems/formconfig/listeditor.jsp?rid=257&xformIdx=276&showTitle=false&queryType=report&batch="+batch+"&closecswindow=false&datatime="+datatime);
+};
+
+const toNextPage2 = (batch,code,tagname) => {
+  showModal("../systems/formconfig/chart.jsp?jid=161&batch="+batch+"&code="+code+"&name="+tagname+"&title="+batch+"&type=line&dataLabels=false&turboThreshold=3000");
+};
+
+const showModal = (type) => {
+  console.log(type);
+  url.value = type;
+  visible.value = true;
+};
+
+const handleOk = (e) => {
+  console.log(e);
+  visible.value = false;
 };
 
 const refreshCharts= () => {
@@ -403,11 +449,11 @@ const connectWebSocketByTaskId = (taskid) => {
           for (var i in dataobjarray) {
             if(option2Mapping[dataobjarray[i].valpoint]){
               option2Mapping[dataobjarray[i].valpoint]["xAxis"]["data"].push(dataobjarray[i].datatime);
-              option2Mapping[dataobjarray[i].valpoint]["series"][0]["data"].push(dataobjarray[i].weightqi);
+              option2Mapping[dataobjarray[i].valpoint]["series"][0]["data"].push(parseFloat(dataobjarray[i].weightqi).toFixed(0));
             }
             else{
               option["xAxis"]["data"].push(dataobjarray[i].datatime);
-              option["series"][0]["data"].push(dataobjarray[i].weightqi);
+              option["series"][0]["data"].push(parseFloat(dataobjarray[i].weightqi).toFixed(0));
             }
           }
           refreshCharts();

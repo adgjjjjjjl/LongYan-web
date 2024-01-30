@@ -74,6 +74,26 @@
         />
       </div>
     </div>
+    <a-modal
+      v-model:visible="visible"
+      title=""
+      :width="modalWidth"
+      :height="modalHeight"
+      @ok="handleOk"
+      wrapClassName="full-modal"
+      ok-text="确认"
+      cancel-text="取消"
+    >
+      <iframe
+        v-if="visible"
+        id="modalframe"
+        :src="url"
+        scrolling="auto"
+        frameborder="no"
+        width="100%"
+        :height="modalHeight"
+      />
+    </a-modal>
   </main>
 </template>
 
@@ -82,7 +102,12 @@ import * as echarts from "echarts";
 import dayjs from "dayjs";
 import { ref, onMounted, reactive, computed } from "vue";
 import { columns } from "@/utils/pageConfig.js";
-import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction } from '../api/request';
+import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction,delBatchByRowids,updateBatchOrder,calcUnsteadyState } from '../api/request';
+
+let url = ref("");
+const visible = ref(false);
+let modalWidth = ref("90%");
+let modalHeight = ref("80%");
 
 const dateFormat = "YYYYMMDD";
 let echart = echarts;
@@ -129,10 +154,12 @@ const operations = [
   "结束批次",
   "修改时间(联动)",
   "批次排序",
-  "计算非稳定",
+  "计算非稳态",
   "查看历史QI趋势",
 ];
 let operate = ref("删除");
+let rowids = [];
+let rows = [];
 
 const state = reactive({
   selectedRowKeys: [],
@@ -150,6 +177,8 @@ const rowSelection = {
       "selectedRows: ",
       selectedRows
     );
+    rowids = selectedRowKeys;
+    rows = selectedRows;
   },
   // getCheckboxProps: (record) => ({
   //   disabled: record.name === "Disabled User",
@@ -281,10 +310,13 @@ const handleChange = (e) => {
 const onClickOperate = (e) => {
   operate.value = e;
   console.log(e);
+  toNextPage(e,topTitlesMapping[selectedTitle.value],rowids,rows);
 };
 
 const onSearch = (e) => {
   console.log(e);
+  loadChartData();
+  loadBatchInfoData();
 };
 
 const dateChange = (date, dateString) => {
@@ -420,6 +452,155 @@ function minutesToTimeString(minutes) {
 
     return `${formattedHours}:${formattedMinutes}`;
 }
+
+const toNextPage = (operate,factoryid,rowids,rows) => {
+  if(operate == "新增"){
+    modalWidth.value = "400px";
+    modalHeight.value = "380px";
+    showModal("../systems/formconfig/formeditor.jsp?xwidthx=400&xheightx=380&xtitlex=%E6%89%B9%E6%AC%A1&showLoading=true&reportname=%E5%8F%B6%E6%89%93%E5%8C%85%E6%89%B9%E6%AC%A1%E5%88%97%E8%A1%A8&factoryid="+factoryid+"&xformIdx=107&rid=68&showToolbar=true&supportSelect=true&dialog=true&hidecolumn=cntrno%2Coutno%2Cf_cntr_no_cyg%2Cf_out_no_cyg%2Cf_out_no%2Cf_mode%2Ccaseno_sp1%2Ccasenonum_sp1%2Ccaseno_sp2%2Ccasenonum_sp2%2Ccaseno_cg%2Ccasenonum_cg%2Cf_formula2%2Cf_weight%2Cyujishichang%2Cyujitime%2Cyujisum%2Csumvalue&datereadyonly=true&showTitle=false&closecswindow=false");
+  }
+  else if(operate == "编辑"){
+    if(rowids.length == 0){
+      alert("请勾选要编辑的记录");
+      return;
+    }
+    if(rowids.length > 1){
+      alert("不能同时编辑多条记录，请只勾选当前要编辑的那条记录");
+      return;
+    }
+    modalWidth.value = "400px";
+    modalHeight.value = "380px";
+    showModal("../systems/formconfig/formeditor.jsp?xwidthx=400&xheightx=380&xtitlex=%E6%89%B9%E6%AC%A1&showLoading=true&reportname=%E4%BA%8C%E6%B6%A6%E6%89%B9%E6%AC%A1%E5%88%97%E8%A1%A8&factoryid="+factoryid+"&xformIdx=107&rid=68&showToolbar=true&supportSelect=true&dialog=true&hidecolumn=outno%2Ccntrno%2Cf_out_no_cyg%2Cf_out_no%2Cf_mode%2Ccaseno%2Ccasenonum%2Ccaseno_sp1%2Ccasenonum_sp1%2Ccaseno_sp2%2Ccasenonum_sp2%2Ccaseno_cg%2Ccasenonum_cg%2Cyujishichang%2Cyujitime&_=1706528740192&datereadyonly=true&boxno=&showTitle=false&id="+rowids+"&closecswindow=false")
+  }
+  else if(operate == "删除"){
+    if(rowids.length == 0){
+      alert("请勾选要编辑的记录");
+      return;
+    }
+    delBatchByRowids(rowids).then(res=>{
+      let data1 = {};
+      if(typeof res.data == "string"){
+        data1 = eval("("+res.data+")");
+      }
+      else{
+        data1 = res.data;
+      }
+
+      if(data1.success){
+        onSearch(data1.msg);
+      }
+      alert(data1.msg);
+    });
+  }else if(operate == "结束批次"){
+    if(rowids.length == 0){
+      alert("请勾选要编辑的记录");
+      return;
+    }
+    if(rowids.length > 1){
+      alert("不能同时编辑多条记录，请只勾选当前要编辑的那条记录");
+      return;
+    }
+    if(rows[0].f_status != 1){
+      alert("只能对生产的数据进行操作");
+      return;
+    }
+    modalWidth.value = "400px";
+    modalHeight.value = "380px";
+    showModal("../systems/formconfig/formeditor.jsp?xformIdx=190&id="+rowids);
+  }
+  else if(operate == "修改时间(联动)"){
+    if(rowids.length == 0){
+      alert("请勾选要编辑的记录");
+      return;
+    }
+    if(rowids.length > 1){
+      alert("不能同时编辑多条记录，请只勾选当前要编辑的那条记录");
+      return;
+    }
+    modalWidth.value = "400px";
+    modalHeight.value = "380px";
+    showModal("../systems/formconfig/formeditor.jsp?xformIdx=194&id="+rowids);
+  }
+  else if(operate == "批次排序"){
+    if(rowids.length == 0){
+      alert("请勾选要编辑的记录");
+      return;
+    }
+    if(rowids.length > 1){
+      alert("不能同时编辑多条记录，请只勾选当前要编辑的那条记录");
+      return;
+    }
+    updateBatchOrder(rows[0].f_batch).then(res=>{
+      let data1 = {};
+      if(typeof res.data == "string"){
+        data1 = eval("("+res.data+")");
+      }
+      else{
+        data1 = res.data;
+      }
+
+      if(data1.success){
+        alert("批次排序成功");
+        onSearch(data1.msg);
+      }
+      else{
+        alert(data.msg);
+      }
+    });
+  }
+  else if(operate == "计算非稳态"){
+    if(rowids.length == 0){
+      alert("请勾选要编辑的记录");
+      return;
+    }
+    if(rowids.length > 1){
+      alert("不能同时编辑多条记录，请只勾选当前要编辑的那条记录");
+      return;
+    }
+    calcUnsteadyState(rows[0].f_batch).then(res=>{
+      let data1 = {};
+      if(typeof res.data == "string"){
+        data1 = eval("("+res.data+")");
+      }
+      else{
+        data1 = res.data;
+      }
+
+      if(data1.success){
+        alert("计算非稳态成功");
+        onSearch(data1.msg);
+      }
+      else{
+        alert(data.msg);
+      }
+    });
+  }
+  else if(operate == "查看历史QI趋势"){
+    if(rowids.length == 0){
+      alert("请勾选要编辑的记录");
+      return;
+    }
+    if(rowids.length > 1){
+      alert("不能同时编辑多条记录，请只勾选当前要编辑的那条记录");
+      return;
+    }
+    modalWidth.value = "1280px";
+    modalHeight.value = "1000px";
+    showModal("../systems/formconfig/listeditor.jsp?xformIdx=210&rid=16&showToolbar=false&showTitle=true&queryType=report&batch="+rows[0].f_batch+"&factoryid="+factoryid);
+  }
+};
+
+const showModal = (type) => {
+  console.log(type);
+  url.value = type;
+  visible.value = true;
+};
+
+const handleOk = (e) => {
+  console.log(e);
+  visible.value = false;
+};
+
 </script>
 
 <style lang="scss" scoped>

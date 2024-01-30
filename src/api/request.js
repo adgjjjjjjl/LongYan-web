@@ -115,3 +115,15 @@ export const getTemperatureTrending = (starttime,endtime) => {
 export const getBatchByBrandAndFactory = (brandid,factoryid) => {
   return http.get("/report/json?jid=313&brandid="+brandid+"&factoryid="+factoryid);
 }
+
+export const delBatchByRowids = (rowids) => {
+  return http.post("/systems/formconfig/fcupdate?id=321&ids="+rowids);
+}
+
+export const updateBatchOrder = (batch) => {
+  return http.post("/systems/formconfig/fcupdate?id=197&batch="+batch);
+}
+
+export const calcUnsteadyState = (batch) => {
+  return http.post("/systems/formconfig/fcupdate?id=195&batch="+batch);
+}
