@@ -171,8 +171,17 @@
             <div
               id="bakingTrendingChart"
               v-show="showChart2"
-              :style="{ width: chartWidth, height: '300px' }"
-            ></div>
+              style="overflow-y: scroll;"
+              :style="{ width: chartWidth, height: '600px' }"
+            >
+              <div 
+              v-for="p in paramsInfo"
+              :key="p.f_tag"
+              :id="p.f_tag"
+              style="height: 300px;"
+              >
+              </div>
+            </div>
             <a-table
               v-show="!showChart && !showChart2"
               :columns="columns2"
@@ -240,6 +249,7 @@ import {
   getQualityInformation,
   getAlarmMessage,
   getPackingDensity,
+  getBakingTrendingPoint,
   getBakingTrending,
   getBatchByBrandAndFactory,
   getTemperatureTrending
@@ -301,6 +311,7 @@ let productdate = ref("");
 let team = ref("");
 let starttime = ref("");
 let endtime = ref("");
+let paramsInfo = ref([]);
 let batchDataSource = ref([])
 const examples = [
   { color: "rgb(145, 9, 21)", text: "停机" },
@@ -350,7 +361,6 @@ onMounted(() => {
   setTimeout(() => {
     initCharts();
     initCharts2();
-    initCharts3();
     chartWidth.value = `${
       document.getElementsByClassName("table-title-bg")[0]?.offsetWidth - 40
     }px`;
@@ -494,8 +504,12 @@ const reloadCharts = () => {
   if(myChart2){
     myChart2.resize();
   }
-  if(myChart3){
-    myChart3.resize();
+  if(paramsInfo.value.length > 0){
+    let paramsInfoChart;
+    for(let i=0;i<paramsInfo.value.length;i++){
+      paramsInfoChart = echart.init(document.getElementById(paramsInfo.value[i].f_tag));
+      paramsInfoChart.resize();
+    }
   }
 };
 // 选择器选中事件
@@ -816,23 +830,37 @@ function loadTemperatureTrending(){
   }
 }
 
+function loadBakingTrendingPoint(){
+  if(boxId.value){
+    getBakingTrendingPoint(batch.value,boxId.value).then(res=>{
+        if(res.data.length>0){
+          for(let i=0;i<res.data.length;i++){
+            paramsInfo.value.push(res.data[i]);
+            option3Mapping[res.data[i].f_tag] = JSON.parse(JSON.stringify(option3));
+          }
+          loadBakingTrending();
+        }
+    });
+  }
+}
+
 function loadBakingTrending(){
-  getBakingTrending(starttime.value,endtime.value).then(res=>{
-    let data=[];
-    if(typeof res.data == "string"){
-      data = eval("("+res.data+")");
-    }
-    else{
-      data = res.data;
-    }
-    //console.log(data);
-    for(var i=0;i<data.length;i++){
-      // option3["xAxis"]["data"].push(data[i].x);
-      // option3["series"][0]["data"].push(data[i].y);
-      option3["series"][0]["data"].push([data[i].x,data[i].y]);
-    }
-    refreshCharts3();
-  })
+  for(let i= 0;i<paramsInfo.value.length;i++){
+    getBakingTrending(batch.value,boxId.value,paramsInfo.value[i].f_tag).then(res=>{
+        let data=[];
+        if(typeof res.data == "string"){
+          data = eval("("+res.data+")");
+        }
+        else{
+          data = res.data;
+        }
+        option3Mapping[paramsInfo.value[i].f_tag]["series"][0]["name"] = paramsInfo.value[i].f_name;
+        for(var j=0;j<data.length;j++){
+          option3Mapping[paramsInfo.value[i].f_tag]["series"][0]["data"].push([data[j].x,data[j].y]);
+        }
+        initCharts3(paramsInfo.value[i].f_tag);
+    })
+  }
 }
 
 const onClickProcess = (title) => {
@@ -847,7 +875,7 @@ const onClickTitle = (e) => {
     resizeTemperatureChart();
   }
   if(e == "叶复烤过程趋势"){
-    resizeBakingTrendingChart();
+    //resizeBakingTrendingChart();
   }
   loadData2();
 };
@@ -864,10 +892,13 @@ const resizeTemperatureChart = () => {
 };
 
 const resizeBakingTrendingChart = () => {
-  const bakingTrendingChart = echart.init(
-    document.getElementById("bakingTrendingChart")
-  );
-  bakingTrendingChart.resize();
+  if(paramsInfo.value.length > 0){
+    let paramsInfoChart;
+    for(let i=0;i<paramsInfo.value.length;i++){
+      paramsInfoChart = echart.init(document.getElementById(paramsInfo.value[i].f_tag));
+      paramsInfoChart.resize();
+    }
+  }
 };
 
 
@@ -906,7 +937,7 @@ const loadData2 = () => {
     loadPackingDensity();
   }
   else if(activateStatus.value == "叶复烤过程趋势"){
-    loadBakingTrending();
+    loadBakingTrendingPoint();
   }
 }
 
@@ -1054,18 +1085,18 @@ const initCharts2 = () => {
   console.log("chart2");
 };
 
-var myChart3 = null;
+var paramsInfoChart = {};
+var option3Mapping = {};
 const option3 = JSON.parse(JSON.stringify(option));
 option3["series"][0]["name"] = "";
 option3["series"][0]["markLine"] = {};
 option3["yAxis"]["axisLabel"]["formatter"] = "{value}";
 option3["title"]["text"] = "";
 
-const initCharts3 = () => {
-  // 基于准备好的dom，初始化echarts实例
-  myChart3 = echart.init(document.getElementById("bakingTrendingChart"));
-  myChart3.setOption(option3);
-  console.log("chart3");
+const initCharts3 = (id) => {
+  paramsInfoChart[id] = echart.init(document.getElementById(id));
+  paramsInfoChart[id].setOption(option3Mapping[id]);
+  console.log("initParamsInfoCharts");
 };
 
 const refreshCharts = ()=>{
@@ -1079,8 +1110,10 @@ const refreshCharts2 = ()=>{
 }
 
 const refreshCharts3 = ()=>{
-  myChart3.setOption(option3);
-  console.log("refreshCharts3");
+  for(let i=0;i<paramsInfo.value.length;i++){
+      paramsInfoChart[paramsInfo.value[i].f_tag].setOption(option3Mapping[paramsInfo.value[i].f_tag]);
+      console.log("refreshParamsInfoCharts");
+  }
 }
 
 const showModal = (type) => {

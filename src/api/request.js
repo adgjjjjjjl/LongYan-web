@@ -104,8 +104,12 @@ export const getPackingDensity = (batch) => {
   return http.get("/report/json?jid=310&batch="+batch);
 }
 
-export const getBakingTrending = (starttime,endtime) => {
-  return http.get("/report/json?jid=241&starttime="+starttime+"&endtime="+endtime);
+export const getBakingTrendingPoint = (batch,boxno) => {
+  return http.get("/report/json?jid=221&batch="+batch+"&boxno="+boxno);
+}
+
+export const getBakingTrending = (batch,boxno,tag) => {
+  return http.get("/report/json?jid=220&batch="+batch+"&boxno="+boxno+"&tag="+tag);
 }
 
 export const getTemperatureTrending = (batch,code) => {
