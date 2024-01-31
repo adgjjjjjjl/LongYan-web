@@ -84,6 +84,7 @@ import {getFactoryInfo,getFactoryQI,getParamQI,getParamsInfo} from '../api/reque
 
 let url = ref("");
 const visible = ref(false);
+const maxPointCount = 30;
 
 let echart = echarts;
 const buttonTitles = ["一润", "二润", "打叶", "叶加酶", "叶复烤", "叶打包"];
@@ -169,8 +170,8 @@ function loadParamQI(){
       //console.log(data);
       option2Mapping[paramsInfo.value[i].id]["series"][0]["name"] = paramsInfo.value[i].name;
       for(let j=0;j<data1.length;j++){
-        if(data1.length > 30){
-          if(j%Math.ceil(data1.length/20) == 0){
+        if(data1.length > maxPointCount){
+          if(j%Math.ceil(data1.length/maxPointCount) == 0){
             option2Mapping[paramsInfo.value[i].id]["xAxis"]["data"].push(data1[j].x);
             option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(0));
           }
@@ -210,10 +211,10 @@ function loadFactoryQI(){
         data = res.data;
       }
       //console.log(data);
-      option["series"][0]["data"]["name"] = selectedTitle.value;
+      option["series"][0]["name"] = selectedTitle.value;
       for(let i=0;i<data.length;i++){
-        if(data.length > 30){
-          if(i%Math.ceil(data.length/20) == 0){
+        if(data.length > maxPointCount){
+          if(i%Math.ceil(data.length/maxPointCount) == 0){
             option["xAxis"]["data"].push(data[i].x);
             option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
             batchMapping[data[i].x] = batch.value;

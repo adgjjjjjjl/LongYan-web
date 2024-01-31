@@ -160,11 +160,21 @@
           <div class="table-block2">
             <div
               id="temperatureChart"
-              v-show="showTemperatureChart"
+              v-show="showChart"
+              :style="{ width: chartWidth, height: '300px' }"
+            ></div>
+            <div
+              id="humidityChart"
+              v-show="showChart"
+              :style="{ width: chartWidth, height: '300px' }"
+            ></div>
+            <div
+              id="bakingTrendingChart"
+              v-show="showChart2"
               :style="{ width: chartWidth, height: '300px' }"
             ></div>
             <a-table
-              v-show="!showTemperatureChart"
+              v-show="!showChart && !showChart2"
               :columns="columns2"
               :data-source="data2"
               :pagination="false"
@@ -231,7 +241,8 @@ import {
   getAlarmMessage,
   getPackingDensity,
   getBakingTrending,
-  getBatchByBrandAndFactory
+  getBatchByBrandAndFactory,
+  getTemperatureTrending
 } from '../api/request';
 
 import {
@@ -299,6 +310,15 @@ const examples = [
   { color: "rgb(21, 114, 136)", text: "料头" },
   { color: "rgb(23, 174, 169)", text: "料尾" },
 ];
+const temperatureMapping = {
+"6":"S7_1.AD11.AD11_CL2_HJTEMP",
+"10":"S7_3.AD31.AD31_LYYK_HJ_WD"
+};
+const humidityMapping = {
+"6":"S7_1.AD11.AD11_CL2_HJSD",
+"10":"S7_3.AD31.AD31_LYYK_HJ_SD"
+};
+
 // 底部左侧按钮
 const bottomButtons = computed(() => Object.keys(tableConfig));
 //选中的按钮标题
@@ -307,8 +327,11 @@ let activateMainStatus = ref("加工要求");
 const statusButtons = computed(() => {
   return tableConfig[activateMainStatus.value];
 });
-const showTemperatureChart = computed(
-  () => (activateStatus.value == "环境温湿度趋势" || activateStatus.value == "叶复烤过程趋势")
+const showChart = computed(
+  () => (activateStatus.value == "环境温湿度趋势")
+);
+const showChart2 = computed(
+  () => (activateStatus.value == "叶复烤过程趋势")
 );
 // 选中的子标题
 let activateStatus = ref(statusButtons.value[0]);
@@ -326,8 +349,10 @@ let chartWidth = ref(0);
 onMounted(() => {
   setTimeout(() => {
     initCharts();
+    initCharts2();
+    initCharts3();
     chartWidth.value = `${
-      document.getElementsByClassName("table-title-bg")[0]?.offsetWidth
+      document.getElementsByClassName("table-title-bg")[0]?.offsetWidth - 40
     }px`;
   }, 200);
   window.onresize = () =>
@@ -463,8 +488,15 @@ function handlePageChange(pageInfo) {
 
 // 缩放后重新渲染折线图
 const reloadCharts = () => {
-  var myChart = echart.init(document.getElementById("QAChart"));
-  myChart.resize();
+  if(myChart){
+    myChart.resize();
+  }
+  if(myChart2){
+    myChart2.resize();
+  }
+  if(myChart3){
+    myChart3.resize();
+  }
 };
 // 选择器选中事件
 const focus = (e) => {
@@ -520,8 +552,8 @@ function loadData(itemStatus){
     batch.value = itemStatus.batch;
     productdate.value = itemStatus.productdate;
     team.value = itemStatus.team;
-    starttime.value = itemStatus.starttime;
-    endtime.value = itemStatus.endtime;
+    starttime.value = itemStatus.start;
+    endtime.value = itemStatus.end;
     working.value = itemStatus.factoryid.toString();
   }
   
@@ -734,6 +766,56 @@ function loadPackingDensity(){
   })
 }
 
+function loadTemperatureTrending(){
+  if(temperatureMapping[working.value]){
+    option["series"][0]["data"].length = 0;
+    getTemperatureTrending(batch.value,temperatureMapping[working.value]).then(res=>{
+      let data=[];
+      if(typeof res.data == "string"){
+        data = eval("("+res.data+")");
+      }
+      else{
+        data = res.data;
+      }
+      //console.log(data);
+      for(var i=0;i<data.length;i++){
+        // option["xAxis"]["data"].push(data[i].x);
+        // option["series"][0]["data"].push(data[i].y);
+        option["series"][0]["data"].push([data[i].x,parseFloat(data[i].y)]);
+      }
+      refreshCharts();
+    });
+  }
+  else{
+    option["series"][0]["data"].length = 0;
+    refreshCharts();
+  }
+  
+  if(humidityMapping[working.value]){
+    option2["series"][0]["data"].length = 0;
+    getTemperatureTrending(batch.value,humidityMapping[working.value]).then(res=>{
+      let data=[];
+      if(typeof res.data == "string"){
+        data = eval("("+res.data+")");
+      }
+      else{
+        data = res.data;
+      }
+      //console.log(data);
+      for(var i=0;i<data.length;i++){
+        // option2["xAxis"]["data"].push(data[i].x);
+        // option2["series"][0]["data"].push(data[i].y);
+        option2["series"][0]["data"].push([data[i].x,parseFloat(data[i].y)]);
+      }
+      refreshCharts2();
+    });
+  }
+  else{
+    option2["series"][0]["data"].length = 0;
+    refreshCharts2();
+  }
+}
+
 function loadBakingTrending(){
   getBakingTrending(starttime.value,endtime.value).then(res=>{
     let data=[];
@@ -745,13 +827,13 @@ function loadBakingTrending(){
     }
     //console.log(data);
     for(var i=0;i<data.length;i++){
-      option["xAxis"]["data"].push(data[i].x);
-      option["series"][0]["data"].push(data[i].y);
+      // option3["xAxis"]["data"].push(data[i].x);
+      // option3["series"][0]["data"].push(data[i].y);
+      option3["series"][0]["data"].push([data[i].x,data[i].y]);
     }
-    refreshCharts();
+    refreshCharts3();
   })
 }
-
 
 const onClickProcess = (title) => {
   activateMainStatus.value = title;
@@ -761,8 +843,11 @@ const onClickProcess = (title) => {
 
 const onClickTitle = (e) => {
   activateStatus.value = e;
-  if(e == "环境温湿度趋势" || e == "叶复烤过程趋势"){
+  if(e == "环境温湿度趋势" ){
     resizeTemperatureChart();
+  }
+  if(e == "叶复烤过程趋势"){
+    resizeBakingTrendingChart();
   }
   loadData2();
 };
@@ -772,7 +857,19 @@ const resizeTemperatureChart = () => {
     document.getElementById("temperatureChart")
   );
   temperatureChart.resize();
+  const humidityChart = echart.init(
+    document.getElementById("humidityChart")
+  );
+  humidityChart.resize();
 };
+
+const resizeBakingTrendingChart = () => {
+  const bakingTrendingChart = echart.init(
+    document.getElementById("bakingTrendingChart")
+  );
+  bakingTrendingChart.resize();
+};
+
 
 const loadData2 = () => {
   if(activateStatus.value == "非稳态时间"){
@@ -794,7 +891,7 @@ const loadData2 = () => {
     loadFormulaSheet();
   }
   else if(activateStatus.value == "环境温湿度趋势"){
-    loadBakingTrending();
+    loadTemperatureTrending();
   }
   else if(activateStatus.value == "过程质量"){
     loadProcessQuality();
@@ -836,11 +933,10 @@ const option = {
     },
     yAxis: {
       type: "value",
-      min: 0,
-      max: 100,
-      splitNumber: 10,
+      min: 'dataMin',
+      max: 'dataMax',
       axisLabel: {
-        formatter: "{value} ",
+        formatter: "{value} ℃",
         color: "#93DCFE",
         fontSize: 11,
       },
@@ -865,6 +961,15 @@ const option = {
       bottom: 0,
       containLabel: true,
     },
+    legend:{
+      show:true,
+      top:15,
+      itemWidth:15,
+      itemHeight:10,
+      textStyle:{
+        color:"white"
+      }
+    },
     title: {
       text: "单位（摄氏度）",
       left: "10",
@@ -877,11 +982,12 @@ const option = {
     series: [
       {
         data: [],
+        name:"环境温度",
         type: "line",
         smooth: false,
-        showSymbol: true,
-        symbol: "circle",
-        symbolSize: 8,
+        showSymbol: false,
+        symbol: "none",
+        symbolSize: 0,
         label: {
           position: "top",
           show: true,
@@ -904,9 +1010,34 @@ const option = {
           borderWidth: 1, //拐点边框大小
           opacity: 0.9,
         },
+        markLine: {
+          data: [
+            {
+              type: 'average', 
+              name: '平均值',
+              lineStyle: {
+                width: 1.656,
+                color: '#00ff00'
+              },
+              label: {
+                show: true,
+                color: '#00ff00',
+                position: 'insideEndTop',
+                formatter:'{b}: {c} ℃'
+              }
+            }
+          ]
+        }
       },
     ],
   };
+
+var myChart2 = null;
+const option2 = JSON.parse(JSON.stringify(option));
+option2["series"][0]["name"] = "环境湿度";
+option2["yAxis"]["axisLabel"]["formatter"] = "{value} %";
+option2["title"]["text"] = "单位(百分比)";
+option2["series"][0]["markLine"]["data"][0]["label"]["formatter"] = '{b}: {c} %';
 
 // 初始化折线图
 const initCharts = () => {
@@ -916,9 +1047,40 @@ const initCharts = () => {
   console.log("chart");
 };
 
+const initCharts2 = () => {
+  // 基于准备好的dom，初始化echarts实例
+  myChart2 = echart.init(document.getElementById("humidityChart"));
+  myChart2.setOption(option2);
+  console.log("chart2");
+};
+
+var myChart3 = null;
+const option3 = JSON.parse(JSON.stringify(option));
+option3["series"][0]["name"] = "";
+option3["series"][0]["markLine"] = {};
+option3["yAxis"]["axisLabel"]["formatter"] = "{value}";
+option3["title"]["text"] = "";
+
+const initCharts3 = () => {
+  // 基于准备好的dom，初始化echarts实例
+  myChart3 = echart.init(document.getElementById("bakingTrendingChart"));
+  myChart3.setOption(option3);
+  console.log("chart3");
+};
+
 const refreshCharts = ()=>{
   myChart.setOption(option);
   console.log("refreshCharts");
+}
+
+const refreshCharts2 = ()=>{
+  myChart2.setOption(option2);
+  console.log("refreshCharts2");
+}
+
+const refreshCharts3 = ()=>{
+  myChart3.setOption(option3);
+  console.log("refreshCharts3");
 }
 
 const showModal = (type) => {

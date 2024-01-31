@@ -108,8 +108,8 @@ export const getBakingTrending = (starttime,endtime) => {
   return http.get("/report/json?jid=241&starttime="+starttime+"&endtime="+endtime);
 }
 
-export const getTemperatureTrending = (starttime,endtime) => {
-  return http.get("/report/json?jid=241&starttime="+starttime+"&endtime="+endtime);
+export const getTemperatureTrending = (batch,code) => {
+  return http.get("/report/json?jid=161&batch="+batch+"&code="+code);
 }
 
 export const getBatchByBrandAndFactory = (brandid,factoryid) => {
