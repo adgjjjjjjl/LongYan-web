@@ -131,3 +131,7 @@ export const updateBatchOrder = (batch) => {
 export const calcUnsteadyState = (batch) => {
   return http.post("/systems/formconfig/fcupdate?id=195&batch="+batch);
 }
+
+export const getBoxnoDataSource = (batch) => {
+  return http.get("/report/json?jid=341&batch="+batch);
+}

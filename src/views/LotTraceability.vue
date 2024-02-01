@@ -70,9 +70,9 @@
         </template>
       </a-select>
       <span>批次号：</span>
-      <a-auto-complete v-model:value="batch" :data-source ="batchDataSource" :filter-option="filterOption2" placeholder="" style="color: #63a0bd;width: 220px;background-color: transparent;border: 1px solid #264460;"/>
+      <a-auto-complete v-model:value="batch" :data-source ="batchDataSource" @change="handleBatchChange" :filter-option="filterOption2" placeholder="" style="color: #63a0bd;width: 220px;background-color: transparent;border: 1px solid #264460;"/>
       <span>箱号：</span>
-      <a-input v-model:value="boxId" placeholder=""  style="color: #63a0bd;width: 70px;background-color: transparent;border: 1px solid #264460;"/>
+      <a-auto-complete v-model:value="boxId" :data-source ="boxnoDataSource" :filter-option="filterOption2" placeholder=""  style="color: #63a0bd;width: 70px;background-color: transparent;border: 1px solid #264460;"/>
       <!--<button class="search" @click="searchBatch">查批次号</button>-->
       <button class="search" @click="onSearch">查询</button>
     </div>
@@ -252,7 +252,8 @@ import {
   getBakingTrendingPoint,
   getBakingTrending,
   getBatchByBrandAndFactory,
-  getTemperatureTrending
+  getTemperatureTrending,
+  getBoxnoDataSource
 } from '../api/request';
 
 import {
@@ -313,6 +314,7 @@ let starttime = ref("");
 let endtime = ref("");
 let paramsInfo = ref([]);
 let batchDataSource = ref([])
+let boxnoDataSource = ref([])
 const examples = [
   { color: "rgb(145, 9, 21)", text: "停机" },
   { color: "rgb(50, 86, 77)", text: "未生产" },
@@ -440,6 +442,17 @@ const loadCurrentDbBatch = () => {
   }
 }
 
+const loadBoxnoDataSource = () =>{
+  getBoxnoDataSource(batch.value).then(res=>{
+    boxnoDataSource.value.length = 0;
+    if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          boxnoDataSource.value.push(res.data[i].boxno.toString());
+        }
+    }
+  });
+}
+
 function loadBatchInfoData(){
   getBatchInfo(batch.value).then(res=>{
     let data =[];
@@ -534,6 +547,10 @@ const handleProductNumberChange = (e) => {
   loadBatchDataSource();
 };
 
+const handleBatchChange = (e) =>{
+  loadBoxnoDataSource();
+};
+
 // 查询批次号
 const searchBatch = (e) => {
   // console.log(e);
@@ -574,6 +591,7 @@ function loadData(itemStatus){
   loadExceptionSummary();
   loadData2();
   loadBatchDataSource();
+  loadBoxnoDataSource();
 }
 
 function loadExceptionSummary(){
@@ -842,6 +860,9 @@ function loadBakingTrendingPoint(){
         }
     });
   }
+  else{
+    alert("请输入要查询的箱号");
+  }
 }
 
 function loadBakingTrending(){
@@ -875,7 +896,7 @@ const onClickTitle = (e) => {
     resizeTemperatureChart();
   }
   if(e == "叶复烤过程趋势"){
-    //resizeBakingTrendingChart();
+    resizeBakingTrendingChart();
   }
   loadData2();
 };
@@ -1089,7 +1110,7 @@ var paramsInfoChart = {};
 var option3Mapping = {};
 const option3 = JSON.parse(JSON.stringify(option));
 option3["series"][0]["name"] = "";
-option3["series"][0]["markLine"] = {};
+delete option3["series"][0].markLine;
 option3["yAxis"]["axisLabel"]["formatter"] = "{value}";
 option3["title"]["text"] = "";
 

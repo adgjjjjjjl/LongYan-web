@@ -30,7 +30,7 @@ a,
 }
 
 .icon-left-rects {
-  background: center / 20px 10px no-repeat url("icon-rects.png");
+  background: center / 20px 10px no-repeat url("/icon-rects.png");
   position: absolute;
   width: 25px;
   height: 10px;
@@ -38,7 +38,7 @@ a,
   left: 0;
 }
 .icon-right-rects {
-  background: center / cover no-repeat url("icon-rect.png");
+  background: center / cover no-repeat url("/icon-rect.png");
   position: absolute;
   top: -5px;
   right: -1px;
