@@ -505,6 +505,7 @@ const toNextPage = (operate,factoryid,rowids,rows) => {
       }
 
       if(data1.success){
+        onSearch(data1.msg);
         for(let i=0;i<rows.length;i++){
           delQaTask(rows[i].f_batch).then(res=>{
             let data2 = {};
@@ -515,10 +516,10 @@ const toNextPage = (operate,factoryid,rowids,rows) => {
               data2 = res.data;
             }
             if(data2.success){
-              onSearch(data2.msg);
+              console.log("联动删除"+rows[i].f_batch+"的相关质检工单成功")
             }
             else{
-              alert(data2.msg);
+              console.log(data2.msg);
             }
           });
         }
