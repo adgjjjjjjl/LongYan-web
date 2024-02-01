@@ -361,8 +361,6 @@ const locale = {
 let chartWidth = ref(0);
 onMounted(() => {
   setTimeout(() => {
-    initCharts();
-    initCharts2();
     chartWidth.value = `${
       document.getElementsByClassName("table-title-bg")[0]?.offsetWidth - 40
     }px`;
@@ -1096,14 +1094,14 @@ const initCharts = () => {
   // 基于准备好的dom，初始化echarts实例
   myChart = echart.init(document.getElementById("temperatureChart"));
   myChart.setOption(option);
-  console.log("chart");
+  console.log("initchart");
 };
 
 const initCharts2 = () => {
   // 基于准备好的dom，初始化echarts实例
   myChart2 = echart.init(document.getElementById("humidityChart"));
   myChart2.setOption(option2);
-  console.log("chart2");
+  console.log("initchart2");
 };
 
 var paramsInfoChart = {};
