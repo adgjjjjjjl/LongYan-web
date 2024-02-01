@@ -104,9 +104,6 @@ let isQAChartVisible = true;
 let isParamChartVisible = false;
 
 onMounted(() => {
-  setTimeout(() => {
-    initCharts();
-  }, 200);
   window.onresize = () =>
     (() => {
       reloadCharts();
@@ -181,7 +178,7 @@ function loadParamQI(){
           option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(0));
         }
       }
-      initCharts();
+      initCharts(paramsInfo.value[i].id);
       connectWebSocketByTaskId(paramsInfo.value[i].id);
     })
   }
@@ -378,7 +375,7 @@ var paramsInfoChart = {};
 const option2 = JSON.parse(JSON.stringify(option));
 const batchMapping = {};
 
-const initCharts = () => {
+const initCharts = (id) => {
   // 基于准备好的dom，初始化echarts实例
   if(currentTab.value == 1) {
     myChart = echart.init(document.getElementById("QAChart"));
@@ -390,14 +387,12 @@ const initCharts = () => {
     console.log("initCharts");
   }
   else{
-    for(let i=0;i<paramsInfo.value.length;i++){
-      paramsInfoChart[paramsInfo.value[i].id] = echart.init(document.getElementById(paramsInfo.value[i].id));
-      paramsInfoChart[paramsInfo.value[i].id].setOption(option2Mapping[paramsInfo.value[i].id]);
-      paramsInfoChart[paramsInfo.value[i].id].on("click",function(param){
-          toNextPage2(batch.value,paramsInfo.value[i].id,paramsInfo.value[i].name);
+      paramsInfoChart[id] = echart.init(document.getElementById(id));
+      paramsInfoChart[id].setOption(option2Mapping[id]);
+      paramsInfoChart[id].on("click",function(param){
+          toNextPage2(batch.value,id,paramsInfo.value[i].name);
       });
       console.log("initParamsInfoCharts");
-    }
   }
 };
 
