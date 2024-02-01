@@ -815,12 +815,12 @@ function loadTemperatureTrending(){
         // option["series"][0]["data"].push(data[i].y);
         option["series"][0]["data"].push([data[i].x,parseFloat(data[i].y)]);
       }
-      refreshCharts();
+      initCharts();
     });
   }
   else{
     option["series"][0]["data"].length = 0;
-    refreshCharts();
+    initCharts();
   }
   
   if(humidityMapping[working.value]){
@@ -839,12 +839,12 @@ function loadTemperatureTrending(){
         // option2["series"][0]["data"].push(data[i].y);
         option2["series"][0]["data"].push([data[i].x,parseFloat(data[i].y)]);
       }
-      refreshCharts2();
+      initCharts2();
     });
   }
   else{
     option2["series"][0]["data"].length = 0;
-    refreshCharts2();
+    initCharts2();
   }
 }
 
@@ -1133,6 +1133,7 @@ const refreshCharts2 = ()=>{
 const refreshCharts3 = ()=>{
   for(let i=0;i<paramsInfo.value.length;i++){
       paramsInfoChart[paramsInfo.value[i].f_tag].setOption(option3Mapping[paramsInfo.value[i].f_tag]);
+      paramsInfoChart[paramsInfo.value[i].f_tag].resize();
       console.log("refreshParamsInfoCharts");
   }
 }
