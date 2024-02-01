@@ -135,3 +135,7 @@ export const calcUnsteadyState = (batch) => {
 export const getBoxnoDataSource = (batch) => {
   return http.get("/report/json?jid=341&batch="+batch);
 }
+
+export const delQaTask = () =>{
+  return http.post("systems/formconfig/fcupdate?id=186&batch="+batch);
+}

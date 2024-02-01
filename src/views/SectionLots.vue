@@ -105,7 +105,7 @@ import * as echarts from "echarts";
 import dayjs from "dayjs";
 import { ref, onMounted, reactive, computed } from "vue";
 import { columns } from "@/utils/pageConfig.js";
-import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction,delBatchByRowids,updateBatchOrder,calcUnsteadyState } from '../api/request';
+import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction,delBatchByRowids,updateBatchOrder,calcUnsteadyState,delQaTask } from '../api/request';
 
 let url = ref("");
 const visible = ref(false);
@@ -505,7 +505,23 @@ const toNextPage = (operate,factoryid,rowids,rows) => {
       }
 
       if(data1.success){
-        onSearch(data1.msg);
+        for(let i=0;i<rows.length;i++){
+          delQaTask(rows[i].f_batch).then(res=>{
+            let data2 = {};
+            if(typeof res.data == "string"){
+              data2 = eval("("+res.data+")");
+            }
+            else{
+              data2 = res.data;
+            }
+            if(data2.success){
+              onSearch(data2.msg);
+            }
+            else{
+              alert(data2.msg);
+            }
+          });
+        }
       }
       alert(data1.msg);
     });
