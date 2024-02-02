@@ -65,14 +65,104 @@ export const columns = [
     align: "center",
   },
   {
+    title: "进柜号(预混柜)",
+    dataIndex: "cntrno",
+    width: 120,
+    align: "center",
+  },
+  {
     title: "出柜号(预混柜)",
     dataIndex: "outno",
     width: 120,
     align: "center",
   },
   {
+    title: "出柜号(贮叶柜)",
+    dataIndex: "f_out_no_cyg",
+    width: 120,
+    align: "center",
+  },
+  {
+    title: "进柜号(贮叶柜)",
+    dataIndex: "f_cntr_no_cyg",
+    width: 120,
+    align: "center",
+  },
+  {
     title: "配方量",
     dataIndex: "f_formula2",
+    width: 100,
+    align: "center",
+  },
+  {
+    title: "实际配方量",
+    dataIndex: "f_weight",
+    width: 100,
+    align: "center",
+  },
+  {
+    title: "预计换柜累计量",
+    dataIndex: "yujisum",
+    width: 140,
+    align: "center",
+  },
+  {
+    title: "实际换柜累计量",
+    dataIndex: "sumvalue",
+    width: 140,
+    align: "center",
+  },
+  {
+    title: "箱号",
+    dataIndex: "caseno",
+    width: 140,
+    align: "center",
+  },
+  {
+    title: "箱数",
+    dataIndex: "casenonum1",
+    width: 100,
+    align: "center",
+  },
+  {
+    title: "碎片(1-3mm)箱号",
+    dataIndex: "caseno_sp1",
+    width: 140,
+    align: "center",
+  },
+  {
+    title: "碎片(1-3mm)箱数",
+    dataIndex: "casenonum_sp1",
+    width: 140,
+    align: "center",
+  },
+  {
+    title: "碎片(3-6mm)箱号",
+    dataIndex: "caseno_sp2",
+    width: 140,
+    align: "center",
+  },
+  {
+    title: "碎片(3-6mm)箱数",
+    dataIndex: "casenonum_sp2",
+    width: 140,
+    align: "center",
+  },
+  {
+    title: "长梗箱号",
+    dataIndex: "caseno_cg",
+    width: 100,
+    align: "center",
+  },
+  {
+    title: "长梗箱数",
+    dataIndex: "casenonum_cg",
+    width: 100,
+    align: "center",
+  },
+  {
+    title: "模式",
+    dataIndex: "f_mode",
     width: 100,
     align: "center",
   },
@@ -104,3 +194,18 @@ export const columns = [
 //   d["key"] = index + 1;
 //   data.push(d);
 // }
+
+export const columnsMapping = {
+  "高架库出库":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","caseno","casenonum1","f_formula2","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","yujisum","sumvalue"],
+  "翻箱喂料":["outno","f_out_no_cyg","f_out_no","f_mode","f_cntr_no_cyg","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","yujisum","sumvalue"],
+  "一润":["cntrno","f_out_no_cyg","f_cntr_no_cyg","caseno","f_mode","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","yujisum","sumvalue"],
+  "二润":["outno","cntrno","f_out_no_cyg","f_out_no","f_mode","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","yujishichang","yujitime"],
+  "打叶":["cntrno","outno","f_out_no_cyg","f_out_no","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","yujisum","sumvalue"],
+  "叶加酶":["cntrno","outno","f_out_no_cyg","f_out_no","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","f_cntr_no_cyg","f_mode","yujishichang","yujitime","yujisum","sumvalue"],
+  "叶复烤":["cntrno","outno","f_cntr_no_cyg","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","f_mode","yujishichang","yujitime","yujisum","sumvalue"],
+  "叶打包":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_formula2","f_weight","yujishichang","yujitime","yujisum","sumvalue"],
+  "碎片复烤":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","yujisum","sumvalue"],
+  "碎片打包":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","f_formula2","caseno","casenonum1","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","yujisum","sumvalue"],
+  "烟梗复烤":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","yujisum","sumvalue"],
+  "烟梗打包":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","f_weight","yujishichang","yujitime","yujisum","sumvalue"],
+}

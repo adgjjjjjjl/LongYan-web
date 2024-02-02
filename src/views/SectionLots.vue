@@ -44,17 +44,17 @@
         <div class="table-block">
           <a-table
             :row-selection="rowSelection"
-            :columns="columns"
+            :columns="columnDatasource"
             :data-source="data"
             :pagination="false"
-            :scroll="{ x: 1560, y: 435 }"
+            :scroll="{ x: columnWidth, y: 435 }"
             :row-class-name="
               (_record, index) =>
                 _record.is_error == '正常' ? 'cell-normal' : 'cell-abnormal'
             "
           >
             <template #bodyCell="{ column, text, record }">
-              <template v-if="column.dataIndex === 'f_batch'||column.dataIndex === 'is_error'">
+              <template v-if="column.dataIndex === 'f_batch'||column.dataIndex === 'is_error'||column.dataIndex === 'casenonum1'">
                 <a @click="handleTitle(column.dataIndex,record)" style="text-decoration: underline;" :class="record.is_error == '正常' ? 'cell-normal' : 'cell-abnormal'">{{ text }}</a>
               </template>
               <div class="base-cell" v-else>
@@ -104,7 +104,7 @@
 import * as echarts from "echarts";
 import dayjs from "dayjs";
 import { ref, onMounted, reactive, computed } from "vue";
-import { columns } from "@/utils/pageConfig.js";
+import { columns,columnsMapping } from "@/utils/pageConfig.js";
 import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction,delBatchByRowids,updateBatchOrder,calcUnsteadyState,delQaTask } from '../api/request';
 
 let url = ref("");
@@ -120,6 +120,8 @@ sevenDaysAgo.setDate(currentDate.getDate() - 3);
 let dateStart = ref(dayjs(sevenDaysAgo));
 let dateEnd = ref(dayjs(currentDate));
 let data = ref([]);
+let columnDatasource = ref([]);
+let columnWidth = ref(0);
 
 const topTitles = [
   "高架库出库",
@@ -184,7 +186,12 @@ const handleTitle = (title,record)=>{
   if(title == "is_error"){
     modalWidth.value = "1280px";
     modalHeight.value = "800px";
-    showModal("../systems/formconfig/listeditor.jsp?xformIdx=196&rid=16&showToolbar=false&showTitle=true&queryType=report&closecswindow=false&batch="+record.f_batch);
+    showModal("../systems/formconfig/listeditor.jsp?xformIdx=196&rid=16&showToolbar=false&showTitle=true&queryType=report&closecswindow=false&batch=" + record.f_batch);
+  }
+  if(title == "casenonum1"){
+    modalWidth.value = "1200px";
+    modalHeight.value = "1000px";
+    showModal("../systems/formconfig/listeditor.jsp?xformIdx=222&rid=16&showToolbar=false&showTitle=true&queryType=report&batch=" + record.f_batch);
   }
 }
 
@@ -216,16 +223,29 @@ const locale = {
 };
 
 onMounted(() => {
+
+  loadColumns();
+
   setTimeout(() => {
     initCharts();
     loadChartData();
     loadBatchInfoData();
   }, 200);
+
   window.onresize = () =>
     (() => {
       reloadCharts();
     })();
+
 });
+
+const loadColumns = () =>{
+  columnDatasource.value = columns.filter(item=>{
+    return !columnsMapping[selectedTitle.value].includes(item.dataIndex);
+  });
+
+  columnWidth.value = columnDatasource.value.reduce((accumulator, currentValue) => accumulator + currentValue.width, 0);
+}
 
 const loadBatchInfoData = () => {
   let dateStartStr = dateStart.value.format(dateFormat);
@@ -309,6 +329,7 @@ const reloadCharts = () => {
 const onClickTitle = (title) => {
   selectedTitle.value = title;
   console.log(selectedTitle.value);
+  loadColumns();
   loadChartData();
   loadBatchInfoData();
 };
