@@ -41,11 +41,11 @@ export const getBatchInfoList = (factoryid,startdate,enddate,p) => {
 }
 
 export const getFactoryTimeSpan = (factoryid) => {
-  return http.get("/report/json?jid=290&factoryid="+factoryid);
+  return http.get("/report/json?jid=290&factoryid="+factoryid+"&limitcount="+5);
 }
 
 export const getFactoryProduction = (factoryid) => {
-  return http.get("/report/json?jid=291&factoryid="+factoryid);
+  return http.get("/report/json?jid=291&factoryid="+factoryid+"&limitcount="+(factoryid<11?5:10));
 }
 
 export const getTraceabilityDelegate = (datestart,dateend) => {
