@@ -433,7 +433,9 @@ const closeWebSockets = ()=> {
     websocket[taskIdMapping[selectedTitle.value]].close();
   }
   for(let i=0;i<paramsInfo.value.length;i++){
-    websocket[paramsInfo.value[i].id].close();
+    if(websocket[paramsInfo.value[i].id]){
+      websocket[paramsInfo.value[i].id].close();
+    }
   }
 }
 
