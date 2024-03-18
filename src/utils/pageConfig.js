@@ -60,7 +60,7 @@ export const columns = [
   },
   {
     title: "状态",
-    dataIndex: "statusname",
+    dataIndex: "status2",
     width: 60,
     align: "center",
   },
