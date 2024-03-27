@@ -76,46 +76,31 @@
       <!--<button class="search" @click="searchBatch">查批次号</button>-->
       <button class="search" @click="onSearch">查询</button>
     </div>
-    <div class="part-block">
-      <div>
-        <QualityTrace class="woking-steps-block" :data="statusData" @loadData="loadData"/>
-        <div class="example">
-          <div v-for="item in examples" :key="item" class="example-block">
-            <div :style="{ 'background-color': item.color }" />
-            <h3>{{ item.text }}</h3>
+    <div id="myElement" class="top-header">
+      <div
+        v-for="title in buttonTitles"
+        :key="title"
+        :class="[
+          'button-box',
+          selectedTitle === title
+            ? 'button-box-selected'
+            : 'button-box-unselected',
+        ]"
+        @click="onClickProcess2(title)"
+        @mouseover="onOverProcess2(title)"
+      >
+        <div>{{ title }}</div>
+        <div class="popup">
+          <svg version="1.1" width="30px" height="75px">
+            <line x1="0" y1="40" x2="30" y2="15" stroke="#1F4185" />
+            <line x1="0" y1="40" x2="30" y2="25" stroke="#1F4185" />
+          </svg>
+          <div class="popup-label">
+            <span>委托方：{{companyname}}</span>
+            <span>牌号：{{brandname}}</span>
+            <span>批次：{{batchStr}}</span>
+            <span>开始时间：{{batchstarttime}}</span>
           </div>
-        </div>
-      </div>
-      <div class="table-contain">
-        <div class="icon-left-rects" />
-        <div class="icon-right-rects" />
-        <div class="table-title">异常汇总</div>
-        <div class="table-block">
-          <a-table
-            :columns="columns"
-            :data-source="exceptionSummaryData"
-            :pagination="false"
-            :scroll="{ x: 'max-content', y: 310 }"
-            :row-class-name="'cell-normal'"
-          >
-            <template #bodyCell="{ column, text, record }">
-              <div class="base-cell">
-                {{ text }}
-              </div>
-            </template>
-          </a-table>
-          <!-- <a-pagination
-            v-model:current="paginationConfig.current"
-            v-model:page-size="paginationConfig.pageSize"
-            :total="paginationConfig.total"
-            showQuickJumper
-            size="small"
-            :locale="locale"
-            class="pagination"
-            :showSizeChanger="false"
-            :show-total="(total) => `共 ${paginationConfig.total} 条`"
-            @change="handlePageChange"
-          /> -->
         </div>
       </div>
     </div>
@@ -203,6 +188,49 @@
         </div>
       </div>
     </div>
+    <div class="part-block">
+      <div>
+        <QualityTrace class="woking-steps-block" :data="statusData" @loadData="loadData"/>
+        <div class="example">
+          <div v-for="item in examples" :key="item" class="example-block">
+            <div :style="{ 'background-color': item.color }" />
+            <h3>{{ item.text }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="table-contain">
+        <div class="icon-left-rects" />
+        <div class="icon-right-rects" />
+        <div class="table-title">异常汇总</div>
+        <div class="table-block">
+          <a-table
+            :columns="columns"
+            :data-source="exceptionSummaryData"
+            :pagination="false"
+            :scroll="{ x: 'max-content', y: 310 }"
+            :row-class-name="'cell-normal'"
+          >
+            <template #bodyCell="{ column, text, record }">
+              <div class="base-cell">
+                {{ text }}
+              </div>
+            </template>
+          </a-table>
+          <!-- <a-pagination
+            v-model:current="paginationConfig.current"
+            v-model:page-size="paginationConfig.pageSize"
+            :total="paginationConfig.total"
+            showQuickJumper
+            size="small"
+            :locale="locale"
+            class="pagination"
+            :showSizeChanger="false"
+            :show-total="(total) => `共 ${paginationConfig.total} 条`"
+            @change="handlePageChange"
+          /> -->
+        </div>
+      </div>
+    </div>
     <a-modal
       v-model:visible="visible"
       title=""
@@ -274,6 +302,8 @@ import {
 
 import * as echarts from "echarts";
 
+const buttonTitles = ["高架库出库","翻箱喂料","一润", "二润", "打叶", "叶加酶", "叶复烤", "叶打包","碎片复烤","碎片打包","烟梗复烤","烟梗打包"];
+let selectedTitle = ref("叶打包");
 let url = ref("");
 const visible = ref(false);
 let modalWidth = ref("90%");
@@ -301,6 +331,10 @@ const optionsProd = ref([
     label: "",
   },
 ]);
+let companyname = ref("");
+let brandname = ref("");
+let batchStr = ref("");
+let batchstarttime = ref("");
 let productNumber = ref("");
 let batch = ref("");
 let boxId = ref("");
@@ -888,6 +922,22 @@ const onClickProcess = (title) => {
   loadData2();
 };
 
+const onClickProcess2 = (title) => {
+  if(title != selectedTitle.value){
+    selectedTitle.value = title;
+    let itemStatus = statusData.value.find((e) => e.key === title);
+    loadData(itemStatus);
+  }
+};
+
+const onOverProcess2 = (title) => {
+  let itemStatus = statusData.value.find((e) => e.key === title);
+  companyname.value = itemStatus.principal;
+  brandname.value = itemStatus.trademark;
+  batchStr = itemStatus.batch;
+  batchstarttime.value =itemStatus.start;
+};
+
 const onClickTitle = (e) => {
   activateStatus.value = e;
   if(e == "环境温湿度趋势" ){
@@ -1369,6 +1419,66 @@ main {
       width: 12px;
       height: 12px;
       background: center / 100% no-repeat url("@/assets/arrow-down.png");
+    }
+    
+    .button-box-selected {
+      background-image: url("/basic-info-pending.png");
+    }
+    .button-box-unselected {
+      background-image: url("/basic-info-deal.png");
+    }
+    .button-box {
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      text-align: center;
+      font-size: 17px;
+      color: white;
+      width: 120px;
+      height: 75px;
+      line-height: 50px;
+      cursor: pointer;
+      position: relative;
+
+      .popup {
+        position: absolute;
+        width: 240px;
+        height: 60px;
+        opacity: 0;
+        top: -20px;
+        left: 80px;
+        pointer-events: none;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        // background-color: red;
+      }
+
+      .popup-label {
+        background: #1f4185;
+        border: 1px solid #000;
+        opacity: 0.8;
+        border-radius: 15px;
+        white-space: nowrap;
+        color: #93dcfe;
+        font-size: 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        padding: 5px 10px;
+
+        span {
+          display: block;
+          line-height: 15px;
+          height: 15px;
+          text-align: left;
+        }
+      }
+
+      &:hover .popup {
+        opacity: 1;
+        pointer-events: auto;
+        z-index: 999;
+      }
     }
   }
 }
