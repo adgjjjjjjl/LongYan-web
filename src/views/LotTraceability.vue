@@ -612,6 +612,7 @@ const filterOption2 = (input, option) => {
 
 function loadData(itemStatus){
   if(itemStatus){
+    selectedTitle.value = itemStatus.key;
     batch.value = itemStatus.batch;
     productdate.value = itemStatus.productdate;
     team.value = itemStatus.team;
