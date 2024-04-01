@@ -512,6 +512,7 @@ function loadBatchInfoData(){
             factoryid:data[i].f_factory_id
           })
           if(data[i].f_batch == batch.value){
+            selectedTitle.value = data[i].factoryname;
             productdate.value = data[i].f_product_date;
             team.value = data[i].teamname;
             starttime.value = data[i].starttime;
@@ -927,16 +928,30 @@ const onClickProcess2 = (title) => {
   if(title != selectedTitle.value){
     selectedTitle.value = title;
     let itemStatus = statusData.value.find((e) => e.key === title);
-    loadData(itemStatus);
+    if(itemStatus == undefined){
+      alert("未找到当前批次关联的"+title+"批次");
+    }
+    else{
+      loadData(itemStatus);
+    }
   }
 };
 
 const onOverProcess2 = (title) => {
   let itemStatus = statusData.value.find((e) => e.key === title);
-  companyname.value = itemStatus.principal;
-  brandname.value = itemStatus.trademark;
-  batchStr = itemStatus.batch;
-  batchstarttime.value =itemStatus.start;
+  if(itemStatus == undefined){
+    companyname.value = "";
+    brandname.value = "";
+    batchStr = "";
+    batchstarttime.value = "";
+    console.log("未找到当前批次关联的"+title+"批次");
+  }
+  else{
+    companyname.value = itemStatus.principal;
+    brandname.value = itemStatus.trademark;
+    batchStr = itemStatus.batch;
+    batchstarttime.value =itemStatus.start;
+  }
 };
 
 const onClickTitle = (e) => {
