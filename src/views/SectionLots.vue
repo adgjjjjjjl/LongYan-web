@@ -104,7 +104,7 @@
             "
           >
             <template #bodyCell="{ column, text, record }">
-              <template v-if="column.dataIndex === 'f_batch'||column.dataIndex === 'is_error'||column.dataIndex === 'casenonum1'">
+              <template v-if="column.dataIndex === 'f_short_batch'||column.dataIndex === 'is_error'||column.dataIndex === 'casenonum1'">
                 <a @click="handleTitle(column.dataIndex,record)" style="text-decoration: underline;" :class="record.is_error == '正常' ? 'cell-normal' : 'cell-abnormal'">{{ text }}</a>
               </template>
               <div class="base-cell" v-else>
@@ -242,7 +242,7 @@ const onSelectChange = (selectedRowKeys) => {
 
 const handleTitle = (title,record)=>{
   console.log(record);
-  if(title == "f_batch"){
+  if(title == "f_short_batch"){
     modalWidth.value = "100%";
     modalHeight.value = "1000px";
     showModal("./index.html#/tracebility?batch="+record.f_batch);
@@ -317,7 +317,7 @@ const loadColumns = () =>{
 const loadBatchInfoData = () => {
   let dateStartStr = dateStart.value.format(dateFormat);
   let dateEndStr = dateEnd.value.format(dateFormat);
-  getBatchInfoList(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr,paginationConfig.current,status.value,batch.value,brandMapping[productNumber.value],boxId.value).then(res=>{
+  getBatchInfoList(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr,paginationConfig.current,status.value,batch.value,productNumber.value==""?"":brandMapping[productNumber.value],boxId.value).then(res=>{
     data.value.length = 0;
     let batchInfoData = [];
     if(typeof res.data == "string"){

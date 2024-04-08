@@ -7,8 +7,8 @@ export const columns = [
   },
   {
     title: "工段批次",
-    dataIndex: "f_batch",
-    width: 200,
+    dataIndex: "f_short_batch",
+    width: 100,
     align: "center",
   },
   {
@@ -32,7 +32,7 @@ export const columns = [
   {
     title: "牌号",
     dataIndex: "brandname",
-    width: 130,
+    width: 230,
     align: "center",
   },
   {
