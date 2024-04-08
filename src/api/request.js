@@ -36,8 +36,8 @@ export const getBrandTeam = (datestart,dateend,delegateid,brandid) => {
   return http.get("/report/json?jid=285&datestart="+datestart+"&dateend="+dateend+"&delegateid="+delegateid+"&brandid="+brandid);
 }
 
-export const getBatchInfoList = (factoryid,startdate,enddate,p) => {
-  return http.get("/report/output?rid=68&export=flexigridjson&factoryid="+factoryid+"&startdate="+startdate+"&enddate="+enddate+"&status=,1,2,3,4,5,6&batch=&brandname=&boxno=&paging=pagecount&s=20&p="+p);
+export const getBatchInfoList = (factoryid,startdate,enddate,p,status,batch,brandid,boxno) => {
+  return http.get("/report/output?rid=68&export=flexigridjson&factoryid="+factoryid+"&startdate="+startdate+"&enddate="+enddate+"&status="+status+"&batch="+batch+"&brandid="+brandid+"&boxno="+boxno+"&paging=pagecount&s=20&p="+p);
 }
 
 export const getFactoryTimeSpan = (factoryid) => {
@@ -138,4 +138,12 @@ export const getBoxnoDataSource = (batch) => {
 
 export const delQaTask = () =>{
   return http.post("systems/formconfig/fcupdate?id=186&batch="+batch);
+}
+
+export const getBatchStatus = () =>{
+  return http.get("/report/json?jid=189");
+}
+
+export const getBrandData = () =>{
+  return http.get("/report/json?jid=125");
 }

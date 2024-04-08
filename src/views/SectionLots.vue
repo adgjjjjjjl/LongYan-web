@@ -41,6 +41,56 @@
             {{ title }}
           </button>
         </div>
+        <div class="top-header2">
+          <span>开始日期：</span>
+          <a-date-picker
+            v-model:value="dateStart"
+            :locale="zhCN"
+            dropdownClassName="dropdown-custom"
+            class="calendar"
+            placeholder="开始日期"
+            @change="dateChange"
+          >
+          <template #suffixIcon>
+              <div class="calendar-icon" />
+            </template>
+          </a-date-picker>
+          <span>结束日期：</span>
+          <a-date-picker
+            v-model:value="dateEnd"
+            :locale="zhCN"
+            dropdownClassName="dropdown-custom"
+            class="calendar"
+            placeholder="结束日期"
+            @change="dateChange"
+          >
+          <template #suffixIcon>
+            <div class="calendar-icon" />
+          </template>
+        </a-date-picker>
+        <span>批次：</span>
+        <a-input v-model:value="batch"  placeholder="" style="color: #63a0bd;width: 220px;background-color: transparent;border: 1px solid #264460;"/>
+        <span>状态：</span>
+        <a-select
+          ref="group-picker"
+          v-model:value="status"
+          mode="multiple"
+          class="picker"
+          dropdownClassName="dropdown-custom"
+          style="width: 120px"
+          :options="optionsStatus"
+          @focus="focus"
+        >
+          <template #suffixIcon>
+            <div class="selector-suffix" />
+          </template>
+        </a-select>
+        <span>牌号：</span>
+        <a-auto-complete v-model:value="productNumber" :data-source ="optionsProd" :filter-option="filterOption" placeholder=""  style="color: #63a0bd;width: 200px;background-color: transparent;border: 1px solid #264460;"/>
+        <span>箱号：</span>
+        <a-input v-model:value="boxId"  placeholder=""  style="color: #63a0bd;width: 70px;background-color: transparent;border: 1px solid #264460;"/>
+        <button class="search" @click="onSearch">查询</button>
+        </div>
         <div class="table-block">
           <a-table
             :row-selection="rowSelection"
@@ -104,8 +154,9 @@
 import * as echarts from "echarts";
 import dayjs from "dayjs";
 import { ref, onMounted, reactive, computed } from "vue";
+import zhCN from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import { columns,columnsMapping } from "@/utils/pageConfig.js";
-import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction,delBatchByRowids,updateBatchOrder,calcUnsteadyState,delQaTask } from '../api/request';
+import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction,delBatchByRowids,updateBatchOrder,calcUnsteadyState,delQaTask,getBatchStatus,getBrandData } from '../api/request';
 
 let url = ref("");
 const visible = ref(false);
@@ -115,13 +166,26 @@ let modalHeight = ref("80%");
 const dateFormat = "YYYYMMDD";
 let echart = echarts;
 let currentDate = new Date();
-let sevenDaysAgo = new Date();
-sevenDaysAgo.setDate(currentDate.getDate() - 3);
-let dateStart = ref(dayjs(sevenDaysAgo));
+let fiveDaysAgo = new Date();
+fiveDaysAgo.setDate(currentDate.getDate() - 5);
+let dateStart = ref(dayjs(fiveDaysAgo));
 let dateEnd = ref(dayjs(currentDate));
 let data = ref([]);
 let columnDatasource = ref([]);
 let columnWidth = ref(0);
+
+let batch = ref("");
+let optionsStatus = ref([
+  {
+    value: "",
+    label: "",
+  }
+]);
+let status = ref(",1,2,3,4,5,6");
+let productNumber = ref("");
+const optionsProd = ref([]);
+let brandMapping = {};
+let boxId = ref("");
 
 const topTitles = [
   "高架库出库",
@@ -226,6 +290,9 @@ onMounted(() => {
 
   loadColumns();
 
+  loadBatchStatus();
+  loadBrandData();
+
   setTimeout(() => {
     initCharts();
     loadChartData();
@@ -250,7 +317,7 @@ const loadColumns = () =>{
 const loadBatchInfoData = () => {
   let dateStartStr = dateStart.value.format(dateFormat);
   let dateEndStr = dateEnd.value.format(dateFormat);
-  getBatchInfoList(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr,paginationConfig.current).then(res=>{
+  getBatchInfoList(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr,paginationConfig.current,status.value,batch.value,brandMapping[productNumber.value],boxId.value).then(res=>{
     data.value.length = 0;
     let batchInfoData = [];
     if(typeof res.data == "string"){
@@ -317,6 +384,37 @@ function loadFactoryProductionData(){
     }
     chartTrans.setOption(TransOption);
   });
+}
+
+const loadBatchStatus = () => {
+  optionsStatus.value.length = 0;
+  optionsStatus.value.push({value:",1,2,3,4,5,6",label:"全部"});
+  status.value = optionsStatus.value[0].value;
+  getBatchStatus().then(res=>{
+      if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          optionsStatus.value.push({value:res.data[i].id,label:res.data[i].name});
+        }
+      }
+  });
+}
+
+const loadBrandData = () => {
+  optionsProd.value.length = 0;
+  getBrandData().then(res=>{
+      if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          brandMapping[res.data[i].name] = res.data[i].id;
+          optionsProd.value.push(res.data[i].name);
+        }
+      }
+  });
+}
+
+const filterOption = (input, option) => {
+  return (
+        option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0
+  );
 }
 
 const reloadCharts = () => {
@@ -877,6 +975,86 @@ main {
   }
   .ant-modal-body {
     flex: 1;
+  }
+}
+
+.top-header2 {
+    background: center center / 100% 100% no-repeat
+      url("@/assets/top-bg-qi.png");
+    height: 50px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    > span {
+      display: inline-block;
+      font-size: 14px;
+      font-weight: 400;
+      color: #63a0bd;
+      flex-shrink: 0;
+      margin-left: 10px;
+    }
+
+    // > * {
+    //   margin-right: 10px;
+    // }
+    .picker {
+      min-width: 100px;
+      height: 28px;
+    }
+    .search {
+      background-color: #0346d9;
+      font-weight: 400;
+      color: #fff;
+      padding: 6px 10px;
+      border: none;
+      margin-left: 15px;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .calendar {
+      background-color: transparent;
+      padding: 2px 5px 2px 10px;
+      border: 1px solid #264460;
+    }
+
+    .calendar-icon {
+      width: 16px;
+      height: 16px;
+      background: center / 100% no-repeat url("@/assets/icon-calendar.png");
+    }
+
+    .selector-suffix {
+      width: 12px;
+      height: 12px;
+      background: center / 100% no-repeat url("@/assets/arrow-down.png");
+    }
+}
+
+:deep(.ant-picker-input) {
+  > input {
+    color: #a1e1ff;
+    font-size: 14px;
+  }
+}
+
+:deep(.ant-select) {
+  &:not(.ant-select-customize-input) .ant-select-selector {
+    // height: 28px;
+    margin-right: 20px;
+    background-color: transparent;
+    border: 1px solid #264460;
+  }
+  .ant-select-selection-item {
+    color: #a1e1ff;
+    font-size: 14px;
+    background-color: #002d70;
+    border: none;
+  }
+  .ant-select-arrow {
+    color: #264460;
   }
 }
 </style>
