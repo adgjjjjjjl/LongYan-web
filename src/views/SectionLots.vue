@@ -802,7 +802,7 @@ main {
         background-color: #0346d9;
       }
       .table-block {
-        height: 470px;
+        height: 440px;
         overflow-y: scroll;
         &::-webkit-scrollbar {
           display: none;
