@@ -97,7 +97,7 @@
             :columns="columnDatasource"
             :data-source="data"
             :pagination="false"
-            :scroll="{ x: columnWidth, y: 435 }"
+            :scroll="{ x: columnWidth, y: 405 }"
             :row-class-name="
               (_record, index) =>
                 _record.is_error == '正常' ? 'cell-normal' : 'cell-abnormal'
