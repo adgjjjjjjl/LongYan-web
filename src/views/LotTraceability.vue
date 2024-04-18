@@ -281,7 +281,8 @@ import {
   getBakingTrending,
   getBatchByBrandAndFactory,
   getTemperatureTrending,
-  getBoxnoDataSource
+  getBoxnoDataSource,
+  getRawMaterial
 } from '../api/request';
 
 import {
@@ -297,7 +298,8 @@ import {
   processQualityColumns,
   qualityInformationColumns,
   alarmMessageColumns,
-  packingDensityColumns
+  packingDensityColumns,
+  rawMaterialColumns
 } from "@/utils/LotTraceability";
 
 import * as echarts from "echarts";
@@ -918,6 +920,24 @@ function loadBakingTrending(){
   }
 }
 
+function loadRawMaterial(){
+  getRawMaterial(batch.value).then(res=>{
+    columns2.value = rawMaterialColumns;
+    data2.value.length = 0;
+    let data = [];
+    if(typeof res.data == "string"){
+      data = eval("("+res.data+")");
+    }
+    else{
+      data = res.data;
+    }
+    for(var i=0;i<data.length;i++){
+      data[i]["index"] = i+1;
+      data2.value.push(data[i]);
+    }
+  })
+}
+
 const onClickProcess = (title) => {
   activateMainStatus.value = title;
   activateStatus.value = statusButtons.value[0];
@@ -1023,6 +1043,9 @@ const loadData2 = () => {
   }
   else if(activateStatus.value == "叶复烤过程趋势"){
     loadBakingTrendingPoint();
+  }
+  else if(activateStatus.value == "原料物理特性"){
+    loadRawMaterial();
   }
 }
 
@@ -1520,6 +1543,12 @@ main {
   }
   .ant-select-arrow {
     color: #264460;
+  }
+}
+
+:deep(.ant-table-empty){
+  .ant-table-tbody{
+    height: 300px;
   }
 }
 

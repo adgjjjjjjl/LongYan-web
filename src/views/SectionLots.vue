@@ -881,6 +881,12 @@ main {
   }
 }
 
+:deep(.ant-table-empty){
+  .ant-table-tbody{
+    height: 405px;
+  }
+}
+
 //table表头样式
 :deep(.ant-table-thead) {
   > tr {

@@ -147,3 +147,7 @@ export const getBatchStatus = () =>{
 export const getBrandData = () =>{
   return http.get("/report/json?jid=125");
 }
+
+export const getRawMaterial = (batch) =>{
+  return http.get("/report/json?jid=386&batch="+batch);
+}

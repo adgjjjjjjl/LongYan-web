@@ -1,6 +1,6 @@
 export const tableConfig = {
   机: ["非稳态时间"],
-  物料: ["辅料信息", "配方出库单"],
+  物料: ["辅料信息", "配方出库单", "原料物理特性"],
   加工要求: ["加工工艺技术要求", "工艺参数标准", "配方单"],
   环境温湿度: ["环境温湿度趋势"],
   过程测量: ["过程质量", "质检信息", "报警信息", "装箱密度", "叶复烤过程趋势"],
@@ -630,6 +630,94 @@ export const packingDensityColumns = [
     title: "备注",
     dataIndex: "f_remark",
     align: "center",
+  },
+]
+
+export const rawMaterialColumns =[
+  {
+    title: "序号",
+    dataIndex: "index",
+    align: "center",
+    width: 45,
+  },
+  {
+    title: "委托方",
+    dataIndex: "companyname",
+    align: "center",
+    width: 200,
+  },
+  {
+    title: "生产牌号",
+    dataIndex: "brandname",
+    align: "center",
+    width: 200,
+  },
+  {
+    title: "原始含水率",
+    dataIndex: "f_moisturecontent",
+    align: "center",
+    width: 100,
+  },
+  {
+    title: "原始含梗率",
+    dataIndex: "f_stemratio",
+    align: "center",
+    width: 100,
+  },
+  {
+    title: "单叶重量g",
+    dataIndex: "f_leafweight",
+    align: "center",
+    width: 100,
+  },
+  {
+    title: "单位面积重量(20片)",
+    dataIndex: "f_areaweight",
+    align: "center",
+    width: 200,
+  },
+  {
+    title: "密度g/cm17",
+    dataIndex: "f_density",
+    align: "center",
+    width: 100,
+  },
+  {
+    title: "长度cm",
+    dataIndex: "f_length",
+    align: "center",
+    width: 100,
+  },
+  {
+    title: "'宽度cm",
+    dataIndex: "f_width",
+    align: "center",
+    width: 100,
+  },  {
+    title: "厚度1cm",
+    dataIndex: "f_thickness1",
+    align: "center",
+    width: 100,
+  },  {
+    title: "厚度2cm",
+    dataIndex: "f_thickness2",
+    align: "center",
+    width: 100,
+  },  {
+    title: "梗头宽度mm",
+    dataIndex: "f_stemwidth_head",
+    align: "center",
+    width: 100,
+  },  {
+    title: "梗中宽度mm",
+    dataIndex: "f_stemwidth_middle",
+    align: "center",
+    width: 100,
+  },{
+    title: "梗尾宽度mm",
+    dataIndex: "f_stemwidth_tail",
+    align: "center",
+    width: 100,
   },
 ]
 // const dataItem = {
