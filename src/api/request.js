@@ -28,8 +28,12 @@ export const getDelegate = (datestart,dateend) => {
   return http.get("/report/json?jid=283&datestart="+datestart+"&dateend="+dateend);
 }
 
-export const getBrandByDelegate = (datestart,dateend,delegateid) => {
-  return http.get("/report/json?jid=284&datestart="+datestart+"&dateend="+dateend+"&delegateid="+delegateid);
+export const getBatchDelegate = (datestart,dateend) => {
+  return http.get("/report/json?jid=296&startdate="+datestart+"&enddate="+dateend);
+}
+
+export const getBrandByDelegate = (datestart,dateend,companyid) => {
+  return http.get("/report/json?jid=284&startdate="+datestart+"&enddate="+dateend+"&companyid="+companyid);
 }
 
 export const getBrandTeam = (datestart,dateend,delegateid,brandid) => {
@@ -46,10 +50,6 @@ export const getFactoryTimeSpan = (factoryid) => {
 
 export const getFactoryProduction = (factoryid) => {
   return http.get("/report/json?jid=291&factoryid="+factoryid+"&limitcount="+(factoryid<11?5:10));
-}
-
-export const getTraceabilityDelegate = (datestart,dateend) => {
-  return http.get("/report/json?jid=296&datestart="+datestart+"&dateend="+dateend);
 }
 
 export const getCurrentDbBatch = () => {
@@ -116,8 +116,8 @@ export const getTemperatureTrending = (batch,code) => {
   return http.get("/report/json?jid=161&batch="+batch+"&code="+code);
 }
 
-export const getBatchByBrandAndFactory = (brandid,factoryid) => {
-  return http.get("/report/json?jid=313&brandid="+brandid+"&factoryid="+factoryid);
+export const getBatchByBrandAndFactory = (brandid,factoryid,datestart,dateend) => {
+  return http.get("/report/json?jid=313&brandid="+brandid+"&factoryid="+factoryid+"&datestart="+datestart+"&dateend="+dateend);
 }
 
 export const delBatchByRowids = (rowids) => {

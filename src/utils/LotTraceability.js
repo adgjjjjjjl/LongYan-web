@@ -156,13 +156,13 @@ export const accessoryInfoColumns = [
 
 export const outStockColumns = [
   {
-    title: "生产牌号",
-    dataIndex: "cpbrandname",
+    title: "委托方",
+    dataIndex: "companyname",
     align: "center",
   },
   {
-    title: "委托方",
-    dataIndex: "companyname",
+    title: "生产牌号",
+    dataIndex: "cpbrandname",
     align: "center",
   },
   {
@@ -352,13 +352,13 @@ export const formulaSheetColumns =[
     align: "center",
   },
   {
-    title: "生产牌号",
-    dataIndex: "brandname",
+    title: "委托方",
+    dataIndex: "companyname",
     align: "center",
   },
   {
-    title: "委托方",
-    dataIndex: "companyname",
+    title: "生产牌号",
+    dataIndex: "brandname",
     align: "center",
   },
   {
@@ -416,13 +416,13 @@ export const processQualityColumns=[
     align: "center",
   },
   {
-    title: "生产牌号",
-    dataIndex: "f_brand_name",
+    title: "委托方",
+    dataIndex: "f_company_name",
     align: "center",
   },
   {
-    title: "委托方",
-    dataIndex: "f_company_name",
+    title: "生产牌号",
+    dataIndex: "f_brand_name",
     align: "center",
   },
   {
@@ -464,13 +464,13 @@ export const qualityInformationColumns = [
     align: "center",
   },
   {
-    title: "生产牌号",
-    dataIndex: "f_brand_name",
+    title: "委托方",
+    dataIndex: "f_company_name",
     align: "center",
   },
   {
-    title: "委托方",
-    dataIndex: "f_company_name",
+    title: "生产牌号",
+    dataIndex: "f_brand_name",
     align: "center",
   },
   {
@@ -515,8 +515,9 @@ export const qualityInformationColumns = [
   },
   {
     title: "检测时间",
-    dataIndex: "f_datetime",
+    dataIndex: "f_proc_time",
     align: "center",
+    width:150
   },
   {
     title: "检测值",
@@ -572,13 +573,13 @@ export const packingDensityColumns = [
     width: 45,
   },
   {
-    title: "生产牌号",
-    dataIndex: "brandname",
+    title: "委托方",
+    dataIndex: "companyname",
     align: "center",
   },
   {
-    title: "委托方",
-    dataIndex: "companyname",
+    title: "生产牌号",
+    dataIndex: "brandname",
     align: "center",
   },
   {

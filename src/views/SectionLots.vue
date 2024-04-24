@@ -27,7 +27,6 @@
         </div>
       </div>
       <div class="table-contain">
-        <div class="table-title">{{selectedTitle}}批次列表</div>
         <div>
           <button
             v-for="title in operations"
@@ -44,6 +43,8 @@
         <div class="top-header2">
           <span>开始日期：</span>
           <a-date-picker
+            format="YYYY-MM-DD HH:mm:ss"
+            :show-time="true"
             v-model:value="dateStart"
             :locale="zhCN"
             dropdownClassName="dropdown-custom"
@@ -57,6 +58,8 @@
           </a-date-picker>
           <span>结束日期：</span>
           <a-date-picker
+            format="YYYY-MM-DD HH:mm:ss"
+            :show-time="true"
             v-model:value="dateEnd"
             :locale="zhCN"
             dropdownClassName="dropdown-custom"
@@ -68,8 +71,6 @@
             <div class="calendar-icon" />
           </template>
         </a-date-picker>
-        <span>批次：</span>
-        <a-input v-model:value="batch"  placeholder="" style="color: #63a0bd;width: 220px;background-color: transparent;border: 1px solid #264460;"/>
         <span>状态：</span>
         <a-select
           ref="group-picker"
@@ -85,11 +86,46 @@
             <div class="selector-suffix" />
           </template>
         </a-select>
-        <span>牌号：</span>
-        <a-auto-complete v-model:value="productNumber" :data-source ="optionsProd" :filter-option="filterOption" placeholder=""  style="color: #63a0bd;width: 200px;background-color: transparent;border: 1px solid #264460;"/>
-        <span>箱号：</span>
-        <a-input v-model:value="boxId"  placeholder=""  style="color: #63a0bd;width: 70px;background-color: transparent;border: 1px solid #264460;"/>
-        <button class="search" @click="onSearch">查询</button>
+        <span>委托方：</span>
+        <a-select
+          show-search
+          v-model:value="delegate"
+          mode="multiple"
+          dropdownClassName="picker"
+          style="width: 220px;color: rgb(99, 160, 189);"
+          :options="optionsDelegate"
+          :filter-option="filterOption"
+          @focus="focus"
+          @change="handleDelegateChange"
+        >
+          <template #suffixIcon>
+            <div class="selector-suffix" />
+          </template>
+        </a-select>
+      </div>
+      <div class="top-header2">
+        <span>生产牌号：</span>
+          <a-select
+            show-search
+            v-model:value="productNumber"
+            mode="multiple"
+            dropdownClassName="picker"
+            style="width: 220px;color: rgb(99, 160, 189);"
+            :options="optionsProd"
+            :filter-option="filterOption"
+            @focus="focus"
+            @change="handleProductNumberChange"
+          >
+          <template #suffixIcon>
+            <div class="selector-suffix" />
+          </template>
+        </a-select>
+          <span>批次：</span>
+          <a-auto-complete v-model:value="shortbatch" :data-source ="batchDataSource" @change="handleBatchChange" :filter-option="filterOption2" placeholder="" style="color: #63a0bd;width: 120px;background-color: transparent;border: 1px solid #264460;"/>
+          <a-input v-model:value="batch" @change="handleBatchChange2" placeholder=""  style="color: #63a0bd;width: 220px;background-color: transparent;border: 1px solid #264460;margin-left: 10px;"/>
+          <span>箱号：</span>
+          <a-auto-complete v-model:value="boxId" :data-source ="boxnoDataSource" :filter-option="filterOption2" placeholder=""  style="color: #63a0bd;width: 70px;background-color: transparent;border: 1px solid #264460;"/>
+          <button class="search" @click="onSearch" style="width:100px">查询</button>
         </div>
         <div class="table-block">
           <a-table
@@ -156,14 +192,14 @@ import dayjs from "dayjs";
 import { ref, onMounted, reactive, computed } from "vue";
 import zhCN from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import { columns,columnsMapping } from "@/utils/pageConfig.js";
-import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction,delBatchByRowids,updateBatchOrder,calcUnsteadyState,delQaTask,getBatchStatus,getBrandData } from '../api/request';
+import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction,delBatchByRowids,updateBatchOrder,calcUnsteadyState,delQaTask,getBatchStatus,getBatchByBrandAndFactory,getBatchDelegate,getBrandByDelegate,getBoxnoDataSource } from '../api/request';
 
 let url = ref("");
 const visible = ref(false);
 let modalWidth = ref("90%");
 let modalHeight = ref("80%");
 
-const dateFormat = "YYYYMMDD";
+const dateFormat = "YYYY-MM-DD HH:mm:ss";
 let echart = echarts;
 let currentDate = new Date();
 let fiveDaysAgo = new Date();
@@ -173,8 +209,20 @@ let dateEnd = ref(dayjs(currentDate));
 let data = ref([]);
 let columnDatasource = ref([]);
 let columnWidth = ref(0);
+let delegate = ref("");
+const optionsDelegate = ref([
+  {
+    value: "",
+    label: "",
+  }
+]);
+let batchDataSource = ref([])
+let boxnoDataSource = ref([])
+let batchInfoData = undefined;
 
 let batch = ref("");
+let shortbatch = ref("");
+let batchMappig = {};
 let optionsStatus = ref([
   {
     value: "",
@@ -184,7 +232,6 @@ let optionsStatus = ref([
 let status = ref(",1,2,3,4,5,6");
 let productNumber = ref("");
 const optionsProd = ref([]);
-let brandMapping = {};
 let boxId = ref("");
 
 const topTitles = [
@@ -289,14 +336,11 @@ const locale = {
 onMounted(() => {
 
   loadColumns();
-
-  loadBatchStatus();
-  loadBrandData();
+  loadToolBarData();
 
   setTimeout(() => {
     initCharts();
     loadChartData();
-    loadBatchInfoData();
   }, 200);
 
   window.onresize = () =>
@@ -317,9 +361,8 @@ const loadColumns = () =>{
 const loadBatchInfoData = () => {
   let dateStartStr = dateStart.value.format(dateFormat);
   let dateEndStr = dateEnd.value.format(dateFormat);
-  getBatchInfoList(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr,paginationConfig.current,status.value,batch.value,productNumber.value==""?"":brandMapping[productNumber.value],boxId.value).then(res=>{
+  getBatchInfoList(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr,paginationConfig.current,status.value,batch.value,productNumber.value,boxId.value).then(res=>{
     data.value.length = 0;
-    let batchInfoData = [];
     if(typeof res.data == "string"){
       batchInfoData = eval("("+res.data+")");
     }
@@ -399,21 +442,15 @@ const loadBatchStatus = () => {
   });
 }
 
-const loadBrandData = () => {
-  optionsProd.value.length = 0;
-  getBrandData().then(res=>{
-      if(res.data.length>0){
-        for(let i=0;i<res.data.length;i++){
-          brandMapping[res.data[i].name] = res.data[i].id;
-          optionsProd.value.push(res.data[i].name);
-        }
-      }
-  });
-}
-
 const filterOption = (input, option) => {
   return (
-        option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0
+    option.props.label.indexOf(input) >= 0
+  );
+}
+
+const filterOption2 = (input, option) => {
+  return (
+    option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0
   );
 }
 
@@ -429,13 +466,14 @@ const onClickTitle = (title) => {
   console.log(selectedTitle.value);
   loadColumns();
   loadChartData();
-  loadBatchInfoData();
+  batchInfoData = undefined;
+  loadToolBarData();
 };
 
 function handlePageChange(current) {
   console.log(
     `点击了第 ${current} 页`
-  );
+  );``
   paginationConfig.current = current;
   loadBatchInfoData();
 }
@@ -458,7 +496,103 @@ const onSearch = (e) => {
 
 const dateChange = (date, dateString) => {
   console.log(dateString);
+  loadToolBarData();
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  loadBatchDataSource(dateStartStr,dateEndStr);
 };
+
+// 选择器选项变化事件
+const handleDelegateChange = (e) => {
+  // console.log(e);
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  loadBrandDelegate(dateStartStr,dateEndStr,delegate.value);
+};
+
+const handleProductNumberChange = (e) => {
+  // console.log(e);
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  loadBatchDataSource(dateStartStr,dateEndStr);
+};
+
+const handleBatchChange = (e) =>{
+  batch.value = batchMappig[shortbatch.value];
+  loadBoxnoDataSource();
+};
+
+const handleBatchChange2 = (e) =>{
+  if(batch.value == undefined){
+    batch.value = ""
+  }
+}
+
+const loadToolBarData = () => {
+  loadBatchStatus();
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  loadDelegate(dateStartStr,dateEndStr);
+}
+
+const loadDelegate = (dateStartStr,dateEndStr) => {
+  optionsDelegate.value.length = 0;
+  let all = {"value":"","label":"全部"};
+  optionsDelegate.value.push(all);
+  getBatchDelegate(dateStartStr,dateEndStr).then(res=>{
+    if(res.data.length>0){
+      for(let i=0;i<res.data.length;i++){
+        all.value += ","+res.data[i].id.toString();
+        optionsDelegate.value.push({value:res.data[i].id,label:res.data[i].name});
+      }
+      delegate.value = all.value;
+      loadBrandDelegate(dateStartStr,dateEndStr,delegate.value);
+    }
+  });
+}
+
+const loadBrandDelegate = (dateStartStr,dateEndStr,delegateid) => {
+  optionsProd.value.length = 0;
+  let all = {"value":"","label":"全部"};
+  optionsProd.value.push(all);
+  getBrandByDelegate(dateStartStr,dateEndStr,delegateid).then(res=>{
+      if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          all.value += ","+res.data[i].id.toString();
+          optionsProd.value.push({value:res.data[i].id,label:res.data[i].name});
+        }
+        productNumber.value = all.value;
+        //初次进入页面时自动加载批次数据
+        if(batchInfoData == undefined){
+          loadBatchInfoData();
+        }
+        loadBatchDataSource(dateStartStr,dateEndStr);
+      }
+  });
+}
+
+const loadBatchDataSource = (dateStartStr,dateEndStr) => {
+  getBatchByBrandAndFactory(productNumber.value,topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr).then(res=>{
+    batchDataSource.value.length = 0;
+    if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          batchDataSource.value.push(res.data[i].f_short_batch);
+          batchMappig[res.data[i].f_short_batch] = res.data[i].f_batch;
+        }
+      }
+  });
+}
+
+const loadBoxnoDataSource = () =>{
+  getBoxnoDataSource(batch.value).then(res=>{
+    boxnoDataSource.value.length = 0;
+    if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          boxnoDataSource.value.push(res.data[i].boxno.toString());
+        }
+    }
+  });
+}
 
 const TransOption = {
     // dataZoom: [
@@ -770,7 +904,7 @@ main {
     .table-contain {
       position: relative;
       width: calc(100% - 440px);
-      max-height: 620px;
+      max-height: 640px;
       background-color: #072554;
       margin: 20px 20px 0 0;
       padding: 0 20px;

@@ -30,7 +30,7 @@ export const columns = [
     align: "center",
   },
   {
-    title: "牌号",
+    title: "生产牌号",
     dataIndex: "brandname",
     width: 230,
     align: "center",

@@ -1,81 +1,5 @@
 <template>
   <main>
-    <div class="top-header">
-      <span>开始日期：</span>
-      <a-date-picker
-        v-model:value="dateStart"
-        :locale="zhCN"
-        dropdownClassName="dropdown-custom"
-        class="calendar"
-        placeholder="开始日期"
-        @change="dateChange"
-      >
-        <template #suffixIcon>
-          <div class="calendar-icon" />
-        </template>
-      </a-date-picker>
-      <span>结束日期：</span>
-      <a-date-picker
-        v-model:value="dateEnd"
-        :locale="zhCN"
-        dropdownClassName="dropdown-custom"
-        class="calendar"
-        placeholder="结束日期"
-        @change="dateChange"
-      >
-        <template #suffixIcon>
-          <div class="calendar-icon" />
-        </template>
-      </a-date-picker>
-      <span>工段：</span>
-      <a-select
-        v-model:value="working"
-        dropdownClassName="picker"
-        style="width: 110px"
-        :options="workingProcess"
-        @focus="focus"
-        @change="handleFactoryChange"
-        ><template #suffixIcon>
-          <div class="selector-suffix" />
-        </template>
-      </a-select>
-      <span>委托方：</span>
-      <a-select
-        show-search
-        v-model:value="delegate"
-        dropdownClassName="picker"
-        style="width: 220px;color: rgb(99, 160, 189);"
-        :options="optionsDelegate"
-        :filter-option="filterOption"
-        @focus="focus"
-        @change="handleDelegateChange"
-      >
-        <template #suffixIcon>
-          <div class="selector-suffix" />
-        </template>
-      </a-select>
-      <span>生产牌号：</span>
-      <a-select
-      show-search
-        v-model:value="productNumber"
-        dropdownClassName="picker"
-        style="width: 220px;color: rgb(99, 160, 189);"
-        :options="optionsProd"
-        :filter-option="filterOption"
-        @focus="focus"
-        @change="handleProductNumberChange"
-      >
-        <template #suffixIcon>
-          <div class="selector-suffix" />
-        </template>
-      </a-select>
-      <span>批次号：</span>
-      <a-auto-complete v-model:value="batch" :data-source ="batchDataSource" @change="handleBatchChange" :filter-option="filterOption2" placeholder="" style="color: #63a0bd;width: 220px;background-color: transparent;border: 1px solid #264460;"/>
-      <span>箱号：</span>
-      <a-auto-complete v-model:value="boxId" :data-source ="boxnoDataSource" :filter-option="filterOption2" placeholder=""  style="color: #63a0bd;width: 70px;background-color: transparent;border: 1px solid #264460;"/>
-      <!--<button class="search" @click="searchBatch">查批次号</button>-->
-      <button class="search" @click="onSearch">查询</button>
-    </div>
     <div id="myElement" class="top-header">
       <div
         v-for="title in buttonTitles"
@@ -97,12 +21,83 @@
           </svg>
           <div class="popup-label">
             <span>委托方：{{companyname}}</span>
-            <span>牌号：{{brandname}}</span>
+            <span>生产牌号：{{brandname}}</span>
             <span>批次：{{batchStr}}</span>
             <span>开始时间：{{batchstarttime}}</span>
           </div>
         </div>
       </div>
+    </div>
+    <div class="top-header2">
+      <span>开始日期：</span>
+      <a-date-picker
+        format="YYYY-MM-DD HH:mm:ss"
+        :show-time="true"
+        v-model:value="dateStart"
+        :locale="zhCN"
+        dropdownClassName="dropdown-custom"
+        class="calendar"
+        placeholder="开始日期"
+        @change="dateChange"
+      >
+        <template #suffixIcon>
+          <div class="calendar-icon" />
+        </template>
+      </a-date-picker>
+      <span>结束日期：</span>
+      <a-date-picker
+        format="YYYY-MM-DD HH:mm:ss"
+        :show-time="true"
+        v-model:value="dateEnd"
+        :locale="zhCN"
+        dropdownClassName="dropdown-custom"
+        class="calendar"
+        placeholder="结束日期"
+        @change="dateChange"
+      >
+        <template #suffixIcon>
+          <div class="calendar-icon" />
+        </template>
+      </a-date-picker>
+      <span>委托方：</span>
+      <a-select
+        show-search
+        v-model:value="delegate"
+        dropdownClassName="picker"
+        style="width: 220px;color: rgb(99, 160, 189);"
+        :options="optionsDelegate"
+        :filter-option="filterOption"
+        @focus="focus"
+        @change="handleDelegateChange"
+      >
+        <template #suffixIcon>
+          <div class="selector-suffix" />
+        </template>
+      </a-select>
+      <span>生产牌号：</span>
+      <a-select
+      show-search
+        v-model:value="productNumber"
+        dropdownClassName="picker"
+        style="width: 250px;color: rgb(99, 160, 189);"
+        :options="optionsProd"
+        :filter-option="filterOption"
+        @focus="focus"
+        @change="handleProductNumberChange"
+      >
+        <template #suffixIcon>
+          <div class="selector-suffix" />
+        </template>
+      </a-select>
+    </div>
+    <div class="top-header2">
+      <span>批次号：</span>
+      <a-auto-complete v-model:value="shortbatch" :data-source ="batchDataSource" @change="handleBatchChange" :filter-option="filterOption2" placeholder="" style="color: #63a0bd;width: 120px;background-color: transparent;border: 1px solid #264460;"/>
+      <a-input v-model:value="batch" @change="handleBatchChange2" placeholder=""  style="color: #63a0bd;width: 220px;background-color: transparent;border: 1px solid #264460;margin-left: 10px;"/>
+      <span>箱号：</span>
+      <a-auto-complete v-model:value="boxId" :data-source ="boxnoDataSource" :filter-option="filterOption2" placeholder=""  style="color: #63a0bd;width: 100px;background-color: transparent;border: 1px solid #264460;"/>
+      <!--<button class="search" @click="searchBatch">查批次号</button>-->
+      <button class="search" @click="onSearch" style="width:100px">查询</button>
     </div>
     <div class="part-block">
       <div class="working-infos">
@@ -178,6 +173,9 @@
               <template #bodyCell="{ column, text, record }">
                 <template v-if="column.dataIndex === 'f_num'">
                   <a @click="handleTitle(column.dataIndex,record)" class="base-cell">{{ text }}</a>
+                </template>
+                <template v-else-if="column.dataIndex === 'f_value'">
+                  <span :class="record.f_qualified == '0' ? 'cell-abnormal' : 'cell-normal'">{{ text }}</span>
                 </template>
                 <div class="base-cell" v-else>
                   {{ text }}
@@ -262,7 +260,7 @@ import zhCN from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import { useRoute } from "vue-router";
 
 import { 
-  getTraceabilityDelegate,
+  getBatchDelegate,
   getBrandByDelegate,
   getCurrentDbBatch,
   getExceptionSummary,
@@ -286,7 +284,6 @@ import {
 } from '../api/request';
 
 import {
-  workingProcess,
   tableConfig,
   columns,
   unsteadyDataColumns,
@@ -313,10 +310,10 @@ let modalHeight = ref("80%");
 
 let echart = echarts;
 const route = useRoute()
-const dateFormat = "YYYY-MM-DD";
+const dateFormat = "YYYY-MM-DD HH:mm:ss";
 let currentDate = new Date();
 let sevenDaysAgo = new Date();
-sevenDaysAgo.setDate(currentDate.getDate() - 7);
+sevenDaysAgo.setDate(currentDate.getDate() - 1);
 let dateStart = ref(dayjs(sevenDaysAgo));
 let dateEnd = ref(dayjs(currentDate));
 const optionsDelegate = ref([
@@ -338,7 +335,9 @@ let brandname = ref("");
 let batchStr = ref("");
 let batchstarttime = ref("");
 let productNumber = ref("");
+let shortbatch = ref("");
 let batch = ref("");
+let batchMappig = {};
 let boxId = ref("");
 let exceptionSummaryData = ref([]);
 let data2 = ref([]);
@@ -417,7 +416,8 @@ const loadToolBarData = () => {
 
 const loadDelegate = (dateStartStr,dateEndStr) => {
   optionsDelegate.value.length = 0;
-  getTraceabilityDelegate(dateStartStr,dateEndStr).then(res=>{
+  optionsDelegate.value.push({"value":"","label":"请选择"});
+  getBatchDelegate(dateStartStr,dateEndStr).then(res=>{
     if(res.data.length>0){
       for(let i=0;i<res.data.length;i++){
         optionsDelegate.value.push({value:res.data[i].id,label:res.data[i].name});
@@ -430,23 +430,25 @@ const loadDelegate = (dateStartStr,dateEndStr) => {
 
 const loadBrandDelegate = (dateStartStr,dateEndStr,delegateid) => {
   optionsProd.value.length = 0;
+  optionsProd.value.push({"value":"","label":"请选择"});
   getBrandByDelegate(dateStartStr,dateEndStr,delegateid).then(res=>{
       if(res.data.length>0){
         for(let i=0;i<res.data.length;i++){
           optionsProd.value.push({value:res.data[i].id,label:res.data[i].name});
         }
         productNumber.value = optionsProd.value[0].value;
-        loadBatchDataSource();
+        loadBatchDataSource(dateStartStr,dateEndStr);
       }
   });
 }
 
-const loadBatchDataSource = () => {
-  getBatchByBrandAndFactory(productNumber.value,working.value).then(res=>{
+const loadBatchDataSource = (dateStartStr,dateEndStr) => {
+  getBatchByBrandAndFactory(productNumber.value,working.value,dateStartStr,dateEndStr).then(res=>{
     batchDataSource.value.length = 0;
     if(res.data.length>0){
         for(let i=0;i<res.data.length;i++){
-          batchDataSource.value.push(res.data[i].f_batch);
+          batchDataSource.value.push(res.data[i].f_short_batch);
+          batchMappig[res.data[i].f_short_batch] = res.data[i].f_batch;
         }
       }
   });
@@ -565,10 +567,6 @@ const focus = (e) => {
   // console.log(e);
 };
 
-const handleFactoryChange = (e) => {
-  loadBatchDataSource();
-}
-
 // 选择器选项变化事件
 const handleDelegateChange = (e) => {
   // console.log(e);
@@ -579,12 +577,21 @@ const handleDelegateChange = (e) => {
 
 const handleProductNumberChange = (e) => {
   // console.log(e);
-  loadBatchDataSource();
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  loadBatchDataSource(dateStartStr,dateEndStr);
 };
 
 const handleBatchChange = (e) =>{
+  batch.value = batchMappig[shortbatch.value];
   loadBoxnoDataSource();
 };
+
+const handleBatchChange2 = (e) =>{
+  if(batch.value == undefined){
+    batch.value = ""
+  }
+}
 
 // 查询批次号
 const searchBatch = (e) => {
@@ -624,9 +631,12 @@ function loadData(itemStatus){
     working.value = itemStatus.factoryid.toString();
   }
   
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+
   loadExceptionSummary();
   loadData2();
-  loadBatchDataSource();
+  loadBatchDataSource(dateStartStr,dateEndStr);
   loadBoxnoDataSource();
 }
 
@@ -1053,6 +1063,9 @@ const loadData2 = () => {
 const dateChange = (date, dateString) => {
   console.log(dateString);
   loadToolBarData();
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  loadBatchDataSource(dateStartStr,dateEndStr);
 };
 
 var myChart = null;
@@ -1614,6 +1627,60 @@ main {
   .ant-modal-body {
     flex: 1;
   }
+}
+
+.top-header2 {
+    height: 50px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 60px;
+    
+    > span {
+      display: inline-block;
+      font-size: 14px;
+      font-weight: 400;
+      color: #63a0bd;
+      flex-shrink: 0;
+      margin-left: 10px;
+    }
+
+    // > * {
+    //   margin-right: 10px;
+    // }
+    .picker {
+      min-width: 100px;
+      height: 28px;
+    }
+    .search {
+      background-color: #0346d9;
+      font-weight: 400;
+      color: #fff;
+      padding: 6px 10px;
+      border: none;
+      margin-left: 15px;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .calendar {
+      background-color: transparent;
+      padding: 2px 5px 2px 10px;
+      border: 1px solid #264460;
+    }
+
+    .calendar-icon {
+      width: 16px;
+      height: 16px;
+      background: center / 100% no-repeat url("@/assets/icon-calendar.png");
+    }
+
+    .selector-suffix {
+      width: 12px;
+      height: 12px;
+      background: center / 100% no-repeat url("@/assets/arrow-down.png");
+    }
 }
 </style>
 

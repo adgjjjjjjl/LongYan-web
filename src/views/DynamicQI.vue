@@ -21,7 +21,7 @@
           </svg>
           <div class="popup-label">
             <span>委托方：{{companyname}}</span>
-            <span>牌号：{{brandname}}</span>
+            <span>生产牌号：{{brandname}}</span>
             <span>批次：{{batchStr}}</span>
             <span>开始时间：{{starttime}}</span>
           </div>

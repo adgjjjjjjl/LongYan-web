@@ -145,6 +145,7 @@ let data = []
 onMounted(() => {
   setTimeout(() => {
     initCharts();
+    search();
   }, 200);
   window.onresize = () =>
     (() => {
@@ -237,14 +238,13 @@ const handleOk = (e) => {
   visible.value = false;
 };
 
-// 查询批次号
-const searchBatch = (e) => {
-  console.log(e);
+// 查询数据
+const search = () => {
+  onSearch();
 };
 
 // 查询
 const onSearch = (e) => {
-  console.log(e);
   option["xAxis"]["data"].length = 0;
   option["series"][0]["data"].length =0;
   getAnalyzeRendering(productNumber.value,group.value).then(res=>{
