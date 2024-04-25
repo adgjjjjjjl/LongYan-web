@@ -92,12 +92,34 @@
     </div>
     <div class="top-header2">
       <span>批次号：</span>
-      <a-auto-complete v-model:value="shortbatch" :data-source ="batchDataSource" @change="handleBatchChange" :filter-option="filterOption2" placeholder="" style="color: #63a0bd;width: 120px;background-color: transparent;border: 1px solid #264460;"/>
+      <a-auto-complete v-model:value="shortbatch" :data-source ="batchDataSource" @change="handleBatchChange" :filter-option="filterOption2" placeholder="" style="color: #63a0bd;width: 200px;background-color: transparent;border: 1px solid #264460;"/>
       <a-input v-model:value="batch" @change="handleBatchChange2" placeholder=""  style="color: #63a0bd;width: 220px;background-color: transparent;border: 1px solid #264460;margin-left: 10px;"/>
       <span>箱号：</span>
-      <a-auto-complete v-model:value="boxId" :data-source ="boxnoDataSource" :filter-option="filterOption2" placeholder=""  style="color: #63a0bd;width: 100px;background-color: transparent;border: 1px solid #264460;"/>
+      <a-auto-complete v-model:value="boxId" @blur="handleBoxnoChange" :data-source ="boxnoDataSource" :filter-option="filterOption2" placeholder=""  style="color: #63a0bd;width: 100px;background-color: transparent;border: 1px solid #264460;"/>
       <!--<button class="search" @click="searchBatch">查批次号</button>-->
       <button class="search" @click="onSearch" style="width:100px">查询</button>
+    </div>
+    <div class="part-block">
+      <div class="table-contain2">
+        <div class="icon-left-rects" />
+        <div class="icon-right-rects" />
+        <div class="table-title">批次信息</div>
+        <div class="table-block">
+          <a-table
+            :columns="batchDataColumns"
+            :data-source="batchData"
+            :pagination="false"
+            :scroll="{ x: 1300, y: 100 }"
+            :row-class-name="'cell-normal'"
+          >
+            <template #bodyCell="{ column, text, record }">
+              <div class="base-cell">
+                {{ text }}
+              </div>
+            </template>
+          </a-table>
+        </div>
+      </div>
     </div>
     <div class="part-block">
       <div class="working-infos">
@@ -167,7 +189,7 @@
               :columns="columns2"
               :data-source="data2"
               :pagination="false"
-              :scroll="{ x: 'max-content', y: 300 }"
+              :scroll="{ x: column2Width, y: 300 }"
               :row-class-name="'cell-normal'"
             >
               <template #bodyCell="{ column, text, record }">
@@ -187,15 +209,6 @@
       </div>
     </div>
     <div class="part-block">
-      <div>
-        <QualityTrace class="woking-steps-block" :data="statusData" @loadData="loadData"/>
-        <div class="example">
-          <div v-for="item in examples" :key="item" class="example-block">
-            <div :style="{ 'background-color': item.color }" />
-            <h3>{{ item.text }}</h3>
-          </div>
-        </div>
-      </div>
       <div class="table-contain">
         <div class="icon-left-rects" />
         <div class="icon-right-rects" />
@@ -205,7 +218,7 @@
             :columns="columns"
             :data-source="exceptionSummaryData"
             :pagination="false"
-            :scroll="{ x: 'max-content', y: 310 }"
+            :scroll="{ x: 1550, y: 210 }"
             :row-class-name="'cell-normal'"
           >
             <template #bodyCell="{ column, text, record }">
@@ -260,6 +273,7 @@ import zhCN from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import { useRoute } from "vue-router";
 
 import { 
+  getBatchByBoxno,
   getBatchDelegate,
   getBrandByDelegate,
   getCurrentDbBatch,
@@ -286,6 +300,7 @@ import {
 import {
   tableConfig,
   columns,
+  batchDataColumns,
   unsteadyDataColumns,
   accessoryInfoColumns,
   outStockColumns,
@@ -308,6 +323,7 @@ const visible = ref(false);
 let modalWidth = ref("90%");
 let modalHeight = ref("80%");
 
+let column2Width = ref(0);
 let echart = echarts;
 const route = useRoute()
 const dateFormat = "YYYY-MM-DD HH:mm:ss";
@@ -340,6 +356,7 @@ let batch = ref("");
 let batchMappig = {};
 let boxId = ref("");
 let exceptionSummaryData = ref([]);
+let batchData = ref([]);
 let data2 = ref([]);
 let columns2 = ref([]);
 let statusData = ref([]);
@@ -407,6 +424,10 @@ onMounted(() => {
   loadToolBarData();
   loadCurrentDbBatch();
 });
+
+const updateColumn2Width = function(columns){
+  column2Width.value = columns.value.reduce((accumulator, currentValue) => accumulator + currentValue.width, 0);
+}
 
 const loadToolBarData = () => {
   let dateStartStr = dateStart.value.format(dateFormat);
@@ -499,7 +520,9 @@ function loadBatchInfoData(){
       data = res.data;
     }
     statusData.value.length = 0;
+    batchData.value.length = 0;
     if(data.length>0){
+
       for(let i=0;i<data.length;i++){
           statusData.value.push({
             key: data[i].factoryname,
@@ -515,6 +538,7 @@ function loadBatchInfoData(){
             batch:data[i].f_batch,
             factoryid:data[i].f_factory_id
           })
+
           if(data[i].f_batch == batch.value){
             selectedTitle.value = data[i].factoryname;
             productdate.value = data[i].f_product_date;
@@ -522,6 +546,8 @@ function loadBatchInfoData(){
             starttime.value = data[i].starttime;
             endtime.value = data[i].endtime;
             working.value = data[i].f_factory_id.toString();
+
+            batchData.value.push(data[i]);
           }
       }
     }
@@ -590,6 +616,35 @@ const handleBatchChange = (e) =>{
 const handleBatchChange2 = (e) =>{
   if(batch.value == undefined){
     batch.value = ""
+  }
+  else{
+    loadBoxnoDataSource();
+  }
+}
+
+const handleBoxnoChange = (e) =>{
+  if(boxId.value != undefined && boxId.value != ""){
+    let dateStartStr = dateStart.value.format(dateFormat);
+    let dateEndStr = dateEnd.value.format(dateFormat);
+    getBatchByBoxno(productNumber.value,boxId.value,dateStartStr,dateEndStr).then(res=>{
+        let data;
+        if(typeof res.data == "string"){
+          data = eval("("+res.data+")");
+        }
+        else{
+          data = res.data;
+        }
+        if(data.length == 0){
+          alert("根据所选条件未找到对应的批次,请修改时间范围，或选择正确的生产牌号")
+        }
+        else if(data.length == 1){
+          batch.value = data[0].f_batch;
+          onSearch(e);
+        }
+        else{
+          alert("根据所选条件找到多个批次，请缩小时间范围，或选择正确的生产牌号")
+        }
+    })
   }
 }
 
@@ -661,6 +716,7 @@ function loadExceptionSummary(){
 function loadUnsteadyData(){
   getUnsteadyData(batch.value).then(res=>{
     columns2.value = unsteadyDataColumns;
+    updateColumn2Width(columns2);
     data2.value.length = 0;
     let data = [];
     if(typeof res.data == "string"){
@@ -681,6 +737,7 @@ function loadUnsteadyData(){
 function loadAccessoryInfo(){
   getAccessoryInfo(productdate.value,team.value).then(res=>{
     columns2.value = accessoryInfoColumns;
+    updateColumn2Width(columns2);
     data2.value.length = 0;
     let data = [];
     if(typeof res.data == "string"){
@@ -700,6 +757,7 @@ function loadAccessoryInfo(){
 function loadOutStockInfo(){
   getOutStockInfo(batch.value).then(res=>{
     columns2.value = outStockColumns;
+    updateColumn2Width(columns2);
     data2.value.length = 0;
     let data = [];
     if(typeof res.data == "string"){
@@ -719,6 +777,7 @@ function loadOutStockInfo(){
 function loadProcessParams(){
   getProcessParams(batch.value).then(res=>{
     columns2.value = processParamsColumns;
+    updateColumn2Width(columns2);
     data2.value.length = 0;
     let data = [];
     if(typeof res.data == "string"){
@@ -737,6 +796,7 @@ function loadProcessParams(){
 function loadProcessTechnology(){
   getProcessTechnology(batch.value).then(res=>{
     columns2.value = processTechnologyColumns;
+    updateColumn2Width(columns2);
     data2.value.length = 0;
     let data = [];
     if(typeof res.data == "string"){
@@ -755,6 +815,7 @@ function loadProcessTechnology(){
 function loadFormulaSheet(){
   getFormulaSheet(batch.value).then(res=>{
     columns2.value = formulaSheetColumns;
+    updateColumn2Width(columns2);
     data2.value.length = 0;
     let data = [];
     if(typeof res.data == "string"){
@@ -773,6 +834,7 @@ function loadFormulaSheet(){
 function loadProcessQuality(){
   getProcessQuality(batch.value).then(res=>{
     columns2.value = processQualityColumns;
+    updateColumn2Width(columns2);
     data2.value.length = 0;
     let data = [];
     if(typeof res.data == "string"){
@@ -791,6 +853,7 @@ function loadProcessQuality(){
 function loadQualityInformation(){
   getQualityInformation(batch.value).then(res=>{
     columns2.value = qualityInformationColumns;
+    updateColumn2Width(columns2);
     data2.value.length = 0;
     let data = [];
     if(typeof res.data == "string"){
@@ -809,6 +872,7 @@ function loadQualityInformation(){
 function loadAlarmMessage(){
   getAlarmMessage(batch.value).then(res=>{
     columns2.value = alarmMessageColumns;
+    updateColumn2Width(columns2);
     data2.value.length = 0;
     let data = [];
     if(typeof res.data == "string"){
@@ -827,6 +891,7 @@ function loadAlarmMessage(){
 function loadPackingDensity(){
   getPackingDensity(batch.value).then(res=>{
     columns2.value = packingDensityColumns;
+    updateColumn2Width(columns2);
     data2.value.length = 0;
     let data = [];
     if(typeof res.data == "string"){
@@ -933,6 +998,7 @@ function loadBakingTrending(){
 function loadRawMaterial(){
   getRawMaterial(batch.value).then(res=>{
     columns2.value = rawMaterialColumns;
+    updateColumn2Width(columns2);
     data2.value.length = 0;
     let data = [];
     if(typeof res.data == "string"){
@@ -1340,11 +1406,11 @@ main {
     }
     .table-contain {
       position: relative;
-      width: calc(100% - 330px);
+      width: 100%;
       max-height: 620px;
       padding: 10px 15px 0;
       margin-left: 15px;
-      height: 395px;
+      height: 295px;
       background-color: #072554;
       &::-webkit-scrollbar {
         display: none;

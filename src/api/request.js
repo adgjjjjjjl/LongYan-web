@@ -151,3 +151,7 @@ export const getBrandData = () =>{
 export const getRawMaterial = (batch) =>{
   return http.get("/report/json?jid=386&batch="+batch);
 }
+
+export const getBatchByBoxno = (brandid,boxno,startdate,enddate) =>{
+  return http.get("/report/json?jid=393&brandid="+brandid+"&boxno="+boxno+"&startdate="+startdate+"&enddate="+enddate);
+}
