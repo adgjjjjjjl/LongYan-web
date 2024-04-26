@@ -219,6 +219,8 @@ const optionsDelegate = ref([
 let batchDataSource = ref([])
 let boxnoDataSource = ref([])
 let batchInfoData = undefined;
+let timeSpanData = [];
+let productionData = [];
 
 let batch = ref("");
 let shortbatch = ref("");
@@ -392,17 +394,16 @@ function loadFactoryTimeSpanData() {
   Timerption["series"][0]["data"].length =0;
   getFactoryTimeSpan(topTitlesMapping[selectedTitle.value]).then(res=>{
     //console.log(res.data);
-    let data =[];
     if(typeof res.data == "string"){
-      data = eval("("+res.data+")");
+      timeSpanData = eval("("+res.data+")");
     }
     else{
-      data = res.data;
+      timeSpanData = res.data;
     }
     //console.log(data);
-    for(var i=0;i<data.length;i++){
-      Timerption["xAxis"]["data"].push(data[i].x);
-      Timerption["series"][0]["data"].push(data[i].y);
+    for(var i=0;i<timeSpanData.length;i++){
+      Timerption["xAxis"]["data"].push(timeSpanData[i].x);
+      Timerption["series"][0]["data"].push(timeSpanData[i].y);
     }
     chartTimer.setOption(Timerption);
   });
@@ -413,17 +414,16 @@ function loadFactoryProductionData(){
   TransOption["series"][0]["data"].length =0;
   getFactoryProduction(topTitlesMapping[selectedTitle.value]).then(res=>{
     //console.log(res.data);
-    let data =[];
     if(typeof res.data == "string"){
-      data = eval("("+res.data+")");
+      productionData = eval("("+res.data+")");
     }
     else{
-      data = res.data;
+      productionData = res.data;
     }
     //console.log(data);
-    for(var i=0;i<data.length;i++){
-      TransOption["xAxis"]["data"].push(data[i].x);
-      TransOption["series"][0]["data"].push(data[i].y);
+    for(var i=0;i<productionData.length;i++){
+      TransOption["xAxis"]["data"].push(productionData[i].x);
+      TransOption["series"][0]["data"].push(productionData[i].y);
     }
     chartTrans.setOption(TransOption);
   });
@@ -712,6 +712,18 @@ const initCharts = () => {
   chartTrans = echart.init(document.getElementById("chartTrans"));
   chartTimer.setOption(Timerption);
   chartTrans.setOption(TransOption);
+  chartTimer.on("click",function(param){
+      toNextPage2(timeSpanData[param.dataIndex].f_batch);
+  });
+  chartTrans.on("click",function(param){
+      toNextPage2(productionData[param.dataIndex].f_batch);
+  });
+};
+
+
+const toNextPage2 = (batch) => {
+  modalHeight.value = "800px";
+  showModal("../systems/formconfig/listeditor.jsp?xformIdx=196&rid=16&showToolbar=false&showTitle=true&queryType=report&closecswindow=false&batch="+batch);
 };
 
 function minutesToTimeString(minutes) {
