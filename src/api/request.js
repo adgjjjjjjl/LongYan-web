@@ -45,11 +45,11 @@ export const getBatchInfoList = (factoryid,startdate,enddate,p,status,batch,bran
 }
 
 export const getFactoryTimeSpan = (factoryid) => {
-  return http.get("/report/json?jid=290&factoryid="+factoryid+"&limitcount="+5);
+  return http.get("/report/json?jid=290&factoryid="+factoryid+"&limitcount="+10);
 }
 
 export const getFactoryProduction = (factoryid) => {
-  return http.get("/report/json?jid=291&factoryid="+factoryid+"&limitcount="+(factoryid<11?5:10));
+  return http.get("/report/json?jid=291&factoryid="+factoryid+"&limitcount="+10);
 }
 
 export const getCurrentDbBatch = () => {

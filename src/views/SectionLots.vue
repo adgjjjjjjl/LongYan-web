@@ -21,7 +21,7 @@
           <div id="chartTimer" style="height: 100%"></div>
           <div class="chart-title">工段时长</div>
         </div>
-        <div class="chart-contain">
+        <div class="chart-contain" style="margin-left: 20px">
           <div id="chartTrans" style="height: 100%"></div>
           <div class="chart-title">工段产量</div>
         </div>
@@ -102,8 +102,6 @@
             <div class="selector-suffix" />
           </template>
         </a-select>
-      </div>
-      <div class="top-header2">
         <span>生产牌号：</span>
           <a-select
             show-search
@@ -120,6 +118,8 @@
             <div class="selector-suffix" />
           </template>
         </a-select>
+      </div>
+      <div class="top-header2">
           <span>批次：</span>
           <a-auto-complete v-model:value="shortbatch" :data-source ="batchDataSource" @change="handleBatchChange" :filter-option="filterOption2" placeholder="" style="color: #63a0bd;width: 120px;background-color: transparent;border: 1px solid #264460;"/>
           <a-input v-model:value="batch" @change="handleBatchChange2" placeholder=""  style="color: #63a0bd;width: 220px;background-color: transparent;border: 1px solid #264460;margin-left: 10px;"/>
@@ -905,21 +905,17 @@ const handleOk = (e) => {
 
 <style lang="scss" scoped>
 main {
-  display: flex;
   flex-direction: column;
   background-color: transparent;
   height: 100vh;
 
   .page-bottom {
-    display: flex;
-
     .table-contain {
       position: relative;
-      width: calc(100% - 440px);
+      width: 100%;
       max-height: 640px;
       background-color: #072554;
-      margin: 20px 20px 0 0;
-      padding: 0 20px;
+      padding: 0 40px;
 
       &::-webkit-scrollbar {
         display: none;
@@ -948,7 +944,7 @@ main {
         background-color: #0346d9;
       }
       .table-block {
-        height: 440px;
+        height: 480px;
         overflow-y: scroll;
         &::-webkit-scrollbar {
           display: none;
@@ -962,13 +958,13 @@ main {
     }
   }
   .chart-box {
-    height: 660px;
+    display: flex;
+    height: 320px;
     padding: 0 20px;
     margin: 10px 0px 0 20px;
     .chart-contain {
-      width: 360px;
+      width: 50%;
       height: 305px;
-      margin-top: 10px;
       background: 0 0 / 100% 100% no-repeat url("@/assets/chart-bg.png");
       background-color: #5684bc10;
       position: relative;

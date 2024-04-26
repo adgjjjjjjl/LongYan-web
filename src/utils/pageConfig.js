@@ -55,7 +55,7 @@ export const columns = [
   {
     title: "日期",
     dataIndex: "f_product_date",
-    width: 100,
+    width: 80,
     align: "center",
   },
   {
