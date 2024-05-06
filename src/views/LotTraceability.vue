@@ -294,7 +294,8 @@ import {
   getBatchByBrandAndFactory,
   getTemperatureTrending,
   getBoxnoDataSource,
-  getRawMaterial
+  getRawMaterial,
+  getBoxnoDataSourceByBrandid
 } from '../api/request';
 
 import {
@@ -510,6 +511,17 @@ const loadBoxnoDataSource = () =>{
   });
 }
 
+const loadBoxnoDataSourceByBrandid = ()=>{
+  getBoxnoDataSourceByBrandid(productNumber.value).then(res=>{
+    boxnoDataSource.value.length = 0;
+    if(res.data.length>0){
+        for(let i=0;i<res.data.length;i++){
+          boxnoDataSource.value.push(res.data[i].boxno.toString());
+        }
+    }
+  });
+}
+
 function loadBatchInfoData(){
   getBatchInfo(batch.value).then(res=>{
     let data =[];
@@ -598,6 +610,7 @@ const handleDelegateChange = (e) => {
   // console.log(e);
   let dateStartStr = dateStart.value.format(dateFormat);
   let dateEndStr = dateEnd.value.format(dateFormat);
+  batch.value = ""
   loadBrandDelegate(dateStartStr,dateEndStr,delegate.value);
 };
 
@@ -605,7 +618,9 @@ const handleProductNumberChange = (e) => {
   // console.log(e);
   let dateStartStr = dateStart.value.format(dateFormat);
   let dateEndStr = dateEnd.value.format(dateFormat);
+  batch.value = ""
   loadBatchDataSource(dateStartStr,dateEndStr);
+  loadBoxnoDataSourceByBrandid();
 };
 
 const handleBatchChange = (e) =>{
@@ -623,7 +638,7 @@ const handleBatchChange2 = (e) =>{
 }
 
 const handleBoxnoChange = (e) =>{
-  if(boxId.value != undefined && boxId.value != ""){
+  if(boxId.value != undefined && boxId.value != "" && batch.value == ""){
     let dateStartStr = dateStart.value.format(dateFormat);
     let dateEndStr = dateEnd.value.format(dateFormat);
     getBatchByBoxno(productNumber.value,boxId.value,dateStartStr,dateEndStr).then(res=>{
@@ -1128,6 +1143,7 @@ const loadData2 = () => {
 // 时间选择事件
 const dateChange = (date, dateString) => {
   console.log(dateString);
+  batch.value = ""
   loadToolBarData();
   let dateStartStr = dateStart.value.format(dateFormat);
   let dateEndStr = dateEnd.value.format(dateFormat);

@@ -136,6 +136,10 @@ export const getBoxnoDataSource = (batch) => {
   return http.get("/report/json?jid=341&batch="+batch);
 }
 
+export const getBoxnoDataSourceByBrandid = (brandid) => {
+  return http.get("/report/json?jid=396&brandid="+brandid);
+}
+
 export const delQaTask = () =>{
   return http.post("systems/formconfig/fcupdate?id=186&batch="+batch);
 }
