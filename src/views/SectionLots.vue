@@ -412,6 +412,36 @@ function loadFactoryTimeSpanData() {
 function loadFactoryProductionData(){
   TransOption["xAxis"]["data"].length = 0;
   TransOption["series"][0]["data"].length =0;
+  if(topTitlesMapping[selectedTitle.value] == 10 || topTitlesMapping[selectedTitle.value] == 11){
+    //箱数正常是30--50之间，超过变红
+    TransOption.series[0].itemStyle.color=(params)=>{
+            const { dataIndex, data } = params;
+            if(data >=30 && data <=50){
+              return "#04112C";
+            }
+            else{
+              return "#FF0000";
+            }
+          };
+  }
+  else{
+    //二润工段的是，配方量超出±500会变红
+    if(topTitlesMapping[selectedTitle.value] == 7){
+      TransOption.series[0].itemStyle.color=(params)=>{
+            const { dataIndex, data } = params;
+            var span = timeSpanData[dataIndex].formula - data;
+            if(Math.abs(span) <= 500){
+              return "#04112C";
+            }
+            else{
+              return "#FF0000";
+            }
+          };
+    }
+    else{
+      TransOption.series[0].itemStyle.color="#04112C";
+    }
+  }
   getFactoryProduction(topTitlesMapping[selectedTitle.value]).then(res=>{
     //console.log(res.data);
     if(typeof res.data == "string"){
@@ -686,7 +716,15 @@ const TransOption = {
           ]),
         },
         itemStyle: {
-          color: "#04112C",
+          color: (params)=>{
+            const { color, data } = params;
+            if(data >=30 && data <=50){
+              return "#04112C";
+            }
+            else{
+              return "#FF0000";
+            }
+          },
           borderColor: "#71D9EB", //拐点边框颜色
           borderWidth: 1, //拐点边框大小
           opacity: 0.9
@@ -702,6 +740,16 @@ Timerption.yAxis.max = 100;
 Timerption.series[0].label.formatter = function(value,index){
   return minutesToTimeString(parseInt(value.data));
 };
+Timerption.series[0].itemStyle.color=(params)=>{
+            const { color, data } = params;
+            //时长小于40分钟，大于70分钟，要变红，
+            if(data >=40 && data <=70){
+              return "#04112C";
+            }
+            else{
+              return "#FF0000";
+            }
+          };
 
 var chartTimer = null;
 var chartTrans = null;
