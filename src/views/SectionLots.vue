@@ -713,17 +713,26 @@ const initCharts = () => {
   chartTimer.setOption(Timerption);
   chartTrans.setOption(TransOption);
   chartTimer.on("click",function(param){
-      toNextPage2(timeSpanData[param.dataIndex].f_batch);
+      toNextPage2(timeSpanData[param.dataIndex].f_batch,1);
   });
   chartTrans.on("click",function(param){
-      toNextPage2(productionData[param.dataIndex].f_batch);
+      toNextPage2(productionData[param.dataIndex].f_batch,2);
   });
 };
 
 
-const toNextPage2 = (batch) => {
+const toNextPage2 = (batch,type) => {
   modalHeight.value = "800px";
-  showModal("../systems/formconfig/listeditor.jsp?xformIdx=196&rid=16&showToolbar=false&showTitle=true&queryType=report&closecswindow=false&batch="+batch);
+  if(type == 2 && (topTitlesMapping[selectedTitle.value] == 10 || topTitlesMapping[selectedTitle.value] == 11)){
+    var batchstr = batch;
+    if(topTitlesMapping[selectedTitle.value] == 10){
+      batchstr = batch.replace("fk","db");
+    }
+    showModal("../systems/formconfig/listeditor.jsp?xformIdx=222&rid=16&showToolbar=false&showTitle=true&queryType=report&batch="+batchstr);
+  }
+  else{
+    showModal("../systems/formconfig/listeditor.jsp?xformIdx=196&rid=16&showToolbar=false&showTitle=true&queryType=report&closecswindow=false&batch="+batch);
+  }
 };
 
 function minutesToTimeString(minutes) {
