@@ -44,12 +44,12 @@ export const getBatchInfoList = (factoryid,startdate,enddate,p,status,batch,bran
   return http.get("/report/output?rid=68&export=flexigridjson&factoryid="+factoryid+"&startdate="+startdate+"&enddate="+enddate+"&status="+status+"&batch="+batch+"&brandid="+brandid+"&boxno="+boxno+"&paging=pagecount&s=20&p="+p);
 }
 
-export const getFactoryTimeSpan = (factoryid) => {
-  return http.get("/report/json?jid=290&factoryid="+factoryid+"&limitcount="+12);
+export const getFactoryTimeSpan = (factoryid,startdate,enddate) => {
+  return http.get("/report/json?jid=290&factoryid="+factoryid+"&limitcount="+12+"&startdate="+startdate+"&enddate="+enddate);
 }
 
-export const getFactoryProduction = (factoryid) => {
-  return http.get("/report/json?jid=291&factoryid="+factoryid+"&limitcount="+12);
+export const getFactoryProduction = (factoryid,startdate,enddate) => {
+  return http.get("/report/json?jid=291&factoryid="+factoryid+"&limitcount="+12+"&startdate="+startdate+"&enddate="+enddate);
 }
 
 export const getCurrentDbBatch = () => {

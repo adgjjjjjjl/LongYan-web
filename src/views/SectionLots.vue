@@ -392,7 +392,9 @@ const loadChartData = () => {
 function loadFactoryTimeSpanData() {
   Timerption["xAxis"]["data"].length = 0;
   Timerption["series"][0]["data"].length =0;
-  getFactoryTimeSpan(topTitlesMapping[selectedTitle.value]).then(res=>{
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  getFactoryTimeSpan(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr).then(res=>{
     //console.log(res.data);
     if(typeof res.data == "string"){
       timeSpanData = eval("("+res.data+")");
@@ -412,6 +414,8 @@ function loadFactoryTimeSpanData() {
 function loadFactoryProductionData(){
   TransOption["xAxis"]["data"].length = 0;
   TransOption["series"][0]["data"].length =0;
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
   if(topTitlesMapping[selectedTitle.value] == 10 || topTitlesMapping[selectedTitle.value] == 11){
     //箱数正常是30--50之间，超过变红
     TransOption.series[0].itemStyle.color=(params)=>{
@@ -442,7 +446,7 @@ function loadFactoryProductionData(){
       TransOption.series[0].itemStyle.color="#04112C";
     }
   }
-  getFactoryProduction(topTitlesMapping[selectedTitle.value]).then(res=>{
+  getFactoryProduction(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr).then(res=>{
     //console.log(res.data);
     if(typeof res.data == "string"){
       productionData = eval("("+res.data+")");
