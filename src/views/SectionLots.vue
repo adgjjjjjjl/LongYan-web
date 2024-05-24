@@ -429,22 +429,7 @@ function loadFactoryProductionData(){
           };
   }
   else{
-    //二润工段的是，配方量超出±500会变红
-    if(topTitlesMapping[selectedTitle.value] == 7){
-      TransOption.series[0].itemStyle.color=(params)=>{
-            const { dataIndex, data } = params;
-            var span = timeSpanData[dataIndex].formula - data;
-            if(Math.abs(span) <= 500){
-              return "#04112C";
-            }
-            else{
-              return "#FF0000";
-            }
-          };
-    }
-    else{
-      TransOption.series[0].itemStyle.color="#04112C";
-    }
+    TransOption.series[0].itemStyle.color="#04112C";
   }
   getFactoryProduction(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr).then(res=>{
     //console.log(res.data);
@@ -458,6 +443,22 @@ function loadFactoryProductionData(){
     for(var i=0;i<productionData.length;i++){
       TransOption["xAxis"]["data"].push(productionData[i].x);
       TransOption["series"][0]["data"].push(productionData[i].y);
+    }
+    //二润工段的是，配方量超出±500会变红
+    if(topTitlesMapping[selectedTitle.value] == 7){
+      TransOption.series[0].itemStyle.color=(params)=>{
+            const { dataIndex, data } = params;
+            var span = productionData[dataIndex].formula - data;
+            if(Math.abs(span) <= 500){
+              return "#04112C";
+            }
+            else{
+              return "#FF0000";
+            }
+          };
+    }
+    else{
+      TransOption.series[0].itemStyle.color="#04112C";
     }
     chartTrans.setOption(TransOption);
   });
@@ -533,6 +534,7 @@ const dateChange = (date, dateString) => {
   loadToolBarData();
   let dateStartStr = dateStart.value.format(dateFormat);
   let dateEndStr = dateEnd.value.format(dateFormat);
+  loadChartData();
   loadBatchDataSource(dateStartStr,dateEndStr);
 };
 
