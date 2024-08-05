@@ -625,12 +625,19 @@ const handleProductNumberChange = (e) => {
 
 const handleBatchChange = (e) =>{
   batch.value = batchMappig[shortbatch.value];
-  loadBoxnoDataSource();
+  if(batch.value == undefined || batch.value == ""){
+    batch.value = ""
+    loadBoxnoDataSourceByBrandid();
+  }
+  else{
+    loadBoxnoDataSource();
+  }
 };
 
 const handleBatchChange2 = (e) =>{
-  if(batch.value == undefined){
+  if(batch.value == undefined || batch.value == ""){
     batch.value = ""
+    loadBoxnoDataSourceByBrandid();
   }
   else{
     loadBoxnoDataSource();
