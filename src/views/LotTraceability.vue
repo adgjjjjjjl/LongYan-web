@@ -645,7 +645,7 @@ const handleBatchChange2 = (e) =>{
 }
 
 const handleBoxnoChange = (e) =>{
-  if(boxId.value != undefined && boxId.value != "" && batch.value == ""){
+  if(boxId.value != undefined && boxId.value != ""){
     let dateStartStr = dateStart.value.format(dateFormat);
     let dateEndStr = dateEnd.value.format(dateFormat);
     getBatchByBoxno(productNumber.value,boxId.value,dateStartStr,dateEndStr).then(res=>{
@@ -660,6 +660,7 @@ const handleBoxnoChange = (e) =>{
           alert("根据所选条件未找到对应的批次,请修改时间范围，或选择正确的生产牌号")
         }
         else if(data.length == 1){
+          shortbatch.value = "";
           batch.value = data[0].f_batch;
           onSearch(e);
         }
