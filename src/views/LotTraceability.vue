@@ -1001,7 +1001,16 @@ function loadBakingTrendingPoint(){
 
 function loadBakingTrending(){
   for(let i= 0;i<paramsInfo.value.length;i++){
-    getBakingTrending(batch.value,boxId.value,paramsInfo.value[i].f_tag).then(res=>{
+    let id = paramsInfo.value[i].f_tag;
+    paramsInfoChart[id] = echart.init(document.getElementById(id));
+    paramsInfoChart[id].showLoading({
+        text: '加载中...',       // 设置加载中文本
+        color: '#FFF',           // 将加载动画的颜色设置为白色
+        textColor: '#FFF',       // 将文本颜色设置为白色
+        maskColor: 'rgba(255, 255, 255, 0.8)',  // 设置遮罩颜色
+        zlevel: 0                // 设置 z-index 层级
+    });
+    getBakingTrending(batch.value,boxId.value,id).then(res=>{
         let data=[];
         if(typeof res.data == "string"){
           data = eval("("+res.data+")");
@@ -1009,11 +1018,12 @@ function loadBakingTrending(){
         else{
           data = res.data;
         }
-        option3Mapping[paramsInfo.value[i].f_tag]["series"][0]["name"] = paramsInfo.value[i].f_name;
+        option3Mapping[id]["series"][0]["name"] = paramsInfo.value[i].f_name;
         for(var j=0;j<data.length;j++){
-          option3Mapping[paramsInfo.value[i].f_tag]["series"][0]["data"].push([data[j].x,data[j].y]);
+          option3Mapping[id]["series"][0]["data"].push([data[j].x,data[j].y]);
         }
-        initCharts3(paramsInfo.value[i].f_tag);
+        paramsInfoChart[id].hideLoading();
+        initCharts3(id);
     })
   }
 }
@@ -1305,7 +1315,6 @@ option3["yAxis"]["axisLabel"]["formatter"] = "{value}";
 option3["title"]["text"] = "";
 
 const initCharts3 = (id) => {
-  paramsInfoChart[id] = echart.init(document.getElementById(id));
   paramsInfoChart[id].setOption(option3Mapping[id]);
   console.log("initParamsInfoCharts");
 };
