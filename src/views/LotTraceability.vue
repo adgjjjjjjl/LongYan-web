@@ -1126,10 +1126,10 @@ const loadData2 = () => {
   else if(activateStatus.value == "配方出库单"){
     loadOutStockInfo();
   }
-  else if(activateStatus.value == "工艺参数标准"){
+  else if(activateStatus.value == "参数下发标准"){
     loadProcessParams();
   }
-  else if(activateStatus.value == "加工工艺技术要求"){
+  else if(activateStatus.value == "工艺指标明细"){
     loadProcessTechnology();
   }
   else if(activateStatus.value == "配方单"){

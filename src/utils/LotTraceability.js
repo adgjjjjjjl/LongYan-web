@@ -1,7 +1,7 @@
 export const tableConfig = {
   机: ["非稳态时间"],
   物料: ["配方出库单", "原料物理特性", "辅料信息"],
-  加工要求: ["加工工艺技术要求", "工艺参数标准", "配方单"],
+  加工要求: ["工艺指标明细", "参数下发标准", "配方单"],
   环境温湿度: ["环境温湿度趋势"],
   过程测量: ["过程质量", "质检信息", "报警信息", "装箱密度", "叶复烤过程趋势"],
 };
@@ -345,18 +345,6 @@ export const processParamsColumns = [
     width: 100,
   },
   {
-    title: "允差上限",
-    dataIndex: "f_allow_up",
-    align: "center",
-    width: 100,
-  },
-  {
-    title: "允差下限",
-    dataIndex: "f_allow_down",
-    align: "center",
-    width: 100,
-  },
-  {
     title: "备注",
     dataIndex: "f_remark",
     align: "center",
@@ -432,6 +420,18 @@ export const processTechnologyColumns = [
     width: 100,
   },
   {
+    title: "优良下限",
+    dataIndex: "f_allow_down",
+    align: "center",
+    width: 100,
+  },
+  {
+    title: "优良上限",
+    dataIndex: "f_allow_up",
+    align: "center",
+    width: 100,
+  },
+  {
     title: "排序",
     dataIndex: "f_order",
     align: "center",
@@ -491,12 +491,6 @@ export const formulaSheetColumns =[
   {
     title: "数量(担)",
     dataIndex: "bcount",
-    align: "center",
-    width: 100,
-  },
-  {
-    title: "重量(kg)",
-    dataIndex: "bweight",
     align: "center",
     width: 100,
   },
