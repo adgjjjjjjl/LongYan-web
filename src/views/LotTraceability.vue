@@ -1061,6 +1061,7 @@ const onClickProcess2 = (title) => {
       alert("未找到当前批次关联的"+title+"批次");
     }
     else{
+      loadBatchInfoData();
       loadData(itemStatus);
     }
   }
