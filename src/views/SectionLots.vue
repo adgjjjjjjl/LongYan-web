@@ -740,8 +740,8 @@ const TransOption = {
 
 const Timerption = JSON.parse(JSON.stringify(TransOption));
 Timerption.title.text = "单位（分钟）";
-Timerption.yAxis.min = 0;
-Timerption.yAxis.max = 100;
+Timerption.yAxis.min = 30;
+Timerption.yAxis.max = 150;
 Timerption.series[0].label.formatter = function(value,index){
   return minutesToTimeString(parseInt(value.data));
 };
