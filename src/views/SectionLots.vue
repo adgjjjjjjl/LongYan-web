@@ -660,6 +660,8 @@ const TransOption = {
     },
     yAxis: {
       type: "value",
+      min: 8000,
+      max: 15000,
       splitNumber: 10,
       axisLabel: {
         formatter: "{value}",
