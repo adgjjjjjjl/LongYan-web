@@ -268,7 +268,7 @@
 <script setup>
 import QualityTrace from "../components/qualityTracebility.vue";
 import dayjs from "dayjs";
-import { ref, onMounted, reactive, computed } from "vue";
+import { ref, onMounted, reactive, computed, nextTick } from "vue";
 import zhCN from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import { useRoute } from "vue-router";
 
@@ -990,7 +990,10 @@ function loadBakingTrendingPoint(){
             paramsInfo.value.push(res.data[i]);
             option3Mapping[res.data[i].f_tag] = JSON.parse(JSON.stringify(option3));
           }
-          loadBakingTrending();
+          //解决dom异步刷新的问题
+          nextTick(()=>{
+            loadBakingTrending();
+          })
         }
     });
   }
