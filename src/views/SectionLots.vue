@@ -121,7 +121,7 @@
       </div>
       <div class="top-header2">
           <span>批次：</span>
-          <a-auto-complete v-model:value="shortbatch" :data-source ="batchDataSource" @change="handleBatchChange" :filter-option="filterOption2" placeholder="" style="color: #63a0bd;width: 120px;background-color: transparent;border: 1px solid #264460;"/>
+          <a-auto-complete v-model:value="shortbatch" :data-source ="batchDataSource" @change="handleBatchChange" :filter-option="filterOption2" placeholder="" style="color: #63a0bd;width: 150px;background-color: transparent;border: 1px solid #264460;"/>
           <a-input v-model:value="batch" @change="handleBatchChange2" placeholder=""  style="color: #63a0bd;width: 220px;background-color: transparent;border: 1px solid #264460;margin-left: 10px;"/>
           <span>箱号：</span>
           <a-auto-complete v-model:value="boxId" :data-source ="boxnoDataSource" :filter-option="filterOption2" placeholder=""  style="color: #63a0bd;width: 70px;background-color: transparent;border: 1px solid #264460;"/>
