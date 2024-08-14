@@ -126,6 +126,7 @@
           <span>箱号：</span>
           <a-auto-complete v-model:value="boxId" :data-source ="boxnoDataSource" :filter-option="filterOption2" placeholder=""  style="color: #63a0bd;width: 70px;background-color: transparent;border: 1px solid #264460;"/>
           <button class="search" @click="onSearch" style="width:100px">查询</button>
+          <button class="search" @click="onRefresh" style="width:100px">刷新</button>
         </div>
         <div class="table-block">
           <a-table
@@ -526,6 +527,11 @@ const onSearch = (e) => {
   console.log(e);
   loadChartData();
   loadBatchInfoData();
+};
+
+const onRefresh = (e) => {
+  console.log(e);
+  window.location.reload();
 };
 
 const dateChange = (date, dateString) => {
