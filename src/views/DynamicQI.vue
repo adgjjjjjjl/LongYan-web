@@ -79,7 +79,7 @@
 
 <script setup>
 import * as echarts from "echarts";
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, reactive,nextTick } from "vue";
 import {getFactoryInfo,getFactoryQI,getParamQI,getParamsInfo} from '../api/request';
 
 let url = ref("");
@@ -148,7 +148,9 @@ function loadParamsInfo(){
           paramsInfo.value.push(res.data[i]);
           option2Mapping[res.data[i].id] = JSON.parse(JSON.stringify(option2));
         }
-        loadParamQI();
+        nextTick(()=>{
+          loadParamQI();
+        })
       }
     });
   }
@@ -156,6 +158,7 @@ function loadParamsInfo(){
 
 function loadParamQI(){
   for(let i= 0;i<paramsInfo.value.length;i++){
+    initCharts(paramsInfo.value[i].id);
     getParamQI(batch.value,paramsInfo.value[i].id).then(res=>{
       let data1 = [];
       if(typeof res.data == "string"){
@@ -178,7 +181,8 @@ function loadParamQI(){
           option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(0));
         }
       }
-      initCharts(paramsInfo.value[i].id);
+      paramsInfoChart[paramsInfo.value[i].id].hideLoading();
+      refreshCharts();
       connectWebSocketByTaskId(paramsInfo.value[i].id);
     })
   }
@@ -200,6 +204,7 @@ function loadFactoryQI(){
   if(data == null){
     option["xAxis"]["data"].length = 0;
     option["series"][0]["data"].length = 0;
+    initCharts();
     getFactoryQI(batch.value).then(res=>{
       if(typeof res.data == "string"){
         data = eval("("+res.data+")");
@@ -223,7 +228,8 @@ function loadFactoryQI(){
           batchMapping[data[i].x] = batch.value;
         }
       }
-      initCharts();
+      myChart.hideLoading();
+      refreshCharts();
       connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
     });
   }
@@ -379,6 +385,13 @@ const initCharts = (id) => {
   // 基于准备好的dom，初始化echarts实例
   if(currentTab.value == 1) {
     myChart = echart.init(document.getElementById("QAChart"));
+    myChart.showLoading({
+        text: '加载中...',       // 设置加载中文本
+        color: '#FFF',           // 将加载动画的颜色设置为白色
+        textColor: '#FFF',       // 将文本颜色设置为白色
+        maskColor: 'rgba(255, 255, 255, 0.8)',  // 设置遮罩颜色
+        zlevel: 0                // 设置 z-index 层级
+    });
     myChart.setOption(option);
     myChart.on("click",function(param){
       let datatime = option["xAxis"]["data"][param.dataIndex];
@@ -388,6 +401,13 @@ const initCharts = (id) => {
   }
   else{
       paramsInfoChart[id] = echart.init(document.getElementById(id));
+      paramsInfoChart[id].showLoading({
+        text: '加载中...',       // 设置加载中文本
+        color: '#FFF',           // 将加载动画的颜色设置为白色
+        textColor: '#FFF',       // 将文本颜色设置为白色
+        maskColor: 'rgba(255, 255, 255, 0.8)',  // 设置遮罩颜色
+        zlevel: 0                // 设置 z-index 层级
+      });
       paramsInfoChart[id].setOption(option2Mapping[id]);
       paramsInfoChart[id].on("click",function(param){
           toNextPage2(batch.value,id,paramsInfo.value[i].name);
