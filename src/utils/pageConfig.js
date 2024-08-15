@@ -26,7 +26,7 @@ export const columns = [
   {
     title: "委托方",
     dataIndex: "companyname",
-    width: 160,
+    width: 200,
     align: "center",
   },
   {
@@ -55,7 +55,7 @@ export const columns = [
   {
     title: "日期",
     dataIndex: "f_product_date",
-    width: 80,
+    width: 100,
     align: "center",
   },
   {

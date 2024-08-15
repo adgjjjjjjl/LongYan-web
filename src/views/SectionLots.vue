@@ -134,6 +134,7 @@
             :columns="columnDatasource"
             :data-source="data"
             :pagination="false"
+            :customRow="onRowClick"
             :scroll="{ x: columnWidth, y: 405 }"
             :row-class-name="
               (_record, index) =>
@@ -190,7 +191,7 @@
 <script setup>
 import * as echarts from "echarts";
 import dayjs from "dayjs";
-import { ref, onMounted, reactive, computed } from "vue";
+import { ref, onMounted, reactive, computed, nextTick } from "vue";
 import zhCN from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import { columns,columnsMapping } from "@/utils/pageConfig.js";
 import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction,delBatchByRowids,updateBatchOrder,calcUnsteadyState,delQaTask,getBatchStatus,getBatchByBrandAndFactory,getBatchDelegate,getBrandByDelegate,getBoxnoDataSource } from '../api/request';
@@ -324,6 +325,17 @@ const rowSelection = {
   //   // Column configuration not to be checked
   //   name: record.name,
   // }),
+};
+const onRowClick =  (record) => {
+ return {
+    onClick: event => {
+      // 选中当前行
+      const currentCheckbox = event.currentTarget.querySelector(".ant-checkbox-wrapper");
+      if (currentCheckbox) {
+        currentCheckbox.click();
+      }
+    }
+ };
 };
 const paginationConfig = reactive({
   total: 80, // 总条数
@@ -1133,7 +1145,7 @@ main {
       border-top: 3px solid #072554;
       transition: background 0.3s;
       padding: 5px 10px;
-      font-size: 11px;
+      font-size: 14px;
       &.ant-table-cell-row-hover {
         background: #072554; // 行hover效果
       }
