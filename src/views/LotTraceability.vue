@@ -98,6 +98,7 @@
       <a-auto-complete v-model:value="boxId" @blur="handleBoxnoChange" :data-source ="boxnoDataSource" :filter-option="filterOption2" placeholder=""  style="color: #63a0bd;width: 100px;background-color: transparent;border: 1px solid #264460;"/>
       <!--<button class="search" @click="searchBatch">查批次号</button>-->
       <button class="search" @click="onSearch" style="width:100px">查询</button>
+      <button class="search" @click="onRefresh" style="width:100px">刷新</button>
     </div>
     <div class="part-block">
       <div class="table-contain2">
@@ -686,6 +687,11 @@ const  onSearch = (e) => {
   loadData2();
 };
 
+const onRefresh = (e) => {
+  console.log(e);
+  window.location.reload();
+};
+
 const filterOption = (input, option) => {
   return (
         option.props.label.indexOf(input) >= 0
@@ -943,6 +949,11 @@ function loadTemperatureTrending(){
       else{
         data = res.data;
       }
+      let tempavg= parseFloat((
+                      data.reduce((acc, obj) => acc + Number(obj.y), 0) / data.length
+                    ).toFixed(2));
+      option.yAxis.min = tempavg - 1;
+      option.yAxis.max = tempavg + 1;
       //console.log(data);
       for(var i=0;i<data.length;i++){
         // option["xAxis"]["data"].push(data[i].x);
@@ -967,6 +978,11 @@ function loadTemperatureTrending(){
       else{
         data = res.data;
       }
+      let humiavg=  parseFloat((
+                      data.reduce((acc, obj) => acc + Number(obj.y), 0) / data.length
+                    ).toFixed(2));
+      option2.yAxis.min = humiavg - 5;
+      option2.yAxis.max = humiavg + 5;
       //console.log(data);
       for(var i=0;i<data.length;i++){
         // option2["xAxis"]["data"].push(data[i].x);
@@ -983,12 +999,15 @@ function loadTemperatureTrending(){
 }
 
 function loadBakingTrendingPoint(){
+  paramsInfo.value.length = 0;
   if(boxId.value){
     getBakingTrendingPoint(batch.value,boxId.value).then(res=>{
         if(res.data.length>0){
           for(let i=0;i<res.data.length;i++){
             paramsInfo.value.push(res.data[i]);
             option3Mapping[res.data[i].f_tag] = JSON.parse(JSON.stringify(option3));
+            option3Mapping[res.data[i].f_tag].yAxis.min = res.data[i].minvalue;
+            option3Mapping[res.data[i].f_tag].yAxis.max = res.data[i].maxvalue;
           }
           //解决dom异步刷新的问题
           nextTick(()=>{
@@ -1021,9 +1040,17 @@ function loadBakingTrending(){
         else{
           data = res.data;
         }
-        option3Mapping[id]["series"][0]["name"] = paramsInfo.value[i].f_name;
-        for(var j=0;j<data.length;j++){
-          option3Mapping[id]["series"][0]["data"].push([data[j].x,data[j].y]);
+        if(data.length > 0){
+          option3Mapping[id]["series"][0]["name"] = data[0].serier;
+          for(var j=0;j<data.length;j++){
+            if(option3Mapping[id]["series"][0]["name"] == data[j].serier){
+              option3Mapping[id]["series"][0]["data"].push([data[j].x,data[j].y]);
+            }
+            else{
+              option3Mapping[id]["series"][1]["name"] = data[j].serier;
+              option3Mapping[id]["series"][1]["data"].push([data[j].x,data[j].y]);
+            }
+          }
         }
         paramsInfoChart[id].hideLoading();
         initCharts3(id);
@@ -1317,6 +1344,9 @@ option3["series"][0]["name"] = "";
 delete option3["series"][0].markLine;
 option3["yAxis"]["axisLabel"]["formatter"] = "{value}";
 option3["title"]["text"] = "";
+option3["series"].push(JSON.parse(JSON.stringify(option3["series"][0])));
+option3["series"][1].lineStyle.color = "#00FF00";
+delete option3["series"][1].areaStyle;
 
 const initCharts3 = (id) => {
   paramsInfoChart[id].setOption(option3Mapping[id]);
