@@ -461,6 +461,23 @@ const closeWebSockets = ()=> {
 
 var websocket = {};
 
+setInterval(function(){
+  for(let i= 0;i<paramsInfo.value.length;i++){
+      if(websocket[paramsInfo.value[i].id] !== undefined && websocket[paramsInfo.value[i].id].readyState !== 1){
+          if(console){
+              console.log("正在尝试自动重接");
+          }
+          connectWebSocketByTaskId(paramsInfo.value[i].id);
+      }
+  }
+  if(websocket[taskIdMapping[selectedTitle.value]] !== null && websocket[taskIdMapping[selectedTitle.value]].readyState !== 1){
+    if(console){
+        console.log("正在尝试自动重接");
+    }
+    connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
+  }
+},30000);
+
 const connectWebSocketByTaskId = (taskid) => {
   //判断当前浏览器是否支持WebSocket
   if ('WebSocket'in window) {
