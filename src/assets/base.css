@@ -72,5 +72,5 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: center center / 100% 100% no-repeat url("/main-bg.png");
+  background: center center / 100% 100% repeat url("/main-bg.png");
 }

@@ -1724,7 +1724,7 @@ main {
       border-top: 3px solid #072554;
       transition: background 0.3s;
       padding: 5px 10px;
-      font-size: 11px;
+      font-size: 14px;
       white-space: pre-wrap;
       &.ant-table-cell-row-hover {
         background: #072554; // 行hover效果
