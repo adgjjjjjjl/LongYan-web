@@ -350,6 +350,7 @@ const option = {
         showSymbol: true,
         symbol: "circle",
         symbolSize: 8,
+        sampling: 'lttb',// 使用 lttb 抽样方法，可以减少点的密集度
         label: {
           position: "top",
           show: true,
