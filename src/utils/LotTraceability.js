@@ -129,14 +129,14 @@ export const batchDataColumns = [
     width: 80,
   },
   {
-    title: "箱号",
-    dataIndex: "caseno",
-    align: "center",
-    width: 80,
-  },
-  {
     title: "得分",
     dataIndex: "f_score",
+    align: "center",
+    width: 80,
+  },  
+  {
+    title: "箱号",
+    dataIndex: "caseno",
     align: "center",
     width: 80,
   },

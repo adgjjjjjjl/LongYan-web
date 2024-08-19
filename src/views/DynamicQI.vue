@@ -486,7 +486,7 @@ const connectWebSocketByTaskId = (taskid) => {
         websocket[taskid].close();
       }
       // var url='ws://localhost:10039/ws/webdata/'+tasktype+'/'+taskid;
-      var url = 'ws://10.190.55.134:10039/ws/webdata/qitrendshow/' + taskid;
+      var url = 'ws://10.190.55.138:10039/ws/webdata/qitrendshow/' + taskid;
       websocket[taskid] = new WebSocket(url);
 
       //连接发生错误的回调方法
