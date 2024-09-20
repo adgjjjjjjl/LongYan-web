@@ -324,7 +324,7 @@ export const processParamsColumns = [
     title: "生产控制点",
     dataIndex: "f_control_idtext",
     align: "center",
-    width: 100,
+    width: 120,
   },
   {
     title: "标准值",
@@ -375,7 +375,7 @@ export const processTechnologyColumns = [
     title: "生产控制点",
     dataIndex: "f_control_idtext",
     align: "center",
-    width: 100,
+    width: 120,
   },
   {
     title: "工序",

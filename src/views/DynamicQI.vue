@@ -80,7 +80,7 @@
 <script setup>
 import * as echarts from "echarts";
 import { ref, onMounted, reactive,nextTick } from "vue";
-import {getFactoryInfo,getFactoryQI,getParamQI,getParamsInfo} from '../api/request';
+import {getDyAndDbFactoryQI, getFactoryInfo,getFactoryQI,getParamQI,getParamsInfo} from '../api/request';
 
 let url = ref("");
 const visible = ref(false);
@@ -98,6 +98,7 @@ let starttime = ref("");
 let batch = ref("");
 let batchStr = ref("");
 let paramsInfo = ref([]);
+let factoryid = ref(0);
 let data = null;
 let option2Mapping = {};
 let isQAChartVisible = true;
@@ -205,34 +206,51 @@ function loadFactoryQI(){
     option["xAxis"]["data"].length = 0;
     option["series"][0]["data"].length = 0;
     initCharts();
-    getFactoryQI(batch.value).then(res=>{
-      if(typeof res.data == "string"){
-        data = eval("("+res.data+")");
-      }
-      else{
-        data = res.data;
-      }
-      //console.log(data);
-      option["series"][0]["name"] = selectedTitle.value;
-      for(let i=0;i<data.length;i++){
-        if(data.length > maxPointCount){
-          if(i%Math.ceil(data.length/maxPointCount) == 0){
-            option["xAxis"]["data"].push(data[i].x);
-            option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
-            batchMapping[data[i].x] = batch.value;
-          }
+    if(factoryid.value == 8 || factoryid.value == 11){
+      getDyAndDbFactoryQI(batch.value,factoryid.value).then(res=>{
+        if(typeof res.data == "string"){
+          data = eval("("+res.data+")");
         }
         else{
-          option["xAxis"]["data"].push(data[i].x);
-          option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
-          batchMapping[data[i].x] = batch.value;
+          data = res.data;
         }
-      }
-      myChart.hideLoading();
-      refreshCharts();
-      connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
-    });
+        showFactoryQI(data);
+      })
+    }
+    else{
+      getFactoryQI(batch.value).then(res=>{
+        if(typeof res.data == "string"){
+          data = eval("("+res.data+")");
+        }
+        else{
+          data = res.data;
+        }
+        showFactoryQI(data);
+      });
+    }
   }
+}
+
+function showFactoryQI(data){
+  //console.log(data);
+  option["series"][0]["name"] = selectedTitle.value;
+  for(let i=0;i<data.length;i++){
+    if(data.length > maxPointCount){
+      if(i%Math.ceil(data.length/maxPointCount) == 0){
+        option["xAxis"]["data"].push(data[i].x);
+        option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
+        batchMapping[data[i].x] = batch.value;
+      }
+    }
+    else{
+      option["xAxis"]["data"].push(data[i].x);
+      option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
+      batchMapping[data[i].x] = batch.value;
+    }
+  }
+  myChart.hideLoading();
+  refreshCharts();
+  connectWebSocketByTaskId(taskIdMapping[selectedTitle.value]);
 }
 
 const onOverProcess = (title) => {
@@ -246,12 +264,14 @@ function loadFactoryInfo(title,isLoadQI){
        brandname.value = res.data[0].brandname;
        starttime.value = res.data[0].starttime;
        batchStr.value = res.data[0].batch;
+       factoryid.value = res.data[0].factoryid;
      }
      else{
        companyname.value = "";
        brandname.value = "";
        starttime.value = "";
        batchStr.value = "";
+       factoryid.value = 0;
      }
      if(isLoadQI){
        if(res.data.length>0){
@@ -501,6 +521,9 @@ const connectWebSocketByTaskId = (taskid) => {
 
       //接收到消息的回调方法
       websocket[taskid].onmessage = function(event) {
+          if(factoryid.value == 8 || factoryid.value == 11){
+            return;
+          }
           var dataobjarray = eval("(" + event.data + ")");
           for (var i in dataobjarray) {
             if(option2Mapping[dataobjarray[i].valpoint]){
