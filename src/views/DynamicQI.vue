@@ -239,13 +239,13 @@ function showFactoryQI(data){
       if(i%Math.ceil(data.length/maxPointCount) == 0){
         option["xAxis"]["data"].push(data[i].x);
         option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
-        batchMapping[data[i].x] = batch.value;
+        batchMapping[data[i].x] = data[i].batch;
       }
     }
     else{
       option["xAxis"]["data"].push(data[i].x);
       option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
-      batchMapping[data[i].x] = batch.value;
+      batchMapping[data[i].x] = data[i].batch;
     }
   }
   myChart.hideLoading();
@@ -438,7 +438,11 @@ const initCharts = (id) => {
 };
 
 const toNextPage = (batch,datatime) => {
-  showModal("../systems/formconfig/listeditor.jsp?rid=257&xformIdx=276&showTitle=false&queryType=report&batch="+batch+"&closecswindow=false&datatime="+datatime);
+  let rid = 257;
+  if(factoryid.value == 8 || factoryid.value == 11){
+    rid = 340;
+  }
+  showModal("../systems/formconfig/listeditor.jsp?rid="+rid+"&xformIdx=276&showTitle=false&queryType=report&batch="+batch+"&closecswindow=false&datatime="+datatime);
 };
 
 const toNextPage2 = (batch,code,tagname) => {
