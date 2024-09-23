@@ -439,10 +439,12 @@ const initCharts = (id) => {
 
 const toNextPage = (batch,datatime) => {
   let rid = 257;
+  let formid = 276;
   if(factoryid.value == 8 || factoryid.value == 11){
     rid = 340;
+    formid = 357;
   }
-  showModal("../systems/formconfig/listeditor.jsp?rid="+rid+"&xformIdx=276&showTitle=false&queryType=report&batch="+batch+"&closecswindow=false&datatime="+datatime);
+  showModal("../systems/formconfig/listeditor.jsp?rid="+rid+"&xformIdx="+formid+"&showTitle=false&queryType=report&batch="+batch+"&closecswindow=false&datatime="+datatime);
 };
 
 const toNextPage2 = (batch,code,tagname) => {
