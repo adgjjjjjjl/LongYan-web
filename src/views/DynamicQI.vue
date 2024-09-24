@@ -174,12 +174,12 @@ function loadParamQI(){
         if(data1.length > maxPointCount){
           if(j%Math.ceil(data1.length/maxPointCount) == 0){
             option2Mapping[paramsInfo.value[i].id]["xAxis"]["data"].push(data1[j].x);
-            option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(0));
+            option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(2));
           }
         }
         else{
           option2Mapping[paramsInfo.value[i].id]["xAxis"]["data"].push(data1[j].x);
-          option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(0));
+          option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(2));
         }
       }
       paramsInfoChart[paramsInfo.value[i].id].hideLoading();
@@ -238,13 +238,13 @@ function showFactoryQI(data){
     if(data.length > maxPointCount){
       if(i%Math.ceil(data.length/maxPointCount) == 0){
         option["xAxis"]["data"].push(data[i].x);
-        option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
+        option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(2));
         batchMapping[data[i].x] = data[i].batch;
       }
     }
     else{
       option["xAxis"]["data"].push(data[i].x);
-      option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(0));
+      option["series"][0]["data"].push(parseFloat(data[i].y).toFixed(2));
       batchMapping[data[i].x] = data[i].batch;
     }
   }
@@ -534,11 +534,11 @@ const connectWebSocketByTaskId = (taskid) => {
           for (var i in dataobjarray) {
             if(option2Mapping[dataobjarray[i].valpoint]){
               option2Mapping[dataobjarray[i].valpoint]["xAxis"]["data"].push(dataobjarray[i].datatime);
-              option2Mapping[dataobjarray[i].valpoint]["series"][0]["data"].push(parseFloat(dataobjarray[i].weightqi).toFixed(0));
+              option2Mapping[dataobjarray[i].valpoint]["series"][0]["data"].push(parseFloat(dataobjarray[i].weightqi).toFixed(2));
             }
             else{
               option["xAxis"]["data"].push(dataobjarray[i].datatime);
-              option["series"][0]["data"].push(parseFloat(dataobjarray[i].weightqi).toFixed(0));
+              option["series"][0]["data"].push(parseFloat(dataobjarray[i].weightqi).toFixed(2));
               batchMapping[dataobjarray[i].datatime] = dataobjarray[i].batch;
             }
           }
