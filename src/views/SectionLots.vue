@@ -444,7 +444,7 @@ function loadFactoryProductionData(){
       TransOption["xAxis"]["data"].push(productionData[i].x);
       TransOption["series"][0]["data"].push(productionData[i].y);
     }
-    if(topTitlesMapping[selectedTitle.value] == 10 || topTitlesMapping[selectedTitle.value] == 11){
+    if(topTitlesMapping[selectedTitle.value] == 11){
       TransOption.yAxis.min = 20;
       TransOption.yAxis.max = 60;
       //箱数正常是30--50之间，超过变红
@@ -459,6 +459,10 @@ function loadFactoryProductionData(){
         };
     }
     else{
+      if(topTitlesMapping[selectedTitle.value] == 10){
+         TransOption.yAxis.min = 6000;
+         TransOption.yAxis.max = 10000;
+      }
       //二润工段的是，配方量超出±500会变红
       if(topTitlesMapping[selectedTitle.value] == 7){
           TransOption.series[0].itemStyle.color=(params)=>{
@@ -800,12 +804,8 @@ const initCharts = () => {
 
 const toNextPage2 = (batch,type) => {
   modalHeight.value = "800px";
-  if(type == 2 && (topTitlesMapping[selectedTitle.value] == 10 || topTitlesMapping[selectedTitle.value] == 11)){
-    var batchstr = batch;
-    if(topTitlesMapping[selectedTitle.value] == 10){
-      batchstr = batch.replace("fk","db");
-    }
-    showModal("../systems/formconfig/listeditor.jsp?xformIdx=222&rid=16&showToolbar=false&showTitle=true&queryType=report&batch="+batchstr);
+  if(type == 2 && topTitlesMapping[selectedTitle.value] == 11){
+    showModal("../systems/formconfig/listeditor.jsp?xformIdx=222&rid=16&showToolbar=false&showTitle=true&queryType=report&batch="+batch);
   }
   else{
     showModal("../systems/formconfig/listeditor.jsp?xformIdx=196&rid=16&showToolbar=false&showTitle=true&queryType=report&closecswindow=false&batch="+batch);
