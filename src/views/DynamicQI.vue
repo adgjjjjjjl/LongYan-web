@@ -84,7 +84,7 @@ import {getDyAndDbFactoryQI, getFactoryInfo,getFactoryQI,getParamQI,getParamsInf
 
 let url = ref("");
 const visible = ref(false);
-const maxPointCount = 30;
+const maxPointCount = 20;
 
 let echart = echarts;
 const buttonTitles = ["一润", "二润", "打叶", "叶加酶", "叶复烤", "叶打包"];

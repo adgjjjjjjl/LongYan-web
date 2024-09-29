@@ -26,7 +26,7 @@ export const columns = [
   {
     title: "委托方",
     dataIndex: "companyname",
-    width: 200,
+    width: 210,
     align: "center",
   },
   {
