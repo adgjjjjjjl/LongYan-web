@@ -84,7 +84,7 @@ import {getDyAndDbFactoryQI, getFactoryInfo,getFactoryQI,getParamQI,getParamsInf
 
 let url = ref("");
 const visible = ref(false);
-const maxPointCount = 20;
+const maxPointCount = 30;
 
 let echart = echarts;
 const buttonTitles = ["一润", "二润", "打叶", "叶加酶", "叶复烤", "叶打包"];
@@ -535,11 +535,37 @@ const connectWebSocketByTaskId = (taskid) => {
             if(option2Mapping[dataobjarray[i].valpoint]){
               option2Mapping[dataobjarray[i].valpoint]["xAxis"]["data"].push(dataobjarray[i].datatime);
               option2Mapping[dataobjarray[i].valpoint]["series"][0]["data"].push(parseFloat(dataobjarray[i].weightqi).toFixed(2));
+              if(option2Mapping[dataobjarray[i].valpoint]["series"][0]["data"].length > 30){
+                option2Mapping[dataobjarray[i].valpoint]["series"][0].label.formatter = function (params) {
+                    // 只有在当前线的数据长度超过 30 时，才每隔 2 个点显示数值
+                    if (params.dataIndex % 2 === 0) {
+                        return params.value;
+                    } else {
+                        return '';
+                    }
+                }
+                option2Mapping[dataobjarray[i].valpoint].tooltip = {
+                    trigger: 'axis'  // 鼠标悬停时触发，显示所有轴上的数据
+                }
+              }
             }
             else{
               option["xAxis"]["data"].push(dataobjarray[i].datatime);
               option["series"][0]["data"].push(parseFloat(dataobjarray[i].weightqi).toFixed(2));
               batchMapping[dataobjarray[i].datatime] = dataobjarray[i].batch;
+              if(option["series"][0]["data"].length > 30){
+                option["series"][0].label.formatter = function (params) {
+                    // 只有在当前线的数据长度超过 30 时，才每隔 2 个点显示数值
+                    if (params.dataIndex % 2 === 0) {
+                        return params.value;
+                    } else {
+                        return '';
+                    }
+                }
+                option.tooltip = {
+                    trigger: 'axis'  // 鼠标悬停时触发，显示所有轴上的数据
+                }
+              }
             }
           }
           refreshCharts();
