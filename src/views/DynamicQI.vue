@@ -197,6 +197,7 @@ const onClickProcess = (title) => {
     paramsInfoChart = {}
     data = null;
     selectedTitle.value = title;
+    factoryid.value = buttonTitlesMapping[title];
     loadFactoryInfo(selectedTitle.value,true);
   }
 };
@@ -264,14 +265,12 @@ function loadFactoryInfo(title,isLoadQI){
        brandname.value = res.data[0].brandname;
        starttime.value = res.data[0].starttime;
        batchStr.value = res.data[0].batch;
-       factoryid.value = res.data[0].factoryid;
      }
      else{
        companyname.value = "";
        brandname.value = "";
        starttime.value = "";
        batchStr.value = "";
-       factoryid.value = 0;
      }
      if(isLoadQI){
        if(res.data.length>0){
