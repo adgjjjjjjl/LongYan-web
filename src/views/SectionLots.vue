@@ -461,7 +461,7 @@ function loadFactoryProductionData(){
     else{
       if(topTitlesMapping[selectedTitle.value] == 10){
          TransOption.yAxis.min = 6000;
-         TransOption.yAxis.max = 10000;
+         TransOption.yAxis.max = 11000;
       }
       //二润工段的是，配方量超出±500会变红
       if(topTitlesMapping[selectedTitle.value] == 7){
