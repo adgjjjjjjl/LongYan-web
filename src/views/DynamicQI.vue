@@ -80,7 +80,7 @@
 <script setup>
 import * as echarts from "echarts";
 import { ref, onMounted, reactive,nextTick } from "vue";
-import {getDyAndDbFactoryQI, getFactoryInfo,getFactoryQI,getParamQI,getParamsInfo} from '../api/request';
+import {getDyAndDbFactoryQI, getFactoryInfo,getFactoryQI,getParamQI,getParamsInfo,getPackingDensity} from '../api/request';
 
 let url = ref("");
 const visible = ref(false);
@@ -143,24 +143,35 @@ const onChangeTab = (tab) => {
 
 function loadParamsInfo(){
   if(paramsInfo.value.length == 0){
-    getParamsInfo(batch.value,buttonTitlesMapping[selectedTitle.value]).then(res=>{
-      if(res.data.length>0){
-        for(let i=0;i<res.data.length;i++){
-          paramsInfo.value.push(res.data[i]);
-          option2Mapping[res.data[i].id] = JSON.parse(JSON.stringify(option2));
+    if(factoryid.value == 11){
+      paramsInfo.value.push({"id":"zxmd"});
+      option2Mapping["zxmd"] = JSON.parse(JSON.stringify(option2));
+      option2Mapping["zxmd"]["yAxis"].min = 0;
+      option2Mapping["zxmd"]["yAxis"].max = 20;
+      nextTick(()=>{
+            loadParamQI();
+      })
+    }
+    else{
+      getParamsInfo(batch.value,buttonTitlesMapping[selectedTitle.value]).then(res=>{
+        if(res.data.length>0){
+          for(let i=0;i<res.data.length;i++){
+            paramsInfo.value.push(res.data[i]);
+            option2Mapping[res.data[i].id] = JSON.parse(JSON.stringify(option2));
+          }
+          nextTick(()=>{
+            loadParamQI();
+          })
         }
-        nextTick(()=>{
-          loadParamQI();
-        })
-      }
-    });
+      });
+    }
   }
 }
 
 function loadParamQI(){
-  for(let i= 0;i<paramsInfo.value.length;i++){
-    initCharts(paramsInfo.value[i].id);
-    getParamQI(batch.value,paramsInfo.value[i].id).then(res=>{
+  if(factoryid.value == 11){
+    initCharts("zxmd");
+    getPackingDensity(batch.value).then(res=>{
       let data1 = [];
       if(typeof res.data == "string"){
         data1 = eval("("+res.data+")");
@@ -168,24 +179,45 @@ function loadParamQI(){
       else{
         data1 = res.data;
       }
-      //console.log(data);
-      option2Mapping[paramsInfo.value[i].id]["series"][0]["name"] = paramsInfo.value[i].name;
+      option2Mapping["zxmd"]["series"][0]["name"] = "装箱密度";
       for(let j=0;j<data1.length;j++){
-        if(data1.length > maxPointCount){
-          if(j%Math.ceil(data1.length/maxPointCount) == 0){
+        option2Mapping["zxmd"]["xAxis"]["data"].push(data1[j]["f_case_no"]);
+        option2Mapping["zxmd"]["series"][0]["data"].push(parseFloat(data1[j]["f_density"]).toFixed(2));
+      }
+      paramsInfoChart["zxmd"].hideLoading();
+      refreshCharts();
+    })
+  }
+  else{
+    for(let i= 0;i<paramsInfo.value.length;i++){
+      initCharts(paramsInfo.value[i].id);
+      getParamQI(batch.value,paramsInfo.value[i].id).then(res=>{
+        let data1 = [];
+        if(typeof res.data == "string"){
+          data1 = eval("("+res.data+")");
+        }
+        else{
+          data1 = res.data;
+        }
+        //console.log(data);
+        option2Mapping[paramsInfo.value[i].id]["series"][0]["name"] = paramsInfo.value[i].name;
+        for(let j=0;j<data1.length;j++){
+          if(data1.length > maxPointCount){
+            if(j%Math.ceil(data1.length/maxPointCount) == 0){
+              option2Mapping[paramsInfo.value[i].id]["xAxis"]["data"].push(data1[j].x);
+              option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(2));
+            }
+          }
+          else{
             option2Mapping[paramsInfo.value[i].id]["xAxis"]["data"].push(data1[j].x);
             option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(2));
           }
         }
-        else{
-          option2Mapping[paramsInfo.value[i].id]["xAxis"]["data"].push(data1[j].x);
-          option2Mapping[paramsInfo.value[i].id]["series"][0]["data"].push(parseFloat(data1[j].y).toFixed(2));
-        }
-      }
-      paramsInfoChart[paramsInfo.value[i].id].hideLoading();
-      refreshCharts();
-      connectWebSocketByTaskId(paramsInfo.value[i].id);
-    })
+        paramsInfoChart[paramsInfo.value[i].id].hideLoading();
+        refreshCharts();
+        connectWebSocketByTaskId(paramsInfo.value[i].id);
+      })
+    }
   }
 }
 
