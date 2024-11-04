@@ -80,7 +80,7 @@
 <script setup>
 import * as echarts from "echarts";
 import { ref, onMounted, reactive,nextTick } from "vue";
-import {getDyAndDbFactoryQI, getFactoryInfo,getFactoryQI,getParamQI,getParamsInfo,getPackingDensity} from '../api/request';
+import {getDyFactoryQI, getFactoryInfo,getFactoryQI,getParamQI,getParamsInfo,getPackingDensity} from '../api/request';
 
 let url = ref("");
 const visible = ref(false);
@@ -89,7 +89,7 @@ const maxPointCount = 30;
 let echart = echarts;
 const buttonTitles = ["一润", "二润", "打叶", "叶加酶", "叶复烤", "叶打包"];
 const buttonTitlesMapping = {"一润":6, "二润":7, "打叶":8, "叶加酶":9, "叶复烤":10, "叶打包":11};
-const taskIdMapping = {"一润":"yr", "二润":"er", "打叶":"dy", "叶加酶":"yjm", "叶复烤":"yfk", "叶打包":"ydb"};
+const taskIdMapping = {"一润":"yr", "二润":"er", "打叶":"dy", "叶加酶":"yjm", "叶复烤":"yfk", "叶打包":"jy_zxmd"};
 let selectedTitle = ref("一润");
 let currentTab = ref(1);
 let companyname = ref("");
@@ -147,7 +147,7 @@ function loadParamsInfo(){
       paramsInfo.value.push({"id":"zxmd"});
       option2Mapping["zxmd"] = JSON.parse(JSON.stringify(option2));
       option2Mapping["zxmd"]["yAxis"].min = 0;
-      option2Mapping["zxmd"]["yAxis"].max = 20;
+      option2Mapping["zxmd"]["yAxis"].max = 35;
       nextTick(()=>{
             loadParamQI();
       })
@@ -239,8 +239,8 @@ function loadFactoryQI(){
     option["xAxis"]["data"].length = 0;
     option["series"][0]["data"].length = 0;
     initCharts();
-    if(factoryid.value == 8 || factoryid.value == 11){
-      getDyAndDbFactoryQI(batch.value,factoryid.value).then(res=>{
+    if(factoryid.value == 8){
+      getDyFactoryQI(batch.value,factoryid.value).then(res=>{
         if(typeof res.data == "string"){
           data = eval("("+res.data+")");
         }
@@ -471,7 +471,7 @@ const initCharts = (id) => {
 const toNextPage = (batch,datatime) => {
   let rid = 257;
   let formid = 276;
-  if(factoryid.value == 8 || factoryid.value == 11){
+  if(factoryid.value == 8){
     rid = 340;
     formid = 357;
   }
@@ -558,7 +558,7 @@ const connectWebSocketByTaskId = (taskid) => {
 
       //接收到消息的回调方法
       websocket[taskid].onmessage = function(event) {
-          if(factoryid.value == 8 || factoryid.value == 11){
+          if(factoryid.value == 8){
             return;
           }
           var dataobjarray = eval("(" + event.data + ")");

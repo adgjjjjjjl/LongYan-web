@@ -160,6 +160,6 @@ export const getBatchByBoxno = (brandid,boxno,startdate,enddate) =>{
   return http.get("/report/json?jid=393&brandid="+brandid+"&boxno="+boxno+"&startdate="+startdate+"&enddate="+enddate);
 }
 
-export const getDyAndDbFactoryQI = (batch,factoryid) =>{
+export const getDyFactoryQI = (batch,factoryid) =>{
   return http.get("/report/json?jid=443&batch="+batch+"&factoryid="+factoryid);
 }
