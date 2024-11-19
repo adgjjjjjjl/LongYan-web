@@ -161,6 +161,18 @@ export const columns = [
     align: "center",
   },
   {
+    title: "短梗箱号",
+    dataIndex: "caseno_dg",
+    width: 100,
+    align: "center",
+  },
+  {
+    title: "短梗箱数",
+    dataIndex: "casenonum_dg",
+    width: 100,
+    align: "center",
+  },
+  {
     title: "模式",
     dataIndex: "f_mode",
     width: 100,
@@ -196,16 +208,16 @@ export const columns = [
 // }
 
 export const columnsMapping = {
-  "高架库出库":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","caseno","casenonum1","f_formula2","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
-  "翻箱喂料":["outno","f_out_no_cyg","f_out_no","f_mode","f_cntr_no_cyg","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
-  "一润":["cntrno","f_out_no_cyg","f_cntr_no_cyg","caseno","f_mode","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
-  "二润":["outno","cntrno","f_out_no_cyg","f_out_no","f_mode","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","yujishichang","yujitime"],
-  "打叶":["cntrno","outno","f_out_no_cyg","f_out_no","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
-  "叶加酶":["cntrno","outno","f_out_no_cyg","f_out_no","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","f_cntr_no_cyg","f_mode","yujishichang","yujitime","newyisumvalue","sumvalue"],
-  "叶复烤":["cntrno","outno","f_cntr_no_cyg","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_mode","yujishichang","yujitime","newyisumvalue","sumvalue"],
-  "叶打包":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_formula2","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
-  "碎片复烤":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
-  "碎片打包":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","f_formula2","caseno","casenonum1","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
-  "烟梗复烤":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
+  "高架库出库":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","caseno","casenonum1","f_formula2","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","caseno_dg","casenonum_dg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
+  "翻箱喂料":["outno","f_out_no_cyg","f_out_no","f_mode","f_cntr_no_cyg","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","caseno_dg","casenonum_dg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
+  "一润":["cntrno","f_out_no_cyg","f_cntr_no_cyg","caseno","f_mode","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","caseno_dg","casenonum_dg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
+  "二润":["outno","cntrno","f_out_no_cyg","f_out_no","f_mode","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","caseno_dg","casenonum_dg","yujishichang","yujitime"],
+  "打叶":["cntrno","outno","f_out_no_cyg","f_out_no","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","caseno_dg","casenonum_dg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
+  "叶加酶":["cntrno","outno","f_out_no_cyg","f_out_no","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","caseno_dg","casenonum_dg","f_weight","f_cntr_no_cyg","f_mode","yujishichang","yujitime","newyisumvalue","sumvalue"],
+  "叶复烤":["cntrno","outno","f_cntr_no_cyg","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","caseno_dg","casenonum_dg","f_mode","yujishichang","yujitime","newyisumvalue","sumvalue"],
+  "叶打包":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","caseno_dg","casenonum_dg","f_formula2","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
+  "碎片复烤":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","caseno_dg","casenonum_dg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
+  "碎片打包":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","f_formula2","caseno","casenonum1","caseno_cg","casenonum_cg","caseno_dg","casenonum_dg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
+  "烟梗复烤":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","caseno_cg","casenonum_cg","caseno_dg","casenonum_dg","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
   "烟梗打包":["cntrno","outno","f_cntr_no_cyg","f_out_no_cyg","f_out_no","f_mode","f_formula2","caseno","casenonum1","caseno_sp1","casenonum_sp1","caseno_sp2","casenonum_sp2","f_weight","yujishichang","yujitime","newyisumvalue","sumvalue"],
 }
