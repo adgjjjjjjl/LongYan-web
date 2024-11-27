@@ -20,8 +20,8 @@ export const getParamQI = (batch,pointtag) => {
   return http.get("/report/json?jid=281&batch="+batch+"&pointtag="+pointtag);
 };
 
-export const getAnalyzeRendering = (brandid,teamid) => {
-  return http.get("/report/json?jid=282&brandid="+brandid+"&teamid="+teamid);
+export const getAnalyzeRendering = (brandid,teamid,dateStartStr,dateEndStr) => {
+  return http.get("/report/json?jid=282&brandid="+brandid+"&teamid="+teamid+"&startdate="+dateStartStr+"&enddate="+dateEndStr);
 }
 
 export const getDelegate = (datestart,dateend) => {
@@ -34,6 +34,10 @@ export const getBatchDelegate = (datestart,dateend) => {
 
 export const getBrandByDelegate = (datestart,dateend,companyid) => {
   return http.get("/report/json?jid=284&startdate="+datestart+"&enddate="+dateend+"&companyid="+companyid);
+}
+
+export const getAnalyzeRenderingBrandByDelegate = (datestart,dateend,companyid) => {
+  return http.get("/report/json?jid=477&startdate="+datestart+"&enddate="+dateend+"&companyid="+companyid);
 }
 
 export const getBrandTeam = (datestart,dateend,delegateid,brandid) => {

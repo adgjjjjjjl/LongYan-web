@@ -104,7 +104,7 @@
 import * as echarts from "echarts";
 import dayjs from "dayjs";
 import { ref, onMounted, reactive,defineComponent } from "vue";
-import {getAnalyzeRendering,getDelegate,getBrandByDelegate,getBrandTeam} from '../api/request';
+import {getAnalyzeRendering,getDelegate,getAnalyzeRenderingBrandByDelegate,getBrandTeam} from '../api/request';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
 
 let url = ref("");
@@ -175,13 +175,18 @@ const loadDelegate = (dateStartStr,dateEndStr) => {
 
 const loadBrandDelegate = (dateStartStr,dateEndStr,delegateid) => {
   optionsProd.value.length = 0;
-  getBrandByDelegate(dateStartStr,dateEndStr,delegateid).then(res=>{
+  getAnalyzeRenderingBrandByDelegate(dateStartStr,dateEndStr,delegateid).then(res=>{
       if(res.data.length>0){
         for(let i=0;i<res.data.length;i++){
           optionsProd.value.push({value:res.data[i].id,label:res.data[i].name});
         }
         productNumber.value = optionsProd.value[0].value;
         loadBrandTeam(dateStartStr,dateEndStr,delegateid,productNumber.value);
+      }
+      else{
+        productNumber.value="";
+        optionsGroup.value.length = 0;
+        group.value = "";
       }
   });
 }
@@ -247,7 +252,9 @@ const search = () => {
 const onSearch = (e) => {
   option["xAxis"]["data"].length = 0;
   option["series"][0]["data"].length =0;
-  getAnalyzeRendering(productNumber.value,group.value).then(res=>{
+  let dateStartStr = dateStart.value.format(dateFormat);
+  let dateEndStr = dateEnd.value.format(dateFormat);
+  getAnalyzeRendering(productNumber.value,group.value,dateStartStr,dateEndStr).then(res=>{
     if(typeof res.data == "string"){
       data = eval("("+res.data+")");
     }

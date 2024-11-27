@@ -288,7 +288,7 @@ export const outStockColumns = [
     width: 100,
   },
   {
-    title: "烟碱均值",
+    title: "烟碱均值明细",
     dataIndex: "detailnicotineavg",
     align: "center",
     width: 100,
