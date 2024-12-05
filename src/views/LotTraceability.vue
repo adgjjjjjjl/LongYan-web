@@ -695,7 +695,7 @@ const onRefresh = (e) => {
 };
 
 const showParams = (e) => {
-  showModal("../ssystems/formconfig/listeditor.jsp?rid=387&xformIdx=402&showTitle=false&dialog=true&task="+task.value);
+  showModal("../systems/formconfig/listeditor.jsp?rid=387&xformIdx=402&showTitle=false&dialog=true&task="+task.value);
 };
 
 const filterOption = (input, option) => {
