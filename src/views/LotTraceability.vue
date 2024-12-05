@@ -99,6 +99,7 @@
       <!--<button class="search" @click="searchBatch">查批次号</button>-->
       <button class="search" @click="onSearch" style="width:100px">查询</button>
       <button class="search" @click="onRefresh" style="width:100px">刷新</button>
+      <button class="search" @click="showParams" style="width:100px">查看参数情况</button>
     </div>
     <div class="part-block">
       <div class="table-contain2">
@@ -366,9 +367,10 @@ let productdate = ref("");
 let team = ref("");
 let starttime = ref("");
 let endtime = ref("");
+let task = ref("");
 let paramsInfo = ref([]);
-let batchDataSource = ref([])
-let boxnoDataSource = ref([])
+let batchDataSource = ref([]);
+let boxnoDataSource = ref([]);
 const examples = [
   { color: "rgb(145, 9, 21)", text: "停机" },
   { color: "rgb(50, 86, 77)", text: "未生产" },
@@ -559,7 +561,7 @@ function loadBatchInfoData(){
             starttime.value = data[i].starttime;
             endtime.value = data[i].endtime;
             working.value = data[i].f_factory_id.toString();
-
+            task.value = data[i].f_task;
             batchData.value.push(data[i]);
           }
       }
@@ -690,6 +692,10 @@ const  onSearch = (e) => {
 const onRefresh = (e) => {
   console.log(e);
   window.location.reload();
+};
+
+const showParams = (e) => {
+  showModal("../systems/formconfig/listeditor.jsp?rid=63&xformIdx=104&showTitle=false&xmenuidx=172&batch="+task.value);
 };
 
 const filterOption = (input, option) => {
