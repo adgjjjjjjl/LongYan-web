@@ -695,6 +695,8 @@ const onRefresh = (e) => {
 };
 
 const showParams = (e) => {
+  modalWidth.value = "1280px";
+  modalHeight.value = "600px";
   showModal("../systems/formconfig/listeditor.jsp?rid=387&xformIdx=402&showTitle=false&dialog=true&task="+task.value);
 };
 
