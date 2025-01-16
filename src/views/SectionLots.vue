@@ -535,7 +535,22 @@ function loadFactoryProductionData(){
       };
     }
     else{
-      TransOption.series[0].itemStyle.color="#04112C";
+       //二润工段的是，非人工断柜且配方量超出±500会变红
+       if(topTitlesMapping[selectedTitle.value] == 7){
+           TransOption.series[0].itemStyle.color=(params)=>{
+                 const { dataIndex, data } = params;
+                 var span = productionData[dataIndex].formula - data;
+                 if(Math.abs(span) <= 500 || productionData[dataIndex].f_manmade_sumvalue != ""){
+                   return "#04112C";
+                 }
+                 else{
+                   return "#FF0000";
+                 }
+               };
+        }
+        else{
+            TransOption.series[0].itemStyle.color="#04112C";
+        }
     }
     chartTrans.setOption(TransOption, true);
   }).catch(err => {
