@@ -195,6 +195,7 @@ import { ref, onMounted, reactive, computed, nextTick } from "vue";
 import zhCN from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import { columns,columnsMapping } from "@/utils/pageConfig.js";
 import { getBatchInfoList,getFactoryTimeSpan,getFactoryProduction,delBatchByRowids,updateBatchOrder,calcUnsteadyState,delQaTask,getBatchStatus,getBatchByBrandAndFactory,getBatchDelegate,getBrandByDelegate,getBoxnoDataSource } from '../api/request';
+import axios from 'axios';
 
 let url = ref("");
 const visible = ref(false);
@@ -350,6 +351,12 @@ const locale = {
   page: "页",
 };
 
+// 添加加载状态变量
+let timeSpanLoading = ref(false);
+let productionLoading = ref(false);
+let timeSpanController = null;  // 添加回来
+let productionController = null;  // 添加回来
+
 onMounted(() => {
 
   loadColumns();
@@ -405,84 +412,142 @@ const loadChartData = () => {
 }
 
 function loadFactoryTimeSpanData() {
+  // 显示加载状态
+  timeSpanLoading.value = true;
+  chartTimer.showLoading({
+    text: '加载中...',
+    textColor: '#93DCFE',
+    maskColor: 'rgba(7, 37, 84, 0.8)',
+    fontSize: 14,
+    showSpinner: true,
+    spinnerRadius: 6,
+    lineWidth: 3,
+    color: '#4471A4'
+  });
+
+  // 如果存在之前的请求，取消它
+  if (timeSpanController) {
+    timeSpanController.abort();
+  }
+  timeSpanController = new AbortController();
+  
   Timerption["xAxis"]["data"].length = 0;
-  Timerption["series"][0]["data"].length =0;
+  Timerption["series"][0]["data"].length = 0;
+  timeSpanData = [];
+  
   let dateStartStr = dateStart.value.format(dateFormat);
   let dateEndStr = dateEnd.value.format(dateFormat);
-  getFactoryTimeSpan(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr).then(res=>{
-    //console.log(res.data);
+  
+  getFactoryTimeSpan(
+    topTitlesMapping[selectedTitle.value],
+    dateStartStr,
+    dateEndStr,
+    timeSpanController.signal
+  ).then(res => {
     if(typeof res.data == "string"){
       timeSpanData = eval("("+res.data+")");
     }
     else{
       timeSpanData = res.data;
     }
-    //console.log(data);
+    
+    if (!Array.isArray(timeSpanData)) {
+      timeSpanData = [];
+    }
+    
     for(var i=0;i<timeSpanData.length;i++){
       Timerption["xAxis"]["data"].push(timeSpanData[i].x);
       Timerption["series"][0]["data"].push(timeSpanData[i].y);
     }
-    chartTimer.setOption(Timerption);
+    
+    chartTimer.setOption(Timerption, true);
+  }).catch(err => {
+    if (axios.isCancel(err)) {
+      console.log('Time span request canceled');
+    } else {
+      console.error(err);
+    }
+  }).finally(() => {
+    // 隐藏加载状态
+    timeSpanLoading.value = false;
+    chartTimer.hideLoading();
   });
 }
 
 function loadFactoryProductionData(){
+  // 显示加载状态
+  productionLoading.value = true;
+  chartTrans.showLoading({
+    text: '加载中...',
+    textColor: '#93DCFE',
+    maskColor: 'rgba(7, 37, 84, 0.8)',
+    fontSize: 14,
+    showSpinner: true,
+    spinnerRadius: 6,
+    lineWidth: 3,
+    color: '#4471A4'
+  });
+
+  // 如果存在之前的请求，取消它
+  if (productionController) {
+    productionController.abort();
+  }
+  productionController = new AbortController();
+  
   TransOption["xAxis"]["data"].length = 0;
-  TransOption["series"][0]["data"].length =0;
-  TransOption.yAxis.min = 8000;
-  TransOption.yAxis.max = 15000;
+  TransOption["series"][0]["data"].length = 0;
+  productionData = [];
+  
   let dateStartStr = dateStart.value.format(dateFormat);
   let dateEndStr = dateEnd.value.format(dateFormat);
-  getFactoryProduction(topTitlesMapping[selectedTitle.value],dateStartStr,dateEndStr).then(res=>{
-    //console.log(res.data);
+  
+  getFactoryProduction(
+    topTitlesMapping[selectedTitle.value],
+    dateStartStr,
+    dateEndStr,
+    productionController.signal
+  ).then(res => {
     if(typeof res.data == "string"){
       productionData = eval("("+res.data+")");
     }
     else{
       productionData = res.data;
     }
-    //console.log(data);
+    
+    if (!Array.isArray(productionData)) {
+      productionData = [];
+    }
+    
     for(var i=0;i<productionData.length;i++){
       TransOption["xAxis"]["data"].push(productionData[i].x);
       TransOption["series"][0]["data"].push(productionData[i].y);
     }
+    
     if(topTitlesMapping[selectedTitle.value] == 11){
-      TransOption.yAxis.min = 20;
-      TransOption.yAxis.max = 60;
-      //箱数正常是30--50之间，超过变红
       TransOption.series[0].itemStyle.color=(params)=>{
-          const { dataIndex, data } = params;
-          if(data >=30 && data <=50){
-            return "#04112C";
-          }
-          else{
-            return "#FF0000";
-          }
-        };
+        const { dataIndex, data } = params;
+        if(data >=30 && data <=50){
+          return "#04112C";
+        }
+        else{
+          return "#FF0000";
+        }
+      };
     }
     else{
-      if(topTitlesMapping[selectedTitle.value] == 10){
-         TransOption.yAxis.min = 6000;
-         TransOption.yAxis.max = 11000;
-      }
-      //二润工段的是，配方量超出±500会变红
-      // if(topTitlesMapping[selectedTitle.value] == 7){
-      //     TransOption.series[0].itemStyle.color=(params)=>{
-      //           const { dataIndex, data } = params;
-      //           var span = productionData[dataIndex].formula - data;
-      //           if(Math.abs(span) <= 500){
-      //             return "#04112C";
-      //           }
-      //           else{
-      //             return "#FF0000";
-      //           }
-      //         };
-      //   }
-      //   else{
-          TransOption.series[0].itemStyle.color="#04112C";
-        // }
+      TransOption.series[0].itemStyle.color="#04112C";
     }
-    chartTrans.setOption(TransOption);
+    chartTrans.setOption(TransOption, true);
+  }).catch(err => {
+    if (axios.isCancel(err)) {
+      console.log('Production request canceled');
+    } else {
+      console.error(err);
+    }
+  }).finally(() => {
+    // 隐藏加载状态
+    productionLoading.value = false;
+    chartTrans.hideLoading();
   });
 }
 
@@ -520,7 +585,22 @@ const reloadCharts = () => {
 
 const onClickTitle = (title) => {
   selectedTitle.value = title;
-  console.log(selectedTitle.value);
+  
+  // 取消之前的请求
+  if (timeSpanController) {
+    timeSpanController.abort();
+  }
+  if (productionController) {
+    productionController.abort();
+  }
+  
+  timeSpanData = [];
+  productionData = [];
+  TransOption["xAxis"]["data"] = [];
+  TransOption["series"][0]["data"] = [];
+  Timerption["xAxis"]["data"] = [];
+  Timerption["series"][0]["data"] = [];
+  
   loadColumns();
   loadChartData();
   batchInfoData = undefined;
@@ -658,14 +738,40 @@ const loadBoxnoDataSource = () =>{
 }
 
 const TransOption = {
-    // dataZoom: [
-    //   {
-    //     type: "inside", // 类型为滑动条
-    //     xAxisIndex: 0, // 表示这个 dataZoom 组件控制 x 轴
-    //     start: 0, // 起始位置为0（最左侧）
-    //     end: 160, // 结束位置为60（最右侧）
-    //   },
-    // ],
+    // 添加缩放组件配置
+    dataZoom: [
+      {
+        type: "inside", // 内置型数据区域缩放组件
+        xAxisIndex: 0,
+        filterMode: 'none'
+      },
+      {
+        type: "slider", // 滑动条型数据区域缩放组件
+        xAxisIndex: 0,
+        height: 20,
+        bottom: 0,
+        borderColor: "#4471A4",
+        backgroundColor: "#072554",
+        fillerColor: "#4471A480",
+        handleStyle: {
+          color: "#4471A4"
+        },
+        textStyle: {
+          color: "#93DCFE"
+        },
+        moveHandleStyle: {
+          color: "#4471A4"
+        },
+        selectedDataBackground: {
+          lineStyle: {
+            color: "#93DCFE"
+          },
+          areaStyle: {
+            color: "#4471A4"
+          }
+        }
+      }
+    ],
     xAxis: {
       // boundaryGap: false,
       boundaryGap: ["5%", "5%"],
@@ -679,7 +785,6 @@ const TransOption = {
       },
       axisLabel: {
         formatter: function (value) {
-          // 在需要换行的地方添加\n
           return value.split("*").join("\n");
         },
         fontSize: 9,
@@ -688,17 +793,14 @@ const TransOption = {
     },
     yAxis: {
       type: "value",
-      min: 8000,
-      max: 15000,
       splitNumber: 10,
       axisLabel: {
         formatter: "{value}",
         color: "#93DCFE",
         fontSize: 11,
       },
-      // 刻度设置
       axisTick: {
-        show: false, // 是否显示刻度
+        show: false,
         alignWithLabel: true,
       },
       axisLine: {
@@ -710,11 +812,11 @@ const TransOption = {
       splitLine: { lineStyle: { color: "#8EEEFF10" } },
     },
     grid: {
-      // 整体表格布局
       left: 10,
       top: 80,
       right: 20,
-      bottom: 20,
+      // 增加底部边距，为缩放组件留出空间
+      bottom: 40,
       containLabel: true,
     },
     title: {
@@ -768,23 +870,22 @@ const TransOption = {
     ],
   };
 
+// Timerption 继承 TransOption 的配置
 const Timerption = JSON.parse(JSON.stringify(TransOption));
 Timerption.title.text = "单位（分钟）";
-Timerption.yAxis.min = 30;
-Timerption.yAxis.max = 150;
 Timerption.series[0].label.formatter = function(value,index){
   return minutesToTimeString(parseInt(value.data));
 };
 Timerption.series[0].itemStyle.color=(params)=>{
-            const { color, data } = params;
-            //时长小于40分钟，大于70分钟，要变红，
-            if(data >=40 && data <=70){
-              return "#04112C";
-            }
-            else{
-              return "#FF0000";
-            }
-          };
+  const { color, data } = params;
+  //时长小于40分钟，大于70分钟，要变红，
+  if(data >=40 && data <=70){
+    return "#04112C";
+  }
+  else{
+    return "#FF0000";
+  }
+};
 
 var chartTimer = null;
 var chartTrans = null;
@@ -793,13 +894,35 @@ const initCharts = () => {
   // 基于准备好的dom，初始化echarts实例
   chartTimer = echart.init(document.getElementById("chartTimer"));
   chartTrans = echart.init(document.getElementById("chartTrans"));
+  
+  // 设置默认加载动画样式
+  const loadingOption = {
+    text: '加载中...',
+    textColor: '#93DCFE',
+    maskColor: 'rgba(7, 37, 84, 0.8)',
+    fontSize: 14,
+    showSpinner: true,
+    spinnerRadius: 6,
+    lineWidth: 3,
+    color: '#4471A4'
+  };
+  
   chartTimer.setOption(Timerption);
   chartTrans.setOption(TransOption);
+  
+  // 如果初始化时就需要显示加载状态
+  if(timeSpanLoading.value) {
+    chartTimer.showLoading(loadingOption);
+  }
+  if(productionLoading.value) {
+    chartTrans.showLoading(loadingOption);
+  }
+  
   chartTimer.on("click",function(param){
-      toNextPage2(timeSpanData[param.dataIndex].f_batch,1);
+    toNextPage2(timeSpanData[param.dataIndex].f_batch,1);
   });
   chartTrans.on("click",function(param){
-      toNextPage2(productionData[param.dataIndex].f_batch,2);
+    toNextPage2(productionData[param.dataIndex].f_batch,2);
   });
 };
 

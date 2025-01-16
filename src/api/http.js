@@ -28,7 +28,11 @@ http.interceptors.response.use(
     return response;
   },
   (err) => {
-    // console.log(err);
+    // 如果是取消请求，直接返回 rejected promise
+    if (axios.isCancel(err)) {
+      return Promise.reject(err);
+    }
+
     if (err && err.response) {
       switch (err.response.status) {
         case 400:
@@ -50,7 +54,9 @@ http.interceptors.response.use(
     } else {
       err.message = "连接到服务器失败";
     }
+    
+    // 只有非取消的错误才显示错误消息
     message.error(err.message);
-    return err;
+    return Promise.reject(err);
   }
 );
