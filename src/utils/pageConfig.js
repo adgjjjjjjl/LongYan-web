@@ -127,25 +127,25 @@ export const columns = [
   {
     title: "碎片(1-2.36mm)箱号",
     dataIndex: "caseno_sp1",
-    width: 140,
+    width: 160,
     align: "center",
   },
   {
-    title: "碎片(1-2.36m)箱数",
+    title: "碎片(1-2.36mm)箱数",
     dataIndex: "casenonum_sp1",
-    width: 140,
+    width: 160,
     align: "center",
   },
   {
     title: "碎片(2.36-6.35mm)箱号",
     dataIndex: "caseno_sp2",
-    width: 140,
+    width: 180,
     align: "center",
   },
   {
     title: "碎片(2.36-6.35mm)箱数",
     dataIndex: "casenonum_sp2",
-    width: 140,
+    width: 180,
     align: "center",
   },
   {
